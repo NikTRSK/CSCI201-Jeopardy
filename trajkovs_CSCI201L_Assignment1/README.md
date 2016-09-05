@@ -9,3 +9,4 @@
 * There is a default name for every team in case the name is left empty.
 * Ignores grammar so the answer needs to be posed as a question regardless of proper grammar.
 * During Final Jeopardy you can't bet 0.
+* Methods that are not used within the main method assume proper usage and use within the methods called in main, so they don't throw exceptions for missuse.
