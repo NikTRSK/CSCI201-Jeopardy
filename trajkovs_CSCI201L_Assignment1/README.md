@@ -2,7 +2,8 @@
 
 #### NOTES (specifics):
 * Expects a file passed in as a command line parameter.
-* If there is a duplica question in the same category the parser throws an error.
+* If there is a duplicate question in the same category the parser throws an error.
+* Multiline check: Only checks for 2 line questions during parsing.
 * I left the whitespace arbitrary so "What is Los Angeles" is the same as "What    is     Los    Angeles" (multiple spaces between words)
 * Assumes no duplicate team names.
 * There is a default name for every team in case the name is left empty.
