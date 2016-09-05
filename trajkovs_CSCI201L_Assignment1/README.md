@@ -3,7 +3,7 @@
 #### NOTES (specifics):
 * Expects a file passed in as a command line parameter.
 * If there is a duplica question in the same category the parser throws an error.
-* I left the whitespace arbitrary so "What is Los Angeles" is the same as "What    is     Los    Angeles"
+* I left the whitespace arbitrary so "What is Los Angeles" is the same as "What    is     Los    Angeles" (multiple spaces between words)
 * Assumes no duplicate team names.
 * There is a default name for every team in case the name is left empty.
 * Ignores grammar so the answer needs to be posed as a question regardless of proper grammar.
