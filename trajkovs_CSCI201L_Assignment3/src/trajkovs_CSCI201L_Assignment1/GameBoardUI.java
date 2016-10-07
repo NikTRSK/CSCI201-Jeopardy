@@ -59,7 +59,7 @@ public class GameBoardUI extends JFrame {
 	static private JPanel mainPanel;
 	JMenuBar menuBar;
 	JMenu menu;
-	JMenuItem restartGame, chooseNewGameFile, exitGame;
+	JMenuItem restartGame, chooseNewGameFile, logoutGame, exitGame;
 	JLabel titleLbl;
 	JLabel progressTitle;
 	JTextArea teamPrompt;
@@ -107,6 +107,13 @@ public class GameBoardUI extends JFrame {
 		
 		chooseNewGameFile = new JMenuItem("Choose New Game File");
 		menu.add(chooseNewGameFile);
+		
+		logoutGame = new JMenuItem("Logout");
+		menu.add(logoutGame);
+		logoutGame.addActionListener((ActionEvent event) -> {
+      Jeopardy.loginScreen.setVisible(false);
+			Jeopardy.fileChooser.setVisible(true);
+		});
 
 		exitGame= new JMenuItem("Exit Game");
 		exitGame.addActionListener((ActionEvent event) -> {

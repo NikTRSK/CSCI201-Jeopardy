@@ -4,8 +4,10 @@ import java.util.ArrayList;
 //import Question
 
 public class Jeopardy {
+	protected static userDB Users = new userDB();
 	protected static GameBoardUI GameBoard;
 	protected static FileChooser fileChooser = new FileChooser(); 
+	protected static LoginScreenUI loginScreen = new LoginScreenUI();
 	
 	// Adds the categories to the Categories variable
 	protected static void setCategories(String [] cat) {
@@ -52,6 +54,7 @@ public class Jeopardy {
 	}
 	
 	public static void main(String [] args) {
-		fileChooser.setVisible(true);
+		loginScreen.setVisible(true);
+//		fileChooser.setVisible(true);
 	}
 }

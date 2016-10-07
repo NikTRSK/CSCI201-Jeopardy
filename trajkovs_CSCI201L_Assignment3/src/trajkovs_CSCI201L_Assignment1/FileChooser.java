@@ -49,7 +49,7 @@ public class FileChooser extends JFrame {
 	private JLabel welcomeLbl, promptLbl, fileChooserLbl, fileNameLbl, teamPromptLbl;
 	private JLabel [] teamLbls = new JLabel[4];
 	private JTextField [] teamTxtBoxes = new JTextField[4];
-	private JButton chooseFileBtn, startBtn, clearBtn, exitBtn;
+	private JButton chooseFileBtn, startBtn, clearBtn, logoutBtn, exitBtn;
 	private JSlider teamSelectSlider;
 	private JFileChooser chooseFile;
 	static protected JCheckBox quickPlay;
@@ -136,22 +136,25 @@ public class FileChooser extends JFrame {
 		/////////////////////
 		startBtn = new JButton("Start Jeopardy");
 		Helpers.styleComponentFlat(startBtn, Color.WHITE, Color.DARK_GRAY, Color.DARK_GRAY, 22, true);
-		startBtn.setPreferredSize(new Dimension(200, 35));
+		startBtn.setPreferredSize(new Dimension(180, 45));
 		startBtn.setEnabled(false);
 		
 		clearBtn = new JButton("Clear Choices");
 		Helpers.styleComponentFlat(clearBtn, Color.WHITE, Color.DARK_GRAY, Color.DARK_GRAY, 22, true);
-		clearBtn.setPreferredSize(new Dimension(200, 35));
+		clearBtn.setPreferredSize(new Dimension(180, 45));
+		
+		logoutBtn = new JButton("Logout");
+		Helpers.styleComponentFlat(logoutBtn, Color.WHITE, Color.DARK_GRAY, Color.DARK_GRAY, 22, true);
+		logoutBtn.setPreferredSize(new Dimension(180, 45));
 		
 		exitBtn = new JButton("Exit");
 		Helpers.styleComponentFlat(exitBtn, Color.WHITE, Color.DARK_GRAY, Color.DARK_GRAY, 22, true);
-		exitBtn.setPreferredSize(new Dimension(200, 35));		
+		exitBtn.setPreferredSize(new Dimension(180, 45));		
 	}
 	
 	private void createGUI() {
 		setSize(800, 825);
 		setLocation(100, 100);
-		setVisible(true);
 		
 		// Create Grid Bag Constraints
 		GridBagConstraints gbc = new GridBagConstraints();
@@ -248,6 +251,7 @@ public class FileChooser extends JFrame {
 		navigationPanel.setBorder(navCompound);
 		navigationPanel.add(startBtn);
 		navigationPanel.add(clearBtn);
+		navigationPanel.add(logoutBtn);
 		navigationPanel.add(exitBtn);
 		add(navigationPanel, BorderLayout.SOUTH);
 	}
@@ -343,6 +347,11 @@ public class FileChooser extends JFrame {
 				teamTxtBoxes[team].setText("");
 			teamSelectSlider.setValue(1);
 			
+		});
+		
+		logoutBtn.addActionListener((ActionEvent event) -> {
+      Jeopardy.loginScreen.setVisible(false);
+			Jeopardy.fileChooser.setVisible(true);
 		});
 		
 		exitBtn.addActionListener((ActionEvent event) -> {
