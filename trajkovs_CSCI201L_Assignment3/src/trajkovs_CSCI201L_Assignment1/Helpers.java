@@ -172,6 +172,11 @@ public class Helpers {
       // Sort the point values (for convenience)
       Arrays.sort(GamePlay.Points);
       
+      // PATH OF IMAGES
+      Jeopardy.qBtnEnabledPath = "./resources/qenabled.png";
+      Jeopardy.qBtnDisabledPath = "./resources/qdisabled.png";
+      Jeopardy.categoryPath = "./resources/category.png";
+      
       // Parse in the questions
       while ((currLine = br.readLine()) != null) {
         currLine.trim();

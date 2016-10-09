@@ -8,6 +8,10 @@ public class Jeopardy {
 	protected static GameBoardUI GameBoard;
 	protected static FileChooser fileChooser = new FileChooser(); 
 	protected static LoginScreenUI loginScreen = new LoginScreenUI();
+	protected static int fileRanking = 0;
+	
+	// background images
+	protected static String qBtnEnabledPath, qBtnDisabledPath, categoryPath;
 	
 	// Adds the categories to the Categories variable
 	protected static void setCategories(String [] cat) {

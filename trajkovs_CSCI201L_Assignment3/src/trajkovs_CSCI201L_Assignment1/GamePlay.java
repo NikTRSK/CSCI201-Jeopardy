@@ -14,9 +14,7 @@ public class GamePlay {
 	
 	static protected String [][] Answers = { {"what", "who", "where", "when", "how"}, {"is", "are"} };	// used to check for question form of the answer
 	
-	static protected int numTeams; 
-	static protected int currTeam;
-	static protected int qsAnswered;
+	static protected int numTeams, nextTeam, currTeam, qsAnswered;
 	static protected Question currQuestion = null;
 	static protected int numTries = 0;
 	static protected int [] FJBets = new int[4]; // FJBets
@@ -326,6 +324,7 @@ public class GamePlay {
 		}
 		// Generate the starting team
 		currTeam = (int)(Math.random() * Teams.size());
+		nextTeam = currTeam;
 		// Set the number of answered questions to 0
 		qsAnswered = 0;
 		
@@ -339,6 +338,15 @@ public class GamePlay {
 		++currTeam;
 		if (currTeam >= Teams.size())
 			currTeam = 0;
+		
+		nextTeam = currTeam;
+	}
+	
+	static protected void updateNextTeam() {
+		// Update current team
+		++nextTeam;
+		if (nextTeam >= Teams.size())
+			nextTeam = 0;
 	}
 	
 	static protected void resetVariables() {

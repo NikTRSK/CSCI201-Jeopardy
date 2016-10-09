@@ -54,31 +54,51 @@ public class userDB /*implements Serializable*/ {
 	}
 	
 	protected void saveUsers() {
+		ObjectOutputStream oos = null;
 		try {
-			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("./data/userDB.txt"));
+			oos = new ObjectOutputStream(new FileOutputStream("./data/userDB.txt", false));
 			for (User user : users) {
+				System.out.println(users.size() + "user: " + user.getUsername());
 				oos.writeObject(user);
 				oos.flush();
-				oos.close();
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();// send 
 		} catch (IOException e) {
 			e.printStackTrace();// send
+		} finally {
+			try {
+				oos.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
 	protected void loadUsers() throws ClassNotFoundException {
+		ObjectInputStream ois = null;
 		try {
-			ObjectInputStream ois = new ObjectInputStream(new FileInputStream("./data/userDB.txt"));
-			User user;
-			while ((user = (User)ois.readObject()) != null)
+			ois = new ObjectInputStream(new FileInputStream("./data/userDB.txt"));
+			User user = (User)ois.readObject();
+//			while ((user = (User)ois.readObject()) != null)
 				users.add(user);
-			ois.close();
+				user = (User)ois.readObject();
+				users.add(user);
+//			ois.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();	// send 
 		} catch (IOException e) {
 			e.printStackTrace(); // send
+		} finally {
+			try {
+				ois.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+		
+		System.out.println(users.size());
 	}
 }
