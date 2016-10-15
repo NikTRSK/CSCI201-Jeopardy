@@ -50,11 +50,13 @@ public class FactoryHierarchy extends JFrame {
 				DefaultMutableTreeNode r = new DefaultMutableTreeNode(resource.getName());
 				resourceRoot.add(r);
 			}
-			
+			resourceTree.expandRow(0);
 			for (Product product : mFactory.getProducts()) {
+				System.out.println(product.getName());
 				DefaultMutableTreeNode p = new DefaultMutableTreeNode(product.getName());
-				resourceRoot.add(p);
+				productRoot.add(p);
 			}
+			productTree.expandRow(0);
 		});
 		
 	}
@@ -69,7 +71,7 @@ public class FactoryHierarchy extends JFrame {
 //		treePanel.setLayout(new BoxLayout(treePanel, BoxLayout.X_AXIS));
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new Insets(0,0,0,10);
-		treePanel.add(resourceTree);
+		treePanel.add(resourceTree, gbc);
 		treePanel.add(productTree);
 		
 		
