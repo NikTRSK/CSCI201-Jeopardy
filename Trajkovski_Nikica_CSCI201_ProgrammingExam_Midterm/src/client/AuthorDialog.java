@@ -25,7 +25,7 @@ public class AuthorDialog extends JDialog {
 
 		// Create a message
 		JPanel messagePane = new JPanel();
-		messagePane.add(new JLabel("Author of this factory" + name));
+		messagePane.add(new JLabel("Author of this factory: " + name));
 		// get content pane, which is usually the
 		// Container of all the dialog's components.
 		getContentPane().add(messagePane);
@@ -34,7 +34,6 @@ public class AuthorDialog extends JDialog {
 		// Create a button
 		JPanel photoPane = new JPanel();
 		ImageIcon photo = new ImageIcon(aphoto);
-		System.out.println(aphoto);
 		photoPane.add(new JLabel(photo, SwingConstants.CENTER));
 		// set action listener on the button\
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
