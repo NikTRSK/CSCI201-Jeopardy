@@ -25,7 +25,7 @@ public class AuthorDialog extends JDialog {
 
 		// Create a message
 		JPanel messagePane = new JPanel();
-		messagePane.add(new JLabel(name));
+		messagePane.add(new JLabel("Author of this factory" + name));
 		// get content pane, which is usually the
 		// Container of all the dialog's components.
 		getContentPane().add(messagePane);
