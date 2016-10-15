@@ -7,6 +7,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -19,7 +21,7 @@ import resource.Factory;
 import resource.Product;
 import resource.Resource;
 
-public class FactoryHierarchy extends JFrame {
+public class FactoryHierarchy extends JFrame implements KeyListener {
 
 	/**
 	 * 
@@ -76,7 +78,7 @@ public class FactoryHierarchy extends JFrame {
 		treePanel.add(resourceTree, gbc);
 		treePanel.add(productTree);
 		
-		refreshBtn.setMnemonic('R');
+		refreshBtn.setMnemonic('r');
 		add(treePanel, BorderLayout.CENTER);
 		add(refreshBtn, BorderLayout.SOUTH);
 		
@@ -98,6 +100,37 @@ public class FactoryHierarchy extends JFrame {
 		resourceRoot = new DefaultMutableTreeNode("Click Refresh");
 		resourceTree = new JTree(resourceRoot);
 		resourceTree.setPreferredSize(new Dimension(100, 200));
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		// TODO Auto-generated method stub
+		resourceRoot.setUserObject("Resources");
+		resourceTree.setRootVisible(true);
+		for (Resource resource : mFactory.getResources()) {
+			DefaultMutableTreeNode r = new DefaultMutableTreeNode(resource.getName());
+			resourceRoot.add(r);
+		}
+		resourceTree.expandRow(0);
+		productRoot.setUserObject("Products");
+		for (Product product : mFactory.getProducts()) {
+			System.out.println(product.getName());
+			DefaultMutableTreeNode p = new DefaultMutableTreeNode(product.getName());
+			productRoot.add(p);
+		}
+		productTree.expandRow(0);
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }
