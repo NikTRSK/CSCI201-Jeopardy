@@ -27,6 +27,4 @@ public class Constants {
 	public static final String factoryFileDelimeter = "|";
 	public static final String factoryLoadedMessage = "Factory finished loading!";
 	
-	public static String AuthorName;
-	public static String AuthorPhoto;
 }
