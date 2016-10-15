@@ -19,26 +19,26 @@ public class AuthorDialog extends JDialog {
 	public AuthorDialog(JFrame parent, String name, String aphoto) {
 		super(parent, "View Author");
 		setLayout(new FlowLayout());
-		getContentPane().setSize(new Dimension(400, 300));
+//		getContentPane().setSize(new Dimension(400, 300));
 //		Point p = new Point(400, 400);
 //		setLocation(p.x, p.y);
 
 		// Create a message
-		JPanel messagePane = new JPanel();
-		messagePane.add(new JLabel("Author of this factory: " + name));
+//		JPanel messagePane = new JPanel();
+//		messagePane.add(new JLabel("Author of this factory: " + name));
 		// get content pane, which is usually the
 		// Container of all the dialog's components.
-		getContentPane().add(messagePane);
+//		getContentPane().add(messagePane);
 		
 
 		// Create a button
-		JPanel photoPane = new JPanel();
+//		JPanel photoPane = new JPanel();
 		ImageIcon photo = new ImageIcon(aphoto);
-		photoPane.add(new JLabel(photo, SwingConstants.CENTER));
+//		photoPane.add(new JLabel(photo, SwingConstants.CENTER));
 		// set action listener on the button\
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		add(messagePane);
-		add(photoPane);
+		add(new JLabel("Author of this factory: " + name, SwingConstants.CENTER));
+		add(new JLabel(photo, SwingConstants.CENTER));
 		pack();
 		setVisible(true);
 	}

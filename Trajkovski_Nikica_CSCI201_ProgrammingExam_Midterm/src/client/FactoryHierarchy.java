@@ -76,7 +76,7 @@ public class FactoryHierarchy extends JFrame {
 		treePanel.add(resourceTree, gbc);
 		treePanel.add(productTree);
 		
-		
+		refreshBtn.setMnemonic('R');
 		add(treePanel, BorderLayout.CENTER);
 		add(refreshBtn, BorderLayout.SOUTH);
 		
