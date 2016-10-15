@@ -45,12 +45,14 @@ public class FactoryHierarchy extends JFrame {
 	private void addEvents() {
 		// TODO Auto-generated method stub
 		refreshBtn.addActionListener((ActionEvent e) -> {
+			resourceRoot.setUserObject("Resources");
 			resourceTree.setRootVisible(true);
 			for (Resource resource : mFactory.getResources()) {
 				DefaultMutableTreeNode r = new DefaultMutableTreeNode(resource.getName());
 				resourceRoot.add(r);
 			}
 			resourceTree.expandRow(0);
+			productRoot.setUserObject("Products");
 			for (Product product : mFactory.getProducts()) {
 				System.out.println(product.getName());
 				DefaultMutableTreeNode p = new DefaultMutableTreeNode(product.getName());
@@ -88,12 +90,12 @@ public class FactoryHierarchy extends JFrame {
 		refreshBtn = new JButton("Refresh");
 		
 		
-		productRoot = new DefaultMutableTreeNode("Products");
+		productRoot = new DefaultMutableTreeNode("Click Refresh");
 		productTree = new JTree(productRoot);
 		productTree.setPreferredSize(new Dimension(100, 200));
 		
 		
-		resourceRoot = new DefaultMutableTreeNode("Resources");
+		resourceRoot = new DefaultMutableTreeNode("Click Refresh");
 		resourceTree = new JTree(resourceRoot);
 		resourceTree.setPreferredSize(new Dimension(100, 200));
 	}
