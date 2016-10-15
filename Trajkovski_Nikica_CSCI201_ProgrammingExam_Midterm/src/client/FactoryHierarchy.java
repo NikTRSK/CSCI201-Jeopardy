@@ -39,10 +39,13 @@ public class FactoryHierarchy extends JFrame implements KeyListener {
 		
 		mFactory = inFactory;
 		
-		addKeyListener(this);
+
 		initComponents();
 		createGUI();
 		addEvents();
+		addKeyListener(this);
+    setFocusable(true);
+    setFocusTraversalKeysEnabled(false);
 	}
 
 	private void addEvents() {
