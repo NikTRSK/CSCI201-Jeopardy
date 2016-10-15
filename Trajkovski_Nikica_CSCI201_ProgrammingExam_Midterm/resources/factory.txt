@@ -20,3 +20,7 @@ Product|Good Computer|3|Motherboard|1|Processor|4|Hard Drive|2|Memory|8|Box|1
 Product|Amazing Computer|5|Motherboard|1|Processor|8|Hard Drive|2|Memory|16|Box|1
 Product|Cheap Server|9|Motherboard|1|Processor|4|Hard Drive|4|Memory|16|Box|1
 Product|Amazing Server|2|Motherboard|2|Processor|16|Hard Drive|8|Memory|32|Box|2
+
+-- this is the name of the factory's author
+Author Name|Pusheen
+Author Photo|pusheen.png

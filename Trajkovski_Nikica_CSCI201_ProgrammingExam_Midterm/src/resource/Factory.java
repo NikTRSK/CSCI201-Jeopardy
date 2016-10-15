@@ -16,6 +16,8 @@ public class Factory implements Serializable {
 	private Vector<Product> products;
 	private Point taskBoardLocation;
 	
+	private String authorName, authorPhoto;
+	
 	public Factory() {
 		name = "";
 		numberOfWorkers = 0;
@@ -32,6 +34,17 @@ public class Factory implements Serializable {
 		setResources(resources);
 		setProducts(products);
 	}
+	
+	public void setAuthorName(String authorN) {
+		authorName = authorN;
+	}
+	
+	public void setAuthorPhoto(String authorP) {
+		authorPhoto = authorP;
+	}
+	
+	public String getAuthorName() { return authorName; }
+	public String getAuthorPhoto() { return authorPhoto; }
 	
 	public void setName(String name) {
 		this.name = name;

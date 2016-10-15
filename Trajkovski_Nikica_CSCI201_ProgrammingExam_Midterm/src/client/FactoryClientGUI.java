@@ -11,16 +11,20 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
+import java.io.File;
 import java.net.Socket;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -30,9 +34,11 @@ import javax.swing.JTextArea;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+
 
 public class FactoryClientGUI extends JFrame implements KeyListener,ActionListener{
 	
@@ -139,6 +145,41 @@ public class FactoryClientGUI extends JFrame implements KeyListener,ActionListen
 	{
 		JMenuBar menu = new JMenuBar();
 		JMenuItem controller = new JMenuItem("Controller");
+		
+		///////
+		JMenu about = new JMenu("About The Author");
+		JMenuItem viewAuthor = new JMenuItem("View Author");
+		about.add(viewAuthor);
+		viewAuthor.addActionListener((ActionEvent e) -> {
+			new AuthorDialog(null, factoryManager.getFactoryAuthorName(), factoryManager.getFactoryAuthorPhoto());
+		});
+		
+		JMenuItem setAuthorName = new JMenuItem("Set Author Name");
+		about.add(setAuthorName);
+		setAuthorName.addActionListener((ActionEvent e) -> {
+			String name = (String)JOptionPane.showInputDialog(null, "Author Name:", "Set Author Name", JOptionPane.QUESTION_MESSAGE, null, null,"");
+			if (name != null && name.length() > 0) {
+				factoryManager.setFactoryAuthorName(name);
+			}
+		});
+		JMenuItem setAuthorPhoto = new JMenuItem("Set Author Photo");
+		about.add(setAuthorPhoto);
+		setAuthorPhoto.addActionListener((ActionEvent e) -> {
+	    JFileChooser chooseFile = new JFileChooser();
+	    chooseFile.setCurrentDirectory(new File(System.getProperty("user.dir")));
+	    chooseFile.setFileFilter(new FileNameExtensionFilter("Image Files", "png", "jpg"));
+	    
+	    int returnVal = chooseFile.showOpenDialog(null);
+	    if (returnVal == JFileChooser.APPROVE_OPTION) {
+				try {
+					File inputFile = chooseFile.getSelectedFile();
+					factoryManager.setFactoryAuthorPhoto(inputFile.getName());
+				} catch (RuntimeException rte) {
+					System.out.println(rte.getMessage());	
+				}
+	    }
+		});
+		
 		controller.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0)
@@ -147,6 +188,8 @@ public class FactoryClientGUI extends JFrame implements KeyListener,ActionListen
 			}
 		});
 		menu.add(controller);
+		menu.add(Box.createHorizontalGlue());
+		menu.add(about);
 		setJMenuBar(menu);
 	}
 

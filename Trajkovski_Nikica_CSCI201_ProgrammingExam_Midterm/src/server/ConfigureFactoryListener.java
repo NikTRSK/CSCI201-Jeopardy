@@ -75,6 +75,20 @@ public class ConfigureFactoryListener implements ActionListener {
 			else if (line.startsWith(utilities.Constants.taskboardString)) {
 				parseTaskBoardLocation(factory, line);
 			}
+			else if (line.startsWith("Author Name")) {
+				StringTokenizer st = new StringTokenizer(line, Constants.factoryFileDelimeter);
+				st.nextToken();
+				String name = st.nextToken();
+				factory.setAuthorName(name);
+				System.out.println(name);
+			}
+			else if (line.startsWith("Author Photo")) {
+				StringTokenizer st = new StringTokenizer(line, Constants.factoryFileDelimeter);
+				st.nextToken();
+				String photo = st.nextToken();
+				factory.setAuthorPhoto(photo);
+				System.out.println(photo);
+			}
 			else if (line.length() == 0) {
 				// this would be a blank line
 			}
@@ -82,6 +96,7 @@ public class ConfigureFactoryListener implements ActionListener {
 				// this would be an unrecognized line
 				Util.printMessageToCommand(Constants.unrecognizedLine + line);
 			}
+			
 			line = br.readLine();
 		}
 		FactoryServerGUI.addMessage(factory.toString());

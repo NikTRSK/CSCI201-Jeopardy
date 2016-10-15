@@ -146,6 +146,8 @@ public class FactorySimulation {
 			mFObjects.add(fw);
 			mFNodes[fw.getX()][fw.getY()].setObject(fw);	
 		}
+		
+		new FactoryHierarchy(inFactory);
 	}
 	
 	public void update(double deltaTime) {

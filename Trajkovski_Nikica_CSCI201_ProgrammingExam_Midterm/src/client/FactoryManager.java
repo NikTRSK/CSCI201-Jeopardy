@@ -37,6 +37,12 @@ public class FactoryManager implements Runnable , ChangeListener{
 		running = false;
 	}
 	
+	public String getFactoryAuthorName() { return mFactory.getAuthorName(); }
+	public String getFactoryAuthorPhoto() { return mFactory.getAuthorPhoto(); }
+	
+	public void setFactoryAuthorName (String name) { mFactory.setAuthorName(name); }
+	public void setFactoryAuthorPhoto (String photo) { mFactory.setAuthorPhoto(photo); }
+	
 	public void loadFactory(Factory inFactory, JTable inTable) {
 		//must stop the current animation, load in the factory, and start the new factorySimulation
 		mFactory = inFactory;
