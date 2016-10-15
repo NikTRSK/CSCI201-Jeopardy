@@ -39,6 +39,7 @@ public class FactoryHierarchy extends JFrame implements KeyListener {
 		
 		mFactory = inFactory;
 		
+		addKeyListener(this);
 		initComponents();
 		createGUI();
 		addEvents();
@@ -104,21 +105,23 @@ public class FactoryHierarchy extends JFrame implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		// TODO Auto-generated method stub
-		resourceRoot.setUserObject("Resources");
-		resourceTree.setRootVisible(true);
-		for (Resource resource : mFactory.getResources()) {
-			DefaultMutableTreeNode r = new DefaultMutableTreeNode(resource.getName());
-			resourceRoot.add(r);
+		if(e.getKeyCode() == KeyEvent.VK_R) {
+			// TODO Auto-generated method stub
+			resourceRoot.setUserObject("Resources");
+			resourceTree.setRootVisible(true);
+			for (Resource resource : mFactory.getResources()) {
+				DefaultMutableTreeNode r = new DefaultMutableTreeNode(resource.getName());
+				resourceRoot.add(r);
+			}
+			resourceTree.expandRow(0);
+			productRoot.setUserObject("Products");
+			for (Product product : mFactory.getProducts()) {
+				System.out.println(product.getName());
+				DefaultMutableTreeNode p = new DefaultMutableTreeNode(product.getName());
+				productRoot.add(p);
+			}
+			productTree.expandRow(0);
 		}
-		resourceTree.expandRow(0);
-		productRoot.setUserObject("Products");
-		for (Product product : mFactory.getProducts()) {
-			System.out.println(product.getName());
-			DefaultMutableTreeNode p = new DefaultMutableTreeNode(product.getName());
-			productRoot.add(p);
-		}
-		productTree.expandRow(0);
 	}
 
 	@Override
