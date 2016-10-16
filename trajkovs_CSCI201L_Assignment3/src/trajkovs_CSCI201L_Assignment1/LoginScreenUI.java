@@ -3,6 +3,7 @@ package trajkovs_CSCI201L_Assignment1;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -15,12 +16,12 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -37,7 +38,6 @@ public class LoginScreenUI extends JFrame {
 	
 	private JLabel loginLbl, jeopardyLbl, errorLbl;
 	private JButton loginBtn, createAccountBtn;
-	static protected JCheckBox quickPlay;
 	private JTextField usernameInputField, passwordInputField;
 	
 	// Create Border
@@ -81,12 +81,14 @@ public class LoginScreenUI extends JFrame {
   	usernameInputField.setText("Username");
   	usernameInputField.setForeground(Color.LIGHT_GRAY);
   	usernameInputField.setPreferredSize(new Dimension(450, 60));
+  	usernameInputField.setMinimumSize(new Dimension(60, 30));
 
   	passwordInputField = new JTextField();
   	Helpers.styleComponentFlat(passwordInputField, Color.BLACK, Color.WHITE, Color.WHITE, 19, true);
   	passwordInputField.setText("Password");
   	passwordInputField.setForeground(Color.LIGHT_GRAY);
   	passwordInputField.setPreferredSize(new Dimension(450, 60));
+  	passwordInputField.setMinimumSize(new Dimension(60, 30));
   	
 		/////////////////////
 		// Navigation bar buttons //
@@ -94,11 +96,13 @@ public class LoginScreenUI extends JFrame {
 		loginBtn = new JButton("Login");
 		Helpers.styleComponentFlat(loginBtn, Color.WHITE, Color.DARK_GRAY, Color.DARK_GRAY, 22, true);
 		loginBtn.setPreferredSize(new Dimension(230, 60));
+		loginBtn.setMinimumSize(new Dimension(60, 30));
 		loginBtn.setEnabled(false);
 		
 		createAccountBtn = new JButton("Create Account");
 		Helpers.styleComponentFlat(createAccountBtn, Color.WHITE, Color.DARK_GRAY, Color.DARK_GRAY, 22, true);
 		createAccountBtn.setPreferredSize(new Dimension(230, 60));
+		createAccountBtn.setMinimumSize(new Dimension(60, 30));
 		createAccountBtn.setEnabled(false);
 	}
 	
@@ -124,7 +128,6 @@ public class LoginScreenUI extends JFrame {
 		// CENTER PANEL //
 		//////////////////
 		JPanel mainPanel = new JPanel();
-//		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		mainPanel.setLayout(new GridBagLayout());
 		add(mainPanel, BorderLayout.CENTER);
 		mainPanel.setBackground(new Color(0,137,123));
@@ -139,13 +142,16 @@ public class LoginScreenUI extends JFrame {
 		////////////////////
 		// Navigation Bar //
 		////////////////////
-		JPanel navigationPanel = new JPanel();
+		JPanel navigationPanel = new JPanel(); navigationPanel.setLayout(new GridBagLayout());
 		// cahnge this to just empty border
 		navigationPanel.setBackground(new Color(0,137,123));
-//	  Border navCompound = new CompoundBorder(new LineBorder(new Color(9,204,185)), new EmptyBorder(30, 0, 30, 0));
 		navigationPanel.setBorder(new MatteBorder(0,0,60,0, new Color(0,0,0,0)));
-		navigationPanel.add(loginBtn);
-		navigationPanel.add(createAccountBtn);
+		GridBagConstraints gbc2 = new GridBagConstraints();
+		gbc2.fill = GridBagConstraints.HORIZONTAL; gbc2.insets = new Insets(0,0,0,5);//gbc2.weightx = 0.5;// gbc2.ipadx = 5;
+		navigationPanel.add(loginBtn, gbc2);
+		navigationPanel.add(createAccountBtn, gbc2);
+		//		navigationPanel.add(loginBtn);
+//		navigationPanel.add(createAccountBtn);
 		add(navigationPanel, BorderLayout.SOUTH);
 	}
 	
@@ -155,12 +161,8 @@ public class LoginScreenUI extends JFrame {
 		// X Button Listener
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
-				String Btns[] = {"Yes", "No"};
-				new dialogBox();
-				int result = dialogBox.showOptionDialog(null, "Are you sure you want to quit?", "Quit Program", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, Btns, Btns[1]);
-				if (result == JOptionPane.YES_OPTION) {
-					System.exit(0);
-				}
+				Jeopardy.Users.saveUsers();	
+				System.exit(0);
 			}
 		});
 		

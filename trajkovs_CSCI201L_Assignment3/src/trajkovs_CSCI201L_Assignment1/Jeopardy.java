@@ -8,7 +8,7 @@ public class Jeopardy {
 	protected static GameBoardUI GameBoard;
 	protected static FileChooser fileChooser = new FileChooser(); 
 	protected static LoginScreenUI loginScreen = new LoginScreenUI();
-	protected static int fileRanking = 0;
+	protected static ArrayList<Integer> fileRanking = new ArrayList<Integer>();
 	
 	// background images
 	protected static String qBtnEnabledPath, qBtnDisabledPath, categoryPath;
@@ -49,6 +49,8 @@ public class Jeopardy {
 				throw new RuntimeException("Incorrect number of point values\n Terminating...");
 			}
 		}
+		if (Jeopardy.fileRanking.size() != 2)
+			throw new RuntimeException("Missing ranking values\n Terminating...");
 	}
 	
 	public static void createGameBoard() {

@@ -359,5 +359,9 @@ public class GamePlay {
 		FJQuestion = null;	// holds the Final Jeopardy question
 		Teams = null;
 		Teams = new ArrayList<Team>(0); // holds all the teams
+		Jeopardy.qBtnEnabledPath = null;
+		Jeopardy.qBtnDisabledPath = null;
+		Jeopardy.categoryPath = null;
+		Jeopardy.fileRanking = new ArrayList<Integer>();
 	}
 }

@@ -46,7 +46,7 @@ import javax.swing.JOptionPane;
 public class FileChooser extends JFrame {
 	private static final long serialVersionUID = 1L;
 	// GUI Elements
-	private JLabel welcomeLbl, promptLbl, fileChooserLbl, fileNameLbl, teamPromptLbl;
+	private JLabel welcomeLbl, promptLbl, fileChooserLbl, fileNameLbl, teamPromptLbl, avgRatingLbl;
 	private JLabel [] teamLbls = new JLabel[4];
 	private JTextField [] teamTxtBoxes = new JTextField[4];
 	private JButton chooseFileBtn, startBtn, clearBtn, logoutBtn, exitBtn;
@@ -100,9 +100,14 @@ public class FileChooser extends JFrame {
 		Helpers.styleComponentFlat(chooseFileBtn, Color.WHITE, Color.DARK_GRAY, Color.DARK_GRAY, 17, true);
     
 		fileNameLbl = new JLabel("", SwingConstants.CENTER);
-		fileNameLbl.setPreferredSize(new Dimension(200, 20));
+		fileNameLbl.setPreferredSize(new Dimension(100, 20));
 		fileNameLbl.setFont(new Font("Cambria", Font.BOLD, 17));
 		fileNameLbl.setForeground(Color.WHITE);
+		
+		avgRatingLbl = new JLabel("", SwingConstants.CENTER);
+//		avgRatingLbl.setPreferredSize(new Dimension(100, 20));
+		avgRatingLbl.setFont(new Font("Cambria", Font.BOLD, 17));
+		avgRatingLbl.setForeground(Color.WHITE);
 		
     //////////////////
     // Team Select //
@@ -195,6 +200,7 @@ public class FileChooser extends JFrame {
 		filePanel.add(fileChooserLbl);
 		filePanel.add(chooseFileBtn);
 		filePanel.add(fileNameLbl);
+		filePanel.add(avgRatingLbl);
 		mainPanel.add(filePanel);
 		
 		// Select number of teams
@@ -286,6 +292,7 @@ public class FileChooser extends JFrame {
 						Helpers.ParseFile(inputFile);
 						fileNameLbl.setText(inputFile.getName());
 						validInput();
+						avgRatingLbl.setText("average rating: " + Jeopardy.fileRanking.get(1)/Jeopardy.fileRanking.get(0) + "/5");
 					} catch (RuntimeException rte) {
 						displayPopup(rte.getMessage());
 						GamePlay.resetVariables();		
@@ -351,8 +358,8 @@ public class FileChooser extends JFrame {
 		});
 		
 		logoutBtn.addActionListener((ActionEvent event) -> {
-      Jeopardy.loginScreen.setVisible(false);
-			Jeopardy.fileChooser.setVisible(true);
+      Jeopardy.loginScreen.setVisible(true);
+			Jeopardy.fileChooser.setVisible(false);
 		});
 		
 		exitBtn.addActionListener((ActionEvent event) -> {

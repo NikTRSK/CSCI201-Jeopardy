@@ -81,15 +81,18 @@ public class userDB /*implements Serializable*/ {
 		try {
 			ois = new ObjectInputStream(new FileInputStream("./data/userDB.txt"));
 			User user = (User)ois.readObject();
-//			while ((user = (User)ois.readObject()) != null)
+			while (user != null) {
 				users.add(user);
+//				ois.flush();
 				user = (User)ois.readObject();
-				users.add(user);
+			}
+//				user = (User)ois.readObject();
+//				users.add(user);
 //			ois.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();	// send 
-		} catch (IOException e) {
-			e.printStackTrace(); // send
+		} catch (IOException e) { // throws exception at the end of file. nothing to process just keep going
+//			e.printStackTrace(); // send
 		} finally {
 			try {
 				ois.close();
@@ -100,5 +103,11 @@ public class userDB /*implements Serializable*/ {
 		}
 		
 		System.out.println(users.size());
+		printAllUsers();
+	}
+	
+	private void printAllUsers() {
+		for(User u : users)
+			System.out.println("Username: " + u.getUsername() + " || Password: " + u.getPassword());
 	}
 }

@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -21,6 +22,7 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -115,8 +117,8 @@ public class GameBoardUI extends JFrame {
 		logoutGame = new JMenuItem("Logout");
 		menu.add(logoutGame);
 		logoutGame.addActionListener((ActionEvent event) -> {
-      Jeopardy.loginScreen.setVisible(false);
-			Jeopardy.fileChooser.setVisible(true);
+      Jeopardy.GameBoard.setVisible(false);
+			Jeopardy.loginScreen.setVisible(true);
 		});
 
 		exitGame= new JMenuItem("Exit Game");
@@ -136,8 +138,17 @@ public class GameBoardUI extends JFrame {
 		
 		// Create Category Labels
 		for (int i = 0; i < catLbls.length; ++i) {
-			catLbls[i] = new JLabel(GamePlay.Categories[i], SwingConstants.CENTER);
-			Helpers.styleComponent(catLbls[i], new Color(9, 204, 185), new Color(0,150,136), 20);
+			catLbls[i] = new JLabel(GamePlay.Categories[i], SwingConstants.CENTER) {
+				private static final long serialVersionUID = 1L;
+				public void paintComponent(Graphics g) {
+					ImageIcon lblImg = new ImageIcon(Jeopardy.categoryPath);
+					g.drawImage(lblImg.getImage(), 0, 0, null);
+					super.paintComponent(g);
+				}
+			};
+			catLbls[i].setForeground(Color.WHITE);
+			catLbls[i].setFont(new Font("Cambria", Font.BOLD, 22));
+			catLbls[i].setBorder(new LineBorder(new Color(0,150,136)));
 		}
 
 		qBtnsEnabled = new ImageIcon(Jeopardy.qBtnEnabledPath);
@@ -175,7 +186,7 @@ public class GameBoardUI extends JFrame {
 		// Progress panel components
 		progressTitle = new JLabel("Game Progress", SwingConstants.CENTER);
 		progressTitle.setAlignmentX(CENTER_ALIGNMENT); progressTitle.setAlignmentY(TOP_ALIGNMENT);
-		progressTitle.setPreferredSize(new Dimension(400, 50));
+//		progressTitle.setPreferredSize(new Dimension(400, 50));
 		progressTitle.setForeground(Color.BLACK);
 		progressTitle.setFont(new Font("Cambria", Font.BOLD, 25));
 		
@@ -209,6 +220,7 @@ public class GameBoardUI extends JFrame {
 		qCatLbl.setBorder(new LineBorder(new Color(0,150,136)));
 		qCatLbl.setForeground(Color.LIGHT_GRAY);
 		qCatLbl.setFont(new Font("Cambria", Font.BOLD, 30));
+		qCatLbl.setPreferredSize(new Dimension(20, 20));
 		
 		qPtValueLbl = new JLabel("$100", SwingConstants.CENTER);
 		qPtValueLbl.setVerticalAlignment(SwingConstants.CENTER);
@@ -263,24 +275,22 @@ public class GameBoardUI extends JFrame {
 	private void createGUI() {
 		// Initial setup
 		setSize(1500, 825);
-		setResizable(false);
 		setLocation(100, 30);
-		add(menuBar, BorderLayout.NORTH);
+		setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
+		setJMenuBar(menuBar);
 		JPanel screen = new JPanel();
 		screen.setLayout(new BoxLayout(screen, BoxLayout.X_AXIS));
-		screen.setPreferredSize(new Dimension(1030,825));
-		add(screen, BorderLayout.WEST);
+		screen.setPreferredSize(new Dimension((int)(3.5*this.getSize().getWidth()/6),(int)(this.getSize().getHeight())));
+//		add(screen, BorderLayout.WEST);
+		add(screen);
 		
 		mainPanel = new JPanel();
-		mainPanel.setPreferredSize(new Dimension(1030,825));
 		mainPanel.setLayout(cl);
-		mainPanel.setPreferredSize(new Dimension(200, 200));
 		screen.add(mainPanel);
 		
 		// Create the main Panel
 		JPanel questionListPanel = new JPanel();
 		questionListPanel.setLayout(new BoxLayout(questionListPanel, BoxLayout.Y_AXIS));
-		questionListPanel.setPreferredSize(new Dimension(1030,825));
 	  Border mainBorder = new EmptyBorder(10, 20, 50, 20);
 		questionListPanel.setBorder(mainBorder);
 		mainPanel.add(questionListPanel, "questionListPanel");
@@ -288,8 +298,10 @@ public class GameBoardUI extends JFrame {
 		JPanel titlePanel = new JPanel(); titlePanel.setLayout(new FlowLayout(FlowLayout.CENTER)); 
 		titlePanel.setPreferredSize(new Dimension(1030, 10));
 		titlePanel.setBackground(new Color(0,150,136));
+		
 		titlePanel.add(titleLbl);
 		questionListPanel.add(titlePanel);
+//		questionListPanel.add(Box.createVerticalStrut(5));
 		
 		// Create Category Panel
 		JPanel questionLabelsPanel = new JPanel(); questionLabelsPanel.setLayout(new GridLayout(1, 5));
@@ -297,21 +309,27 @@ public class GameBoardUI extends JFrame {
 		
 		// add category labels to grid
 		for (int i = 0; i < catLbls.length; ++i)
-		questionLabelsPanel.add(catLbls[i]);
+			questionLabelsPanel.add(catLbls[i]);
 		
 		// Create whole board
 		JPanel questionPanel = new JPanel(); questionPanel.setLayout(new GridLayout(5, 5));
+//		JPanel questionPanel = new JPanel(); questionPanel.setLayout(new GridLayout(6, 6));
 		questionListPanel.add(questionPanel);
+//		for (int i = 0; i < catLbls.length; ++i)
+//			questionPanel.add(catLbls[i]);
 		for (int pt = 0; pt < 5; ++pt) {
 			for (int cat = 0; cat < 5; ++cat) {
 				questionPanel.add(qBtns[cat][pt]);
 			}
 		}
-		
+		titlePanel.setPreferredSize(new Dimension(questionListPanel.getWidth(),questionPanel.getHeight()/15));
 		// Side panel
 		JPanel sidePanel = new JPanel(new GridLayout(2, 1));
-		sidePanel.setPreferredSize(new Dimension(screen.getWidth()/6, screen.getHeight()));
-		add(sidePanel, BorderLayout.CENTER);
+//		sidePanel.setPreferredSize(new Dimension(screen.getWidth()/6, screen.getHeight()));
+		sidePanel.setPreferredSize(new Dimension((int)(1.5*this.getSize().getWidth()/6),(int)(this.getSize().getHeight())));
+//		add(sidePanel, BorderLayout.CENTER);
+		add(Box.createGlue());
+		add(sidePanel);
 		
 		JPanel scorePanel = new JPanel(new GridLayout(4, 2));
 		scorePanel.setBackground(new Color(56,57,49));
@@ -397,6 +415,7 @@ public class GameBoardUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				Jeopardy.fileChooser = null;
 				Jeopardy.fileChooser = new FileChooser();
+				Jeopardy.fileChooser.setVisible(true);
 				Jeopardy.GameBoard.setVisible(false);
 				Jeopardy.GameBoard = null;
 				GamePlay.resetVariables();
@@ -502,6 +521,7 @@ public class GameBoardUI extends JFrame {
 				// if there are teams to play
 				if (GamePlay.currTeam != GamePlay.nextTeam) {
 					teamPrompt.append("It's " + GamePlay.Teams.get(GamePlay.nextTeam).getName() + "'s turn to try to answer the quesiton.\n\n");
+					qAnswerArea.setText("");
 					GamePlay.numTries = 0;
 					qErrorLbl.setText("\n");
 				} else {
@@ -637,11 +657,22 @@ public class GameBoardUI extends JFrame {
 				if (!qAnswerArea.getText().trim().equals("")) {
 					qPassBtn.setEnabled(false);
 				}
+//				String [] ans = qAnswerArea.getText().trim().split("\\s+");
+//				if (ans.length >= 2 && GamePlay.currTeam != GamePlay.nextTeam){
+//					if (Helpers.elementExists(GamePlay.Answers[0], ans[0]) && Helpers.elementExists(GamePlay.Answers[1], ans[1])) {
+//						qSubmitBtn.setEnabled(true);
+//					}
+//				} else {
+//					qSubmitBtn.setEnabled(false);
+//					qErrorLbl.setText("Invalid format for your question. Remember to pose it as a question.");
+//				}
 			}
 
 			@Override
 			public void insertUpdate(DocumentEvent documentEvent) {
-//				validInput();
+				if (!qAnswerArea.getText().trim().equals("")) {
+					qPassBtn.setEnabled(false);
+				}
 			}
 
 			@Override
@@ -654,8 +685,13 @@ public class GameBoardUI extends JFrame {
       GamePlay.updateNextTeam();
       if (GamePlay.currTeam != GamePlay.nextTeam) {
 				teamPrompt.append("It's " + GamePlay.Teams.get(GamePlay.nextTeam).getName() + "'s turn to try to answer the quesiton.\n\n");
+				qAnswerArea.setText("");
 				GamePlay.numTries = 0;
 				qErrorLbl.setText("\n");
+      } else {
+				GamePlay.numTries = 0;
+				showPanel("questionListPanel");
+				qPassBtn.setVisible(false);
       }
 		});
 		///////////////////////////////

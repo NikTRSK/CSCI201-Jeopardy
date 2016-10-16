@@ -153,35 +153,49 @@ public class Helpers {
       currLine = br.readLine();
       String [] line = currLine.split("::", -1);
       // Check if there are duplicate categories
-      if (line.length != 5 || Helpers.hasDuplicates(line)) {
+      if (line.length != 6 || Helpers.hasDuplicates(Arrays.copyOfRange(line, 0, 5))) {
       	throw new RuntimeException("Wrong number of categories or duplicate categories");
       }
-      else
-        Jeopardy.setCategories(line);
+      else {
+        Jeopardy.setCategories(Arrays.copyOfRange(line, 0, 5));
+        System.out.println(line[5]);
+        Jeopardy.categoryPath = line[5];
+      }
 
       // Parse in the Point values for questions
       currLine = br.readLine().trim();
       line = currLine.split("::", -1);
       // Check if there are duplicate point values or if they are all numbers
-      if (line.length != 5 || Helpers.hasDuplicates(line) || !Helpers.allNumbers(line)) {
+      if (line.length != 7 || Helpers.hasDuplicates(Arrays.copyOfRange(line, 0, 5)) || !Helpers.allNumbers(Arrays.copyOfRange(line, 0, 5))) {
       	throw new RuntimeException("Wrong number of point values or duplicate point values");
       }
-      else
-        Jeopardy.setPoints(line);
+      else {
+        Jeopardy.setPoints(Arrays.copyOfRange(line, 0, 5));
+        Jeopardy.qBtnEnabledPath = line[5];
+        Jeopardy.qBtnDisabledPath = line[6];
+      }
     
       // Sort the point values (for convenience)
       Arrays.sort(GamePlay.Points);
-      
-      // PATH OF IMAGES
-      Jeopardy.qBtnEnabledPath = "./resources/qenabled.png";
-      Jeopardy.qBtnDisabledPath = "./resources/qdisabled.png";
-      Jeopardy.categoryPath = "./resources/category.png";
       
       // Parse in the questions
       while ((currLine = br.readLine()) != null) {
         currLine.trim();
         // check if the line starts with ::
-        if (!currLine.startsWith("::")) {
+//        System.out.println(currLine);
+        if (!currLine.startsWith("::") && questionCount == 25 && GamePlay.FJQuestion != null) {
+        	try {
+        		int value = Integer.parseInt(currLine);
+        		Jeopardy.fileRanking.add(value);
+//        		System.out.println(value + "LEN: " + Jeopardy.fileRanking.size());
+        		currLine = br.readLine();
+//        		System.out.println(currLine);
+        		value = Integer.parseInt(currLine);
+        		Jeopardy.fileRanking.add(value);
+//        		System.out.println(value + "LEN: " + Jeopardy.fileRanking.size());
+        	} catch (NumberFormatException e) {throw new RuntimeException("Missing ranking values");}
+        } 
+        else if (!currLine.startsWith("::")) {
         	throw new RuntimeException("Wrong question format");
         } else {
           line = currLine.split("::", -1);
@@ -250,6 +264,8 @@ public class Helpers {
             	throw new RuntimeException("Category or Points Value invalid");
             }
           }
+          try { br.reset(); }
+          catch (IOException ioe) { /*throw new RuntimeException(ioe.getMessage());*/ } 
         }
       }
     } catch (FileNotFoundException fnfe) { throw new RuntimeException("FileNotFoundException: " + fnfe.getMessage()); }

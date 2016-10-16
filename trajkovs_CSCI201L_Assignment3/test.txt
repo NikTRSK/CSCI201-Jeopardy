@@ -1,0 +1,30 @@
+Birds::Planes::Songs::Cars::Cities::resources/category.png
+100::500::800::1000::2000::resources/qenabled.png::resources/qdisabled.png
+::FJ::A city in California known for its large film industry, and location close to Mexico and the Pacific Ocean::Los Angeles
+::Cities::500::The record for most World Series titles belongs to the Big Apple. With so much prestige, you would think Jimmy Fallon would have the decency not to use this team's branded toilet paper.::New York Yankees
+::Birds::100::A bird commonly associated with American nationalism::bald eagle
+::Songs::800::A Beatles song that was also used as a title of musical movie using all Beatles music::across the universe
+::Planes::100::These are the two main types of propulsion systems used on modern aircraft::JET ENGINES and PROPELLERS
+::Cars::500::What Car Did James Dean Die In::Porsche 550 Spyder
+::Birds::1000::The Largest Flying Bird::Giant Teratom
+::Songs::100::What is the last song Becca sung::Whistle
+::Cities::800::HOME OF THE SMITHSONIAN::Washington, D.C.
+::Planes::500::It's the technical name given to a planes "steering wheel"::YOKE
+::Cars::100::What Was The First Musclecar::1964 Pontiac GTO
+::Birds::500::This bird is the highest flyer::Ruppell's griffon vulture
+::Songs::2000::What is Safe And Sound From::The Hunger Games
+::Cities::2000::HOME OF FIELD MUSEUM::Chicago, IL
+::Planes::800::If you want to travel in luxury, you should upgrade your coach class ticket to this class::First Class
+::Cars::800::Who Designed The Volkswagen Beetle::Ferdinand Porsche
+::Birds::800::This bird can carry the most weight::the crane
+::Songs::500::Which Song does Maroon 5 Sing::One More Night
+::Cities::1000::RHODE ISLAND JAZZ FESTIVAL CITY::Newport
+::Planes::2000::He or She is the 2nd in-command on an airplane, operating directly below the Pilot::COPILOT
+::Cars::2000::What Kind Of Car Is The General Lee From 'The Dukes Of Hazzard'::1969 Dodge Charger
+::Birds::2000::These birds can regenerate brain cells::Canaries
+::Songs::1000::Who did the country song, Midnight in Montgomery::Alan Jackson
+::Cities::100::MAINE PORT::Portland
+::Planes::1000::It's the part of the airport where you are able to board your plane::TERMINAL
+::Cars::1000::What Does SS Stand For::Super Sport
+15
+30
