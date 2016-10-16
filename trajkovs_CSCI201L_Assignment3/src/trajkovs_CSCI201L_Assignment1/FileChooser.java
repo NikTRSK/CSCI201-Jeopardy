@@ -330,8 +330,8 @@ public class FileChooser extends JFrame {
 				GamePlay.InitGame();
 				// Check for Quick Play
 				if (quickPlay.isSelected())
-//					GamePlay.qsAnswered = 20;
-					GamePlay.qsAnswered = 24;
+					GamePlay.qsAnswered = 20;
+//					GamePlay.qsAnswered = 24;
 				Jeopardy.createGameBoard();
 			}
 			

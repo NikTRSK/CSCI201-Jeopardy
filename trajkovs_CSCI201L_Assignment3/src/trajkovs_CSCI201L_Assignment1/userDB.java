@@ -78,9 +78,8 @@ public class userDB {
 			try {
 				userFile.createNewFile();
 			} catch (IOException e) {/*nothing to do if file exists*/}
-			oos = new ObjectOutputStream(new FileOutputStream(/*"./data/userDB.txt"*/userFile, false));
+			oos = new ObjectOutputStream(new FileOutputStream(userFile, false));
 			for (User user : users) {
-				System.out.println(users.size() + "user: " + user.getUsername());
 				oos.writeObject(user);
 				oos.flush();
 			}
@@ -100,7 +99,6 @@ public class userDB {
 	protected void loadUsers() throws ClassNotFoundException {
 		ObjectInputStream ois = null;
 		File userFile = new File("./data/userDB.txt");
-		System.out.println(userFile.exists());
 		if (userFile.exists()) {
 			try {
 				ois = new ObjectInputStream(new FileInputStream("./data/userDB.txt"));
@@ -120,8 +118,6 @@ public class userDB {
 				}
 			}
 		}
-		System.out.println(users.size());
-		printAllUsers();
 	}
 	
 	private void printAllUsers() {

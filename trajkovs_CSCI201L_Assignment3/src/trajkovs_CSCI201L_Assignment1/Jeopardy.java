@@ -85,10 +85,6 @@ public class Jeopardy {
 			while((line = br.readLine()) != null) input += line + '\n';
 			
 			br.close();
-			System.out.println("*****************");
-			System.out.println(input);
-			System.out.println(input.split("\n").length);
-			System.out.println(input.split("\n")[28]);
 			
 			String [] output = input.split("\n");
 			output[output.length-2] = Integer.toString(Jeopardy.fileRanking.get(1)); // number of people

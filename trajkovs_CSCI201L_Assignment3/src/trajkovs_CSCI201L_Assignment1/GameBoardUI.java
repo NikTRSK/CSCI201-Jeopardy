@@ -517,6 +517,7 @@ public class GameBoardUI extends JFrame {
 				// Update current team
 				GamePlay.updateNextTeam();
 				qPassBtn.setVisible(true);
+				qPassBtn.setEnabled(true);
 				// if there are teams to play
 				if (GamePlay.currTeam != GamePlay.nextTeam) {
 					teamPrompt.append("It's " + GamePlay.Teams.get(GamePlay.nextTeam).getName() + "'s turn to try to answer the quesiton.\n\n");
@@ -548,108 +549,17 @@ public class GameBoardUI extends JFrame {
 				teamPrompt.append(GamePlay.Teams.get(GamePlay.nextTeam).getName() + ", you got the answer right! " + printPts(GamePlay.currQuestion.getPointValue()) + " will be added to your score.\n");
 				GamePlay.Teams.get(GamePlay.nextTeam).addPoints(GamePlay.currQuestion.getPointValue());
 				teamLbl.get(GamePlay.nextTeam).getItem2().setText("$" + GamePlay.Teams.get(GamePlay.nextTeam).getPoints());
-//				GamePlay.updateCurrentTeam();
-				
+
+				qPassBtn.setEnabled(true);
 				if (GamePlay.qsAnswered < 25/* && (GamePlay.currTeam != GamePlay.nextTeam)*/) {
 					GamePlay.qsAnswered++;
 					GamePlay.currQuestion.setAnswered();
 					showPanel("questionListPanel");
 					qPassBtn.setVisible(false);
+					qPassBtn.setEnabled(true);
 					teamPrompt.append("Now it's " + GamePlay.Teams.get(GamePlay.nextTeam).getName() + "'s turn! Please Choose a question.\n");
 				}
 				GamePlay.numTries = 0;
-			}
-			
-			private void createFinalJeopardy() {
-				if (GamePlay.teamsAllNegative()) {
-					
-					JDialog noJeopardyDialog = new JDialog();
-					noJeopardyDialog.setPreferredSize(new Dimension(400, 250));
-					noJeopardyDialog.setTitle("Thank you for playing");
-					
-					JPanel Panel = new JPanel(); Panel.setLayout(new BoxLayout(Panel, BoxLayout.Y_AXIS));
-					Panel.setBackground(new Color(0,150,136));
-					
-					// Create message
-					SimpleAttributeSet paneStyle = new SimpleAttributeSet();
-					StyleConstants.setAlignment(paneStyle, StyleConstants.ALIGN_CENTER);
-					StyleConstants.setFontFamily(paneStyle, "Cambria BOLD");
-					StyleConstants.setFontSize(paneStyle, 18);
-
-					JTextPane msg = new JTextPane();
-					msg.setEditable(false);
-					msg.setText("There are no teams eligible for Final Jeopardy.\nThere are no winners");
-					msg.setBackground(new Color(0,150,136));
-					msg.setForeground(Color.WHITE);
-					StyledDocument doc = msg.getStyledDocument();
-					doc.setParagraphAttributes(0, 104, paneStyle, false);
-					Panel.add(msg);
-					noJeopardyDialog.add(Panel);
-					
-					JPanel buttonPanel = new JPanel(); buttonPanel.setBackground(new Color(0,150,136));
-					JButton OKBtn = new JButton("Okay");
-					OKBtn.setBorder(new MatteBorder(13,16,13,16, Color.WHITE));
-					OKBtn.setBackground(Color.WHITE);
-					OKBtn.setForeground(new Color(0,150,136));
-					OKBtn.setFont(new Font("Cambria", Font.BOLD, 25));
-					// style button
-					buttonPanel.add(OKBtn);
-					noJeopardyDialog.setAlwaysOnTop(true);
-					noJeopardyDialog.setLocationRelativeTo(mainPanel);
-					noJeopardyDialog.setVisible(true);
-					OKBtn.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent ae) {
-							// get values and increase # of people rated
-//							Jeopardy.fileRanking.get(1);
-							
-							noJeopardyDialog.setVisible(false);
-							Jeopardy.GameBoard.setVisible(false);
-							Jeopardy.fileChooser = null;
-							Jeopardy.fileChooser = new FileChooser();
-							Jeopardy.GameBoard = null;
-							GamePlay.resetVariables();
-						}
-					});
-					noJeopardyDialog.add(buttonPanel, BorderLayout.SOUTH);
-					noJeopardyDialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-					noJeopardyDialog.pack();
-				} else {
-					teamPrompt.append("------Welcome to Final Jeopardy!------\n");
-					// check who can answer the question
-					for (int i = 0; i < GamePlay.Teams.size(); ++i) {
-						if (GamePlay.Teams.get(i).getPoints() <= 0) { 
-							setBetBtn[i].setEnabled(false);
-							ptSelectSlider[i].setEnabled(false);
-							teamPrompt.append(GamePlay.Teams.get(i).getName() + " doesn't have enough points to bet.\n");
-						}
-						else {
-							setupSlider(i);
-							setBetBtn[i].setEnabled(true);
-						}
-						FJABtn[i].setEnabled(false);
-						FJAArea[i].setEnabled(false);
-						
-					}
-					showPanel("finalJeopardyPanel");
-				}
-			}
-			
-			private void setupSlider(int i) {
-	      ptSelectSlider[i].setMaximum(GamePlay.Teams.get(i).getPoints());
-	      ptSelectSlider[i].setMinimum(0);
-	      ptSelectSlider[i].setValue(1);
-
-	      int spacing = 0;
-	      if (GamePlay.Teams.get(i).getPoints() <= 100) spacing = 10;
-	      else if (GamePlay.Teams.get(i).getPoints() <= 1000) spacing = 100;
-	      else if (GamePlay.Teams.get(i).getPoints() <= 2000) spacing = 200;
-	      else if (GamePlay.Teams.get(i).getPoints() <= 3000) spacing = 300;
-	      else if (GamePlay.Teams.get(i).getPoints() <= 4000) spacing = 400;
-	      else if (GamePlay.Teams.get(i).getPoints() <= 5000) spacing = 500;
-	      else if (GamePlay.Teams.get(i).getPoints() <= 5000) spacing = 600;
-	      else spacing = 1000;
-	      ptSelectSlider[i].setMajorTickSpacing(spacing);
 			}
 		});
 		
@@ -683,8 +593,17 @@ public class GameBoardUI extends JFrame {
 				qErrorLbl.setText("\n");
       } else {
 				GamePlay.numTries = 0;
-				showPanel("questionListPanel");
-				qPassBtn.setVisible(false);
+				GamePlay.updateCurrentTeam();
+				GamePlay.nextTeam = GamePlay.currTeam;
+				teamPrompt.append("Now it's " + GamePlay.Teams.get(GamePlay.nextTeam).getName() + "'s Please Choose a question.\n");
+				GamePlay.qsAnswered++;
+				if (GamePlay.qsAnswered == 25)
+					createFinalJeopardy();
+				else {
+					showPanel("questionListPanel");
+					qPassBtn.setVisible(false);
+					qPassBtn.setEnabled(true);
+				}
       }
 		});
 		///////////////////////////////
@@ -793,112 +712,8 @@ public class GameBoardUI extends JFrame {
 			private void showWinner() {
 				FJQArea.setText("Answer: " + GamePlay.FJQuestion.getAnswer() + "\n");
 				teamPrompt.append("The answer is: " + GamePlay.FJQuestion.getAnswer() + "\n");
-				
-				JDialog winnerDialog = new JDialog();
-				winnerDialog.setPreferredSize(new Dimension(600, 600));
-				winnerDialog.setTitle("Thank you for playing");
-				
-				JPanel winnerPanel = new JPanel(); winnerPanel.setLayout(new BoxLayout(winnerPanel, BoxLayout.Y_AXIS));
-				winnerPanel.setBackground(new Color(0,150,136));
-				
-				// Create message
-				SimpleAttributeSet paneStyle = new SimpleAttributeSet();
-				StyleConstants.setAlignment(paneStyle, StyleConstants.ALIGN_CENTER);
-				StyleConstants.setFontFamily(paneStyle, "Cambria BOLD");
-				StyleConstants.setFontSize(paneStyle, 18);
 
-				JTextPane lbl = new JTextPane();
-				lbl.setEditable(false);
-				lbl.setText("And the winner(s) is/are\n");
-				lbl.setBackground(new Color(0,150,136));
-				lbl.setForeground(Color.WHITE);
-				StyledDocument doc = lbl.getStyledDocument();
-				doc.setParagraphAttributes(0, 104, paneStyle, false);
-				winnerPanel.add(lbl, BorderLayout.NORTH);
-				ArrayList<Integer> winner = GamePlay.findWinner();
-				for (Integer teamID : winner) {
-					lbl.setText(lbl.getText() + GamePlay.Teams.get(teamID).getName() + "\n");
-				}
-				
-				winnerDialog.add(winnerPanel);
-				
-				// add rating panel
-				
-		  	JSlider ratingSlider = new JSlider();
-		  	ratingSlider.setValue(1);
-		  	ratingSlider.setMaximum(5);
-		  	ratingSlider.setValue(3);
-		  	ratingSlider.setPaintLabels(true);
-		  	ratingSlider.setPaintTicks(true);
-		  	ratingSlider.setMajorTickSpacing(1);
-		  	ratingSlider.setFont(new Font("Cambria", Font.BOLD, 15));
-		  	ratingSlider.setBackground(new Color(0,150,136));
-		  	ratingSlider.setForeground(Color.WHITE);
-		  	ratingSlider.setPreferredSize(new Dimension(500, 70));
-		  	
-		  	JLabel selectedRatingLbl = new JLabel(""+ratingSlider.getValue(), SwingConstants.CENTER);
-		  	selectedRatingLbl.setPreferredSize(new Dimension(30, 70));
-		  	selectedRatingLbl.setFont(new Font("Cambria", Font.BOLD, 15));
-		  	selectedRatingLbl.setForeground(Color.WHITE);
-		  	JPanel selectedRatingPanel = new JPanel();
-		  	selectedRatingPanel.setPreferredSize(new Dimension(30,70)); selectedRatingPanel.setBackground(Color.DARK_GRAY);
-		  	selectedRatingPanel.add(selectedRatingLbl);
-		  	
-		  	JLabel currentAvgRatingLbl = new JLabel("current average rating: " + (Jeopardy.fileRanking.get(0)/Jeopardy.fileRanking.get(1)) + "/5", SwingConstants.CENTER); 
-		  	currentAvgRatingLbl.setFont(new Font("Cambria", Font.BOLD, 20));
-		  	
-		  	ratingSlider.addChangeListener((ChangeEvent ce) -> {
-		  		selectedRatingLbl.setText(""+ratingSlider.getValue());
-		  	});
-
-		  	
-		  	// Selected rating
-		  	GridBagConstraints gbc = new GridBagConstraints();
-		  	JPanel ratingsPanel = new JPanel(new GridBagLayout());
-		  	ratingsPanel.setBackground(new Color(0,150,136));
-		  	gbc.gridx = 0; gbc.gridy = 0;
-		  	ratingsPanel.add(ratingSlider, gbc);
-		  	gbc.gridx = 1; gbc.gridy = 0; gbc.insets = new Insets(0,10,0,0);
-		  	ratingsPanel.add(selectedRatingPanel, gbc);
-		  	gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 2; gbc.insets = new Insets(0,0,0,0);
-		  	ratingsPanel.add(currentAvgRatingLbl, gbc);
-		  	
-		  	ratingsPanel.setBorder(new MatteBorder(0,0,50,0, new Color(0,150,136)));
-		  	
-				winnerPanel.add(ratingsPanel);
-				
-				JPanel buttonPanel = new JPanel(); buttonPanel.setBackground(new Color(0,150,136));
-				JButton OKBtn = new JButton("Okay");
-				OKBtn.setBorder(new MatteBorder(13,16,13,16, Color.WHITE));
-				OKBtn.setBackground(Color.WHITE);
-				OKBtn.setForeground(new Color(0,150,136));
-				OKBtn.setFont(new Font("Cambria", Font.BOLD, 25));
-				// style button
-				buttonPanel.add(OKBtn);
-				winnerDialog.setAlwaysOnTop(true);
-				winnerDialog.setLocationRelativeTo(mainPanel);
-				winnerDialog.setVisible(true);
-				OKBtn.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent ae) {
-						// get values and increase # of people rated
-						Jeopardy.fileRanking.set(1, Jeopardy.fileRanking.get(1) + 1);
-						Jeopardy.fileRanking.set(0, Jeopardy.fileRanking.get(0) + ratingSlider.getValue());
-						Jeopardy.saveFile();
-						
-						winnerDialog.setVisible(false);
-						Jeopardy.GameBoard.setVisible(false);
-						Jeopardy.fileChooser = null;
-						Jeopardy.fileChooser = new FileChooser();
-						Jeopardy.GameBoard = null;
-						GamePlay.resetVariables();
-					}
-					
-				});
-				winnerDialog.add(buttonPanel, BorderLayout.SOUTH);
-				winnerDialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-				winnerDialog.pack();
-				setVisible(true);
+				createRatingsPanel(true);
 			}
 		}
 		
@@ -1074,11 +889,166 @@ public class GameBoardUI extends JFrame {
 	  finalJeopardyPanel.add(FJAPanel);
 	}
 	
+	private void createFinalJeopardy() {
+		if (GamePlay.teamsAllNegative()) {
+			createRatingsPanel(false);
+		} else {
+			teamPrompt.append("------Welcome to Final Jeopardy!------\n");
+			// check who can answer the question
+			for (int i = 0; i < GamePlay.Teams.size(); ++i) {
+				if (GamePlay.Teams.get(i).getPoints() <= 0) { 
+					setBetBtn[i].setEnabled(false);
+					ptSelectSlider[i].setEnabled(false);
+					teamPrompt.append(GamePlay.Teams.get(i).getName() + " doesn't have enough points to bet.\n");
+				}
+				else {
+					setupSlider(i);
+					setBetBtn[i].setEnabled(true);
+				}
+				FJABtn[i].setEnabled(false);
+				FJAArea[i].setEnabled(false);
+				
+			}
+			showPanel("finalJeopardyPanel");
+		}
+	}
+	
+	private void setupSlider(int i) {
+    ptSelectSlider[i].setMaximum(GamePlay.Teams.get(i).getPoints());
+    ptSelectSlider[i].setMinimum(0);
+    ptSelectSlider[i].setValue(1);
+
+    int spacing = 0;
+    if (GamePlay.Teams.get(i).getPoints() <= 100) spacing = 10;
+    else if (GamePlay.Teams.get(i).getPoints() <= 1000) spacing = 100;
+    else if (GamePlay.Teams.get(i).getPoints() <= 2000) spacing = 200;
+    else if (GamePlay.Teams.get(i).getPoints() <= 3000) spacing = 300;
+    else if (GamePlay.Teams.get(i).getPoints() <= 4000) spacing = 400;
+    else if (GamePlay.Teams.get(i).getPoints() <= 5000) spacing = 500;
+    else if (GamePlay.Teams.get(i).getPoints() <= 5000) spacing = 600;
+    else spacing = 1000;
+    ptSelectSlider[i].setMajorTickSpacing(spacing);
+	}
+	
 	public static void showPanel(String panelName) {
 		if (panelName.equals("questionListPanel") || panelName.equals("answerQuestionPanel") || panelName.equals("finalJeopardyPanel"))
 			cl.show(mainPanel, panelName);
 	}
 
+	private void createRatingsPanel(boolean hasWinner) {
+		// 0 = no winners
+		// 1 = has winners
+		
+		JDialog winnerDialog = new JDialog();
+		winnerDialog.setPreferredSize(new Dimension(600, 600));
+		winnerDialog.setTitle("Thank you for playing");
+		
+		JPanel winnerPanel = new JPanel(); winnerPanel.setLayout(new BoxLayout(winnerPanel, BoxLayout.Y_AXIS));
+		winnerPanel.setBackground(new Color(0,150,136));
+		
+		// Create message
+		SimpleAttributeSet paneStyle = new SimpleAttributeSet();
+		StyleConstants.setAlignment(paneStyle, StyleConstants.ALIGN_CENTER);
+		StyleConstants.setFontFamily(paneStyle, "Cambria BOLD");
+		StyleConstants.setFontSize(paneStyle, 18);
+
+		JTextPane lbl = new JTextPane();
+		lbl.setEditable(false);
+		lbl.setBackground(new Color(0,150,136));
+		lbl.setForeground(Color.WHITE);
+		StyledDocument doc = lbl.getStyledDocument();
+		doc.setParagraphAttributes(0, 104, paneStyle, false);
+		winnerPanel.add(lbl, BorderLayout.NORTH);
+		if (hasWinner) {
+			lbl.setText("And the winner(s) is/are\n");
+			ArrayList<Integer> winner = GamePlay.findWinner();
+			for (Integer teamID : winner) {
+				lbl.setText(lbl.getText() + GamePlay.Teams.get(teamID).getName() + "\n");
+			}
+		} else {
+			lbl.setText("There are no teams eligible for Final Jeopardy.\nThere are no winners");
+		}
+		
+		winnerDialog.add(winnerPanel);
+		
+		// add rating panel
+		
+  	JSlider ratingSlider = new JSlider();
+  	ratingSlider.setValue(1);
+  	ratingSlider.setMaximum(5);
+  	ratingSlider.setValue(3);
+  	ratingSlider.setPaintLabels(true);
+  	ratingSlider.setPaintTicks(true);
+  	ratingSlider.setMajorTickSpacing(1);
+  	ratingSlider.setFont(new Font("Cambria", Font.BOLD, 15));
+  	ratingSlider.setBackground(new Color(0,150,136));
+  	ratingSlider.setForeground(Color.WHITE);
+  	ratingSlider.setPreferredSize(new Dimension(500, 70));
+  	
+  	JLabel selectedRatingLbl = new JLabel(""+ratingSlider.getValue(), SwingConstants.CENTER);
+  	selectedRatingLbl.setPreferredSize(new Dimension(30, 70));
+  	selectedRatingLbl.setFont(new Font("Cambria", Font.BOLD, 15));
+  	selectedRatingLbl.setForeground(Color.WHITE);
+  	JPanel selectedRatingPanel = new JPanel();
+  	selectedRatingPanel.setPreferredSize(new Dimension(30,70)); selectedRatingPanel.setBackground(Color.DARK_GRAY);
+  	selectedRatingPanel.add(selectedRatingLbl);
+  	
+  	JLabel currentAvgRatingLbl = new JLabel("current average rating: " + (Jeopardy.fileRanking.get(0)/Jeopardy.fileRanking.get(1)) + "/5", SwingConstants.CENTER); 
+  	currentAvgRatingLbl.setFont(new Font("Cambria", Font.BOLD, 20));
+  	
+  	ratingSlider.addChangeListener((ChangeEvent ce) -> {
+  		selectedRatingLbl.setText(""+ratingSlider.getValue());
+  	});
+
+  	
+  	// Selected rating
+  	GridBagConstraints gbc = new GridBagConstraints();
+  	JPanel ratingsPanel = new JPanel(new GridBagLayout());
+  	ratingsPanel.setBackground(new Color(0,150,136));
+  	gbc.gridx = 0; gbc.gridy = 0;
+  	ratingsPanel.add(ratingSlider, gbc);
+  	gbc.gridx = 1; gbc.gridy = 0; gbc.insets = new Insets(0,10,0,0);
+  	ratingsPanel.add(selectedRatingPanel, gbc);
+  	gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 2; gbc.insets = new Insets(0,0,0,0);
+  	ratingsPanel.add(currentAvgRatingLbl, gbc);
+  	
+  	ratingsPanel.setBorder(new MatteBorder(0,0,50,0, new Color(0,150,136)));
+  	
+		winnerPanel.add(ratingsPanel);
+		
+		JPanel buttonPanel = new JPanel(); buttonPanel.setBackground(new Color(0,150,136));
+		JButton OKBtn = new JButton("Okay");
+		OKBtn.setBorder(new MatteBorder(13,16,13,16, Color.WHITE));
+		OKBtn.setBackground(Color.WHITE);
+		OKBtn.setForeground(new Color(0,150,136));
+		OKBtn.setFont(new Font("Cambria", Font.BOLD, 25));
+		// style button
+		buttonPanel.add(OKBtn);
+		winnerDialog.setAlwaysOnTop(true);
+		winnerDialog.setLocationRelativeTo(mainPanel);
+		winnerDialog.setVisible(true);
+		OKBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+				// get values and increase # of people rated
+				Jeopardy.fileRanking.set(1, Jeopardy.fileRanking.get(1) + 1);
+				Jeopardy.fileRanking.set(0, Jeopardy.fileRanking.get(0) + ratingSlider.getValue());
+				Jeopardy.saveFile();
+				
+				winnerDialog.setVisible(false);
+				Jeopardy.GameBoard.setVisible(false);
+				Jeopardy.fileChooser = null;
+				Jeopardy.fileChooser = new FileChooser();
+				Jeopardy.GameBoard = null;
+				GamePlay.resetVariables();
+			}
+			
+		});
+		winnerDialog.add(buttonPanel, BorderLayout.SOUTH);
+		winnerDialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		winnerDialog.pack();
+		setVisible(true);
+	}
 	
 	private String printPts(int pts) {
 		if (pts < 0)

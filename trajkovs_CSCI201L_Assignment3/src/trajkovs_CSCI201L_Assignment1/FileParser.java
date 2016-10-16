@@ -33,7 +33,6 @@ public class FileParser {
 		
 		// store the filename for later writting
 		Jeopardy.gameFile = inputFile;
-		Jeopardy.saveFile();
 	}
 	
 	//private methods
