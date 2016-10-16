@@ -1,5 +1,6 @@
 package trajkovs_CSCI201L_Assignment1;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -8,8 +9,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
-public class userDB /*implements Serializable*/ {
-//	private static final long serialVersionUID = 2411285846743253752L;
+public class userDB {
 	ArrayList<User> users = new ArrayList<User>();
 	
 	public userDB() {
@@ -22,30 +22,39 @@ public class userDB /*implements Serializable*/ {
 	}
 	
 	protected void loginUser(String username, String password) throws Exception {
-		if (validateUser(username, password)) {
+		if (!validateCredentials(username, password)) {
 			throw new Exception("This password and username combintion does not exist");
 		} else {
 			Jeopardy.loginScreen.setVisible(false);
+			Jeopardy.fileChooser = new FileChooser();
 			Jeopardy.fileChooser.setVisible(true);
 			saveUsers();
 		}
 	}
 	
+	public static void logoutUser() {
+		Jeopardy.loginScreen.setVisible(true);
+		if (Jeopardy.GameBoard != null)
+			Jeopardy.GameBoard.dispose();
+		if (Jeopardy.fileChooser != null)
+			Jeopardy.fileChooser.dispose();
+		
+		// clear variables
+		GamePlay.resetVariables();
+	}
+	
 	protected void createUser(String username, String password) throws Exception {
-		if (!validateUser(username, password)) {
+		if (!validateUser(username)) {
 			throw new Exception("This username already exists");
 		} else {
 			users.add(new User(username, password));
+			saveUsers();
 		}
 	}
 	
-/*	private void addUser() {
-		
-	}*/
-	
 	// checks if the user exists. False if it exists, True otherwise
 	// ignores case
-	private boolean validateUser(String username, String password) {
+	private boolean validateUser(String username) {
 		for (User user : users) {
 			if (user.getUsername().equalsIgnoreCase(username))
 				return false;
@@ -53,55 +62,64 @@ public class userDB /*implements Serializable*/ {
 		return true;
 	}
 	
+	// Used for login. True if valid credentials
+	private boolean validateCredentials(String username, String password) {
+		for (User user : users) {
+			if (user.getUsername().equalsIgnoreCase(username) && user.getPassword().equals(password))
+				return true;
+		}
+		return false;
+	}
+	
 	protected void saveUsers() {
 		ObjectOutputStream oos = null;
 		try {
-			oos = new ObjectOutputStream(new FileOutputStream("./data/userDB.txt", false));
+			File userFile = new File("./data/userDB.txt");
+			try {
+				userFile.createNewFile();
+			} catch (IOException e) {/*nothing to do if file exists*/}
+			oos = new ObjectOutputStream(new FileOutputStream(/*"./data/userDB.txt"*/userFile, false));
 			for (User user : users) {
 				System.out.println(users.size() + "user: " + user.getUsername());
 				oos.writeObject(user);
 				oos.flush();
 			}
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();// send 
+			System.out.println("Error Reading file");
 		} catch (IOException e) {
-			e.printStackTrace();// send
+			System.out.println("Error Reading file");
 		} finally {
 			try {
 				oos.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("Error Closing File");
 			}
 		}
 	}
 	
 	protected void loadUsers() throws ClassNotFoundException {
 		ObjectInputStream ois = null;
-		try {
-			ois = new ObjectInputStream(new FileInputStream("./data/userDB.txt"));
-			User user = (User)ois.readObject();
-			while (user != null) {
-				users.add(user);
-//				ois.flush();
-				user = (User)ois.readObject();
-			}
-//				user = (User)ois.readObject();
-//				users.add(user);
-//			ois.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();	// send 
-		} catch (IOException e) { // throws exception at the end of file. nothing to process just keep going
-//			e.printStackTrace(); // send
-		} finally {
+		File userFile = new File("./data/userDB.txt");
+		System.out.println(userFile.exists());
+		if (userFile.exists()) {
 			try {
-				ois.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				ois = new ObjectInputStream(new FileInputStream("./data/userDB.txt"));
+				User user = (User)ois.readObject();
+				while (user != null) {
+					users.add(user);
+					user = (User)ois.readObject();
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();	// send 
+			} catch (IOException e) { // throws exception at the end of file. nothing to process just keep going
+			} finally {
+				try {
+					ois.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
-		
 		System.out.println(users.size());
 		printAllUsers();
 	}

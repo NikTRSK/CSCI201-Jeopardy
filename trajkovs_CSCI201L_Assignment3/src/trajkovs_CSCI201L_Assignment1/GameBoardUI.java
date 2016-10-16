@@ -117,8 +117,7 @@ public class GameBoardUI extends JFrame {
 		logoutGame = new JMenuItem("Logout");
 		menu.add(logoutGame);
 		logoutGame.addActionListener((ActionEvent event) -> {
-      Jeopardy.GameBoard.setVisible(false);
-			Jeopardy.loginScreen.setVisible(true);
+      userDB.logoutUser();
 		});
 
 		exitGame= new JMenuItem("Exit Game");
@@ -601,6 +600,9 @@ public class GameBoardUI extends JFrame {
 					OKBtn.addActionListener(new ActionListener() {
 						@Override
 						public void actionPerformed(ActionEvent ae) {
+							// get values and increase # of people rated
+//							Jeopardy.fileRanking.get(1);
+							
 							noJeopardyDialog.setVisible(false);
 							Jeopardy.GameBoard.setVisible(false);
 							Jeopardy.fileChooser = null;
@@ -657,15 +659,6 @@ public class GameBoardUI extends JFrame {
 				if (!qAnswerArea.getText().trim().equals("")) {
 					qPassBtn.setEnabled(false);
 				}
-//				String [] ans = qAnswerArea.getText().trim().split("\\s+");
-//				if (ans.length >= 2 && GamePlay.currTeam != GamePlay.nextTeam){
-//					if (Helpers.elementExists(GamePlay.Answers[0], ans[0]) && Helpers.elementExists(GamePlay.Answers[1], ans[1])) {
-//						qSubmitBtn.setEnabled(true);
-//					}
-//				} else {
-//					qSubmitBtn.setEnabled(false);
-//					qErrorLbl.setText("Invalid format for your question. Remember to pose it as a question.");
-//				}
 			}
 
 			@Override
@@ -677,7 +670,7 @@ public class GameBoardUI extends JFrame {
 
 			@Override
 			public void removeUpdate(DocumentEvent documentEvent) {
-//				validInput();
+
 			}
 		});
 		
@@ -851,7 +844,7 @@ public class GameBoardUI extends JFrame {
 		  	selectedRatingPanel.setPreferredSize(new Dimension(30,70)); selectedRatingPanel.setBackground(Color.DARK_GRAY);
 		  	selectedRatingPanel.add(selectedRatingLbl);
 		  	
-		  	JLabel currentAvgRatingLbl = new JLabel("current average rating: " + Jeopardy.fileRanking + "/5", SwingConstants.CENTER); 
+		  	JLabel currentAvgRatingLbl = new JLabel("current average rating: " + (Jeopardy.fileRanking.get(0)/Jeopardy.fileRanking.get(1)) + "/5", SwingConstants.CENTER); 
 		  	currentAvgRatingLbl.setFont(new Font("Cambria", Font.BOLD, 20));
 		  	
 		  	ratingSlider.addChangeListener((ChangeEvent ce) -> {
@@ -888,6 +881,11 @@ public class GameBoardUI extends JFrame {
 				OKBtn.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent ae) {
+						// get values and increase # of people rated
+						Jeopardy.fileRanking.set(1, Jeopardy.fileRanking.get(1) + 1);
+						Jeopardy.fileRanking.set(0, Jeopardy.fileRanking.get(0) + ratingSlider.getValue());
+						Jeopardy.saveFile();
+						
 						winnerDialog.setVisible(false);
 						Jeopardy.GameBoard.setVisible(false);
 						Jeopardy.fileChooser = null;
@@ -1081,6 +1079,7 @@ public class GameBoardUI extends JFrame {
 			cl.show(mainPanel, panelName);
 	}
 
+	
 	private String printPts(int pts) {
 		if (pts < 0)
 			return ("-$" + Math.abs(pts));

@@ -292,8 +292,9 @@ public class FileChooser extends JFrame {
 						Helpers.ParseFile(inputFile);
 						fileNameLbl.setText(inputFile.getName());
 						validInput();
-						avgRatingLbl.setText("average rating: " + Jeopardy.fileRanking.get(1)/Jeopardy.fileRanking.get(0) + "/5");
-					} catch (RuntimeException rte) {
+						avgRatingLbl.setText("average rating: " + Jeopardy.fileRanking.get(0)/Jeopardy.fileRanking.get(1) + "/5");
+					} catch (Exception rte) {
+						System.out.println(rte.getMessage());
 						displayPopup(rte.getMessage());
 						GamePlay.resetVariables();		
 					}
@@ -358,8 +359,7 @@ public class FileChooser extends JFrame {
 		});
 		
 		logoutBtn.addActionListener((ActionEvent event) -> {
-      Jeopardy.loginScreen.setVisible(true);
-			Jeopardy.fileChooser.setVisible(false);
+			userDB.logoutUser();
 		});
 		
 		exitBtn.addActionListener((ActionEvent event) -> {

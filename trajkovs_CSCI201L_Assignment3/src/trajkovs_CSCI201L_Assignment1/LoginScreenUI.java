@@ -237,6 +237,8 @@ public class LoginScreenUI extends JFrame {
 		loginBtn.addActionListener((ActionEvent event) -> { // playing around with instant instantiation
 			try {
 				Jeopardy.Users.loginUser(usernameInputField.getText(), passwordInputField.getText());
+				usernameInputField.setText("");
+				passwordInputField.setText("");
 			} catch (Exception e) {
 				errorLbl.setText(e.getMessage());
 			}

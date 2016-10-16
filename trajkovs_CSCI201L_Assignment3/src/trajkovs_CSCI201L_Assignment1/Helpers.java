@@ -135,154 +135,159 @@ public class Helpers {
     item.setOpaque(opaque);
 	}
 	
-	// True - error; False - sucess
-  public static void ParseFile(File input) {  
-    String currLine; // holds the current line
-    int questionCount = 0; // holds the number of questions loaded
-    BufferedReader br = null;
-    
-    if (input == null) {
-    	throw new RuntimeException("Error opening file.");
-    }
-    
-    try {
-      // Create the file stream
-      br = new LineNumberReader(new FileReader(input));
-      
-      // Parse in the Categories
-      currLine = br.readLine();
-      String [] line = currLine.split("::", -1);
-      // Check if there are duplicate categories
-      if (line.length != 6 || Helpers.hasDuplicates(Arrays.copyOfRange(line, 0, 5))) {
-      	throw new RuntimeException("Wrong number of categories or duplicate categories");
-      }
-      else {
-        Jeopardy.setCategories(Arrays.copyOfRange(line, 0, 5));
-        System.out.println(line[5]);
-        Jeopardy.categoryPath = line[5];
-      }
-
-      // Parse in the Point values for questions
-      currLine = br.readLine().trim();
-      line = currLine.split("::", -1);
-      // Check if there are duplicate point values or if they are all numbers
-      if (line.length != 7 || Helpers.hasDuplicates(Arrays.copyOfRange(line, 0, 5)) || !Helpers.allNumbers(Arrays.copyOfRange(line, 0, 5))) {
-      	throw new RuntimeException("Wrong number of point values or duplicate point values");
-      }
-      else {
-        Jeopardy.setPoints(Arrays.copyOfRange(line, 0, 5));
-        Jeopardy.qBtnEnabledPath = line[5];
-        Jeopardy.qBtnDisabledPath = line[6];
-      }
-    
-      // Sort the point values (for convenience)
-      Arrays.sort(GamePlay.Points);
-      
-      // Parse in the questions
-      while ((currLine = br.readLine()) != null) {
-        currLine.trim();
-        // check if the line starts with ::
-//        System.out.println(currLine);
-        if (!currLine.startsWith("::") && questionCount == 25 && GamePlay.FJQuestion != null) {
-        	try {
-        		int value = Integer.parseInt(currLine);
-        		Jeopardy.fileRanking.add(value);
-//        		System.out.println(value + "LEN: " + Jeopardy.fileRanking.size());
-        		currLine = br.readLine();
-//        		System.out.println(currLine);
-        		value = Integer.parseInt(currLine);
-        		Jeopardy.fileRanking.add(value);
-//        		System.out.println(value + "LEN: " + Jeopardy.fileRanking.size());
-        	} catch (NumberFormatException e) {throw new RuntimeException("Missing ranking values");}
-        } 
-        else if (!currLine.startsWith("::")) {
-        	throw new RuntimeException("Wrong question format");
-        } else {
-          line = currLine.split("::", -1);
-          // lookahed to see if the quesiton is on 2 lines
-          try { br.mark(10000); }
-          catch (IOException ioe) { throw new RuntimeException(ioe.getMessage()); }
-          currLine = br.readLine();
-          // Handles the last line of file
-          if (currLine != null) {
-            currLine.trim();
-            // if the question has 2nd line
-            if (!currLine.startsWith("::")) {
-              line = Helpers.appendToArray(line, currLine.split("::"));
-            } else {  // if it's not go back  
-              try { br.reset(); }
-              catch (IOException ioe) { throw new RuntimeException(ioe.getMessage()); } 
-            }
-          }
-          if (Helpers.arrayEmpty(line, 1, line.length-1)) {
-          	throw new RuntimeException("Wrong question format");
-          }
-          // error checking for valid category and, values
-          String cat = line[1].trim();
-          String question = "", answer = "";
-          int pts = 0;
-
-          // Check for FINAL JEOPARDY Question
-          if (cat.toLowerCase().equals("fj")) {
-            if (GamePlay.FJQuestion != null) {
-            	throw new RuntimeException("Final Jeopardy question already exists! Exiting...");
-            }
-            if (line.length != 4) {
-            	throw new RuntimeException("Wrong format for Final Jeopardy question!");
-            }
-            GamePlay.FJQuestion = new Question(line[2].trim(), line[3].trim());
-          } else {  // Regular questions
-            if (Helpers.isNumber(line[2]))
-              pts = Integer.parseInt(line[2]);
-            else {
-            	throw new RuntimeException("Wrong question format1");
-            }
-            question = line[3].trim();
-            answer = line[4].trim();
-            
-            // Create a new question and add it to the Question list
-            if (Helpers.elementExists(GamePlay.Categories, cat) && Helpers.elementExists(GamePlay.Points, pts)) {
-              // if first time adding key
-              if (GamePlay.Questions.get(cat.toLowerCase()) == null)
-                GamePlay.Questions.put(cat.toLowerCase(), new ArrayList<Question>());
-              
-              // checks for questions with duplicate point values
-              if (Jeopardy.pointsExist(cat, pts)) {
-              	throw new RuntimeException("Duplicate point value!\nExiting...");
-              }
-              
-              // Checks if the question exists. Only checks for same question not answer, since a question can't have 2 answers.
-              // Only checks within the same category
-              if (Helpers.questionExists(question, GamePlay.Questions.get(cat.toLowerCase()))) {
-              	throw new RuntimeException("Duplicate question!\nExiting...");
-              }
-              
-              GamePlay.Questions.get(cat.toLowerCase()).add(new Question(cat.toLowerCase(), pts, question, answer));
-              if (!cat.toLowerCase().equals("fj"))
-                questionCount++;
-            } else{
-            	throw new RuntimeException("Category or Points Value invalid");
-            }
-          }
-          try { br.reset(); }
-          catch (IOException ioe) { /*throw new RuntimeException(ioe.getMessage());*/ } 
-        }
-      }
-    } catch (FileNotFoundException fnfe) { throw new RuntimeException("FileNotFoundException: " + fnfe.getMessage()); }
-      catch (IOException ioe) { throw new RuntimeException("IOException: " + ioe.getMessage()); }
-      finally {
-      // Close the file stream
-      if (br != null) {
-        try {
-          br.close();
-        } catch (IOException ioe) {
-        	throw new RuntimeException(ioe.getMessage());
-        }
-      }
-    }
-    // See if everything was loaded correctly
-    Jeopardy.checkValidGame(questionCount);
-  }
+	public static void ParseFile(File input) throws Exception{  
+		FileParser parse = new FileParser();
+		parse.parseFile(input);
+	}
+	
+//	// True - error; False - sucess
+//  public static void ParseFile(File input) {  
+//    String currLine; // holds the current line
+//    int questionCount = 0; // holds the number of questions loaded
+//    BufferedReader br = null;
+//    
+//    if (input == null) {
+//    	throw new RuntimeException("Error opening file.");
+//    }
+//    
+//    try {
+//      // Create the file stream
+//      br = new LineNumberReader(new FileReader(input));
+//      
+//      // Parse in the Categories
+//      currLine = br.readLine();
+//      String [] line = currLine.split("::", -1);
+//      // Check if there are duplicate categories
+//      if (line.length != 6 || Helpers.hasDuplicates(Arrays.copyOfRange(line, 0, 5))) {
+//      	throw new RuntimeException("Wrong number of categories or duplicate categories");
+//      }
+//      else {
+//        Jeopardy.setCategories(Arrays.copyOfRange(line, 0, 5));
+//        System.out.println(line[5]);
+//        Jeopardy.categoryPath = line[5];
+//      }
+//
+//      // Parse in the Point values for questions
+//      currLine = br.readLine().trim();
+//      line = currLine.split("::", -1);
+//      // Check if there are duplicate point values or if they are all numbers
+//      if (line.length != 7 || Helpers.hasDuplicates(Arrays.copyOfRange(line, 0, 5)) || !Helpers.allNumbers(Arrays.copyOfRange(line, 0, 5))) {
+//      	throw new RuntimeException("Wrong number of point values or duplicate point values");
+//      }
+//      else {
+//        Jeopardy.setPoints(Arrays.copyOfRange(line, 0, 5));
+//        Jeopardy.qBtnEnabledPath = line[5];
+//        Jeopardy.qBtnDisabledPath = line[6];
+//      }
+//    
+//      // Sort the point values (for convenience)
+//      Arrays.sort(GamePlay.Points);
+//      
+//      // Parse in the questions
+//      while ((currLine = br.readLine()) != null) {
+//        currLine.trim();
+//        // check if the line starts with ::
+////        System.out.println(currLine);
+//        if (!currLine.startsWith("::") && questionCount == 25 && GamePlay.FJQuestion != null) {
+//        	try {
+//        		int value = Integer.parseInt(currLine);
+//        		Jeopardy.fileRanking.add(value);
+////        		System.out.println(value + "LEN: " + Jeopardy.fileRanking.size());
+//        		currLine = br.readLine();
+////        		System.out.println(currLine);
+//        		value = Integer.parseInt(currLine);
+//        		Jeopardy.fileRanking.add(value);
+////        		System.out.println(value + "LEN: " + Jeopardy.fileRanking.size());
+//        	} catch (NumberFormatException e) {throw new RuntimeException("Missing ranking values");}
+//        } 
+//        else if (!currLine.startsWith("::")) {
+//        	throw new RuntimeException("Wrong question format");
+//        } else {
+//          line = currLine.split("::", -1);
+//          // lookahed to see if the quesiton is on 2 lines
+//          try { br.mark(10000); }
+//          catch (IOException ioe) { throw new RuntimeException(ioe.getMessage()); }
+//          currLine = br.readLine();
+//          // Handles the last line of file
+//          if (currLine != null) {
+//            currLine.trim();
+//            // if the question has 2nd line
+//            if (!currLine.startsWith("::")) {
+//              line = Helpers.appendToArray(line, currLine.split("::"));
+//            } else {  // if it's not go back  
+//              try { br.reset(); }
+//              catch (IOException ioe) { throw new RuntimeException(ioe.getMessage()); } 
+//            }
+//          }
+//          if (Helpers.arrayEmpty(line, 1, line.length-1)) {
+//          	throw new RuntimeException("Wrong question format");
+//          }
+//          // error checking for valid category and, values
+//          String cat = line[1].trim();
+//          String question = "", answer = "";
+//          int pts = 0;
+//
+//          // Check for FINAL JEOPARDY Question
+//          if (cat.toLowerCase().equals("fj")) {
+//            if (GamePlay.FJQuestion != null) {
+//            	throw new RuntimeException("Final Jeopardy question already exists! Exiting...");
+//            }
+//            if (line.length != 4) {
+//            	throw new RuntimeException("Wrong format for Final Jeopardy question!");
+//            }
+//            GamePlay.FJQuestion = new Question(line[2].trim(), line[3].trim());
+//          } else {  // Regular questions
+//            if (Helpers.isNumber(line[2]))
+//              pts = Integer.parseInt(line[2]);
+//            else {
+//            	throw new RuntimeException("Wrong question format1");
+//            }
+//            question = line[3].trim();
+//            answer = line[4].trim();
+//            
+//            // Create a new question and add it to the Question list
+//            if (Helpers.elementExists(GamePlay.Categories, cat) && Helpers.elementExists(GamePlay.Points, pts)) {
+//              // if first time adding key
+//              if (GamePlay.Questions.get(cat.toLowerCase()) == null)
+//                GamePlay.Questions.put(cat.toLowerCase(), new ArrayList<Question>());
+//              
+//              // checks for questions with duplicate point values
+//              if (Jeopardy.pointsExist(cat, pts)) {
+//              	throw new RuntimeException("Duplicate point value!\nExiting...");
+//              }
+//              
+//              // Checks if the question exists. Only checks for same question not answer, since a question can't have 2 answers.
+//              // Only checks within the same category
+//              if (Helpers.questionExists(question, GamePlay.Questions.get(cat.toLowerCase()))) {
+//              	throw new RuntimeException("Duplicate question!\nExiting...");
+//              }
+//              
+//              GamePlay.Questions.get(cat.toLowerCase()).add(new Question(cat.toLowerCase(), pts, question, answer));
+//              if (!cat.toLowerCase().equals("fj"))
+//                questionCount++;
+//            } else{
+//            	throw new RuntimeException("Category or Points Value invalid");
+//            }
+//          }
+//          try { br.reset(); }
+//          catch (IOException ioe) { /*throw new RuntimeException(ioe.getMessage());*/ } 
+//        }
+//      }
+//    } catch (FileNotFoundException fnfe) { throw new RuntimeException("FileNotFoundException: " + fnfe.getMessage()); }
+//      catch (IOException ioe) { throw new RuntimeException("IOException: " + ioe.getMessage()); }
+//      finally {
+//      // Close the file stream
+//      if (br != null) {
+//        try {
+//          br.close();
+//        } catch (IOException ioe) {
+//        	throw new RuntimeException(ioe.getMessage());
+//        }
+//      }
+//    }
+//    // See if everything was loaded correctly
+//    Jeopardy.checkValidGame(questionCount);
+//  }
   
 }
 
