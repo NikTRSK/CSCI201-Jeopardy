@@ -1,4 +1,4 @@
-package trajkovs_CSCI201L_Assignment1;
+package other;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -10,6 +10,8 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+
+import GameLogic.Question;
 
 public class Helpers {
 	public static String capitalize(String toCapitalize) {

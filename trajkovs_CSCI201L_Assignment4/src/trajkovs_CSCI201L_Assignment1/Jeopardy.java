@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 //import Question
 
+import GameLogic.Question;
+import other.userDB;
+
 public class Jeopardy {
 	protected static userDB Users = new userDB();
 	protected static GameBoardUI GameBoard;

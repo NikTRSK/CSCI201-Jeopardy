@@ -1,6 +1,5 @@
-package trajkovs_CSCI201L_Assignment1;
+package GUI;
 
-import javax.swing.JFrame;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -21,6 +20,9 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
@@ -41,15 +43,14 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
-import GameLogic.Team;
-import other.Helpers;
 import other.userDB;
-
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
+import other.GameConstants;
+import other.Helpers;
 
 public class FileChooser extends JFrame {
 	private static final long serialVersionUID = 1L;
+	GameData gameData;
+	
 	// GUI Elements
 	private JLabel welcomeLbl, promptLbl, fileChooserLbl, fileNameLbl, teamPromptLbl, avgRatingLbl;
 	private JLabel [] teamLbls = new JLabel[4];
@@ -68,6 +69,7 @@ public class FileChooser extends JFrame {
 	
 	public FileChooser() {
 		super("Welcome to Jeopardy");
+		gameData = new GameData();
 		initializeComponents();
 		createGUI();
 		addEvents();
@@ -294,14 +296,18 @@ public class FileChooser extends JFrame {
 		    if (returnVal == JFileChooser.APPROVE_OPTION) {
 					try {
 						inputFile = chooseFile.getSelectedFile();
-						Helpers.ParseFile(inputFile);
+						Helpers.ParseFile(inputFile, gameData);
 						fileNameLbl.setText(inputFile.getName());
 						validInput();
-						avgRatingLbl.setText("average rating: " + Jeopardy.fileRanking.get(0)/Jeopardy.fileRanking.get(1) + "/5");
+						int ranking = gameData.getFileRanking();
+						if (ranking == -1)
+							avgRatingLbl.setText("average rating: N/A");
+						else
+							avgRatingLbl.setText("average rating: " + GameConstants.fileRanking.get(0)/GameConstants.fileRanking.get(1) + "/5");
 					} catch (Exception rte) {
 						System.out.println(rte.getMessage());
 						displayPopup(rte.getMessage());
-						GamePlay.resetVariables();		
+						gameData.resetVariables();		
 					}
 		    }
 			}
@@ -329,23 +335,24 @@ public class FileChooser extends JFrame {
 		
 		startBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
-				GamePlay.numTeams = teamSelectSlider.getValue();
+				gameData.setNumTeams(teamSelectSlider.getValue());
 				validInput();
-				GenerateTeams();
+				GenerateTeams(teamSelectSlider.getValue());
 				GamePlay.InitGame();
 				// Check for Quick Play
-				if (quickPlay.isSelected())
-					GamePlay.qsAnswered = 20;
-//					GamePlay.qsAnswered = 24;
-				Jeopardy.createGameBoard();
+				gameData.setNumberOfQuestions(quickPlay.isSelected());
+				new GameBoardUI(gameData, loggedInUser).setVisible(true);
+//				Jeopardy.createGameBoard();
+				
+				dispose();
 			}
 			
-			private void GenerateTeams() {
-				for (int i = 1; i <= GamePlay.numTeams; ++i) {
+			private void GenerateTeams(int numTeams) {
+				for (int i = 1; i <= numTeams; ++i) {
 					String teamName = teamTxtBoxes[i-1].getText().trim();
 					if (teamName.isEmpty())
 						teamName = "Team " + i;
-					GamePlay.Teams.add(new Team(teamName));
+					gameData.addTeam(teamName);
 				}
 			}
 		});
@@ -354,7 +361,7 @@ public class FileChooser extends JFrame {
       // Clear file
 			inputFile = null;
 			fileNameLbl.setText("");
-			GamePlay.resetVariables();
+			gameData.resetVariables();
 			
 			// Clear teams
 			for (int team = 0; team < 4; ++team)
@@ -364,7 +371,7 @@ public class FileChooser extends JFrame {
 		});
 		
 		logoutBtn.addActionListener((ActionEvent event) -> {
-			userDB.logoutUser();
+//			userDB.logoutUser();
 		});
 		
 		exitBtn.addActionListener((ActionEvent event) -> {

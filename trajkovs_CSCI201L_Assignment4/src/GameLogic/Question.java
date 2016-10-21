@@ -1,4 +1,4 @@
-package trajkovs_CSCI201L_Assignment1;
+package GameLogic;
 
 public class Question {
 	private String Category;

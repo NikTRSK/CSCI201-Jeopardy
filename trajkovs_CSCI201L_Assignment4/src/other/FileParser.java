@@ -1,4 +1,4 @@
-package trajkovs_CSCI201L_Assignment1;
+package other;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -7,6 +7,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import GUI.GameData;
+import GameLogic.Question;
+import trajkovs_CSCI201L_Assignment1.GamePlay;
+import trajkovs_CSCI201L_Assignment1.Jeopardy;
 
 // Liked the parser from the solution code so I used it
 public class FileParser {
@@ -18,21 +23,23 @@ public class FileParser {
 	protected String finalJeopardyQuestion;
 	protected String finalJeopardyAnswer;
 	
+	private GameData gameData;
 	//add the appropriate verbs and nouns to our sets
 		
 	//PARSING METHODS
 	
 	//filename is no longer passed in the GameData constructor like it did in Assignment 1 solution
 	//it now is passed in a class method
-	public void parseFile(File inputFile) throws Exception {
-		Jeopardy.linesInFile = 0; // used for writting
+	public void parseFile(File inputFile, GameData gd) throws Exception {
+		this.gameData = gd;
+		gameData.initLines(); // sets the lines in file to 0. Used for writing
 		// reset before parsing
-		GamePlay.resetVariables();
+		gameData.resetVariables();
 		this.inputFile = inputFile;
 		openFile();
 		
 		// store the filename for later writting
-		Jeopardy.gameFile = inputFile;
+		gameData.setGameFile(inputFile);
 	}
 	
 	//private methods
@@ -82,7 +89,7 @@ public class FileParser {
 	private void parseCategoriesAndPoints() throws IOException, Exception{
 		
 		String categories = br.readLine();
-		Jeopardy.linesInFile++;
+		gameData.addLine(); // increase line count
 		String[] parsedCategories = categories.split("::");
 		//if the split string has an array of size other than 5, too much or not enough info on categories
 		if (parsedCategories.length != 6){
@@ -98,7 +105,7 @@ public class FileParser {
 		}
 		
 		String pointValues = br.readLine();
-		Jeopardy.linesInFile++;
+		gameData.addLine(); // increase line count
 		String[] parsedPointValues = pointValues.split("::");
 		
 		//if the split string has an array of size other than 5, too much or not enough info on point values
@@ -111,17 +118,14 @@ public class FileParser {
     } 
 		
 		// Load categories
-		Jeopardy.setCategories(Arrays.copyOfRange(parsedCategories, 0, 5));
+		gameData.setCategories(Arrays.copyOfRange(parsedCategories, 0, 5));
 		// Load the category image
-		Jeopardy.categoryPath = parsedCategories[5];
+		gameData.setCategoryPath(parsedCategories[5]);
 		
 		// Load point values
-    Jeopardy.setPoints(Arrays.copyOfRange(parsedPointValues, 0, 5));
+		gameData.setPoints(Arrays.copyOfRange(parsedPointValues, 0, 5));
     // Load button labels
-    Jeopardy.qBtnEnabledPath = parsedPointValues[5];
-    Jeopardy.qBtnDisabledPath = parsedPointValues[6];
-    // Sort the point values (for convenience)
-    Arrays.sort(GamePlay.Points);
+		gameData.setButtonPath(parsedPointValues[5], parsedPointValues[6]);
 	}
 	
 	//this parses all the questions from the file, including final jeopardy, and return an error message if needed
@@ -136,7 +140,7 @@ public class FileParser {
 		while(questionCount != 26){
 			
 			currentLine = br.readLine();
-			Jeopardy.linesInFile++;
+			gameData.addLine(); // increase line count
 			//we have not reached 26 questions, so if currentLine is null, there are not enough questions
 			if (currentLine == null){
 				throwException("Not enough questions in the file");
@@ -165,9 +169,9 @@ public class FileParser {
 
 		// Parse file ranking
 		String numPeople = br.readLine();
-		Jeopardy.linesInFile++;
+		gameData.addLine(); // increase line count
 		String totalScore = br.readLine();
-		Jeopardy.linesInFile++;
+		gameData.addLine(); // increase line count
 		try {
 			int timesRanked = Integer.parseInt(numPeople);
 			int score = Integer.parseInt(totalScore);
@@ -183,7 +187,7 @@ public class FileParser {
 		}
 		
 		//if we never found the final jeopardy question, it is missing!
-		if (GamePlay.FJQuestion == null){
+		if (!gameData.FJExists()){
 			throwException("This game file does not have a final jeopardy question.");
 		}
 	}
@@ -193,7 +197,7 @@ public class FileParser {
 		
 		if(question.toLowerCase().startsWith("fj")){
 			//if we already have a final jeopardy question, we cannot have another and this must be an error
-			if (GamePlay.FJQuestion != null){
+			if (gameData.FJExists()){
 				throwException ("Cannot have more than one final jeopardy question.");
 			}
 			else{

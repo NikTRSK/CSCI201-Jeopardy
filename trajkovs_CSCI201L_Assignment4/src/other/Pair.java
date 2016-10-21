@@ -1,4 +1,4 @@
-package trajkovs_CSCI201L_Assignment1;
+package other;
 
 public class Pair<I1, I2> {
 	private I1 i1;

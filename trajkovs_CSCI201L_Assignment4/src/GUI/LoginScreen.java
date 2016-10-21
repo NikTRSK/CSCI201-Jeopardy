@@ -1,4 +1,4 @@
-package trajkovs_CSCI201L_Assignment1;
+package GUI;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -12,6 +12,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.sql.SQLException;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -31,8 +32,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import other.Helpers;
+import other.userDB;
+import trajkovs_CSCI201L_Assignment1.Jeopardy;
 
-public class LoginScreenUI extends JFrame {
+public class LoginScreen extends JFrame {
 	private static final long serialVersionUID = 1L;
 	// GUI Elements
 	
@@ -45,8 +48,12 @@ public class LoginScreenUI extends JFrame {
   Border margin = new EmptyBorder(5, 15, 5, 15);
   Border compound = new CompoundBorder(line, margin);
 	
-	public LoginScreenUI() {
+  // UserDatabase
+  userDB db;
+  
+	public LoginScreen() {
 		super("Welcome to Jeopardy");
+		db = new userDB(); // create database
 		initializeComponents();
 		createGUI();
 		addEvents();
@@ -161,7 +168,7 @@ public class LoginScreenUI extends JFrame {
 		// X Button Listener
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
-				Jeopardy.Users.saveUsers();	
+//				Jeopardy.Users.saveUsers();	
 				System.exit(0);
 			}
 		});
@@ -235,8 +242,9 @@ public class LoginScreenUI extends JFrame {
 		});
 		
 		loginBtn.addActionListener((ActionEvent event) -> { // playing around with instant instantiation
+			errorLbl.setText("\n");
 			try {
-				Jeopardy.Users.loginUser(usernameInputField.getText(), passwordInputField.getText());
+				loginUser(usernameInputField.getText(), passwordInputField.getText());
 				usernameInputField.setText("");
 				passwordInputField.setText("");
 			} catch (Exception e) {
@@ -245,10 +253,12 @@ public class LoginScreenUI extends JFrame {
 		});
 		
 		createAccountBtn.addActionListener((ActionEvent event) -> { // playing around with instant instantiation
+			errorLbl.setText("\n");
 			try {
-				Jeopardy.Users.createUser(usernameInputField.getText(), passwordInputField.getText());
-			} catch (Exception e) {
-				errorLbl.setText(e.getMessage());
+				if (!db.createUser(usernameInputField.getText(), passwordInputField.getText()))
+					errorLbl.setText("The username already exists");
+			} catch (SQLException sqle) {
+				System.out.println("SQLException: " + sqle);
 			}
 		});
 	}
@@ -273,6 +283,20 @@ public class LoginScreenUI extends JFrame {
 			UIManager.put("Panel.foreground", Color.WHITE);
 			UIManager.put("Button.background", new Color(39,40,34));
 			UIManager.put("Button.foreground", Color.WHITE);
+		}
+	}
+	
+	private void loginUser(String username, String password) {
+		try {
+			if (db.loginUser(username, password)) {
+//			Jeopardy.loginScreen.setVisible(false);
+//			Jeopardy.fileChooser = new FileChooser();
+//			Jeopardy.fileChooser.setVisible(true);
+			} else
+				errorLbl.setText("This password and username combintion does not exist");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.out.println("SQLException: " + e.getMessage());
 		}
 	}
 }

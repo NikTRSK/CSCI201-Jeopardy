@@ -5,6 +5,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import GameLogic.Question;
+import GameLogic.Team;
+import other.Helpers;
+
 public class GamePlay {
 	static protected String [] Categories = new String[5]; // holds all the categories for the game
 	static protected int [] Points = new int[5];	// holds the point values for the game
