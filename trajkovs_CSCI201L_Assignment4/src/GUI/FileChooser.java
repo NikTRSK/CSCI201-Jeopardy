@@ -44,6 +44,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import other.userDB;
+import other.FileParser;
 import other.GameConstants;
 import other.Helpers;
 
@@ -62,13 +63,16 @@ public class FileChooser extends JFrame {
 	private File inputFile;
 	static private JPanel selectTeamPanel; // used with error popup 
 	
+	String loggedInUser;
+	
 	// Create Border
   Border line = new LineBorder(Color.DARK_GRAY);
   Border margin = new EmptyBorder(5, 15, 5, 15);
   Border compound = new CompoundBorder(line, margin);
 	
-	public FileChooser() {
+	public FileChooser(String loggedInUser) {
 		super("Welcome to Jeopardy");
+		this.loggedInUser = loggedInUser;
 		gameData = new GameData();
 		initializeComponents();
 		createGUI();
@@ -296,7 +300,10 @@ public class FileChooser extends JFrame {
 		    if (returnVal == JFileChooser.APPROVE_OPTION) {
 					try {
 						inputFile = chooseFile.getSelectedFile();
-						Helpers.ParseFile(inputFile, gameData);
+						// parse input file
+						FileParser parse = new FileParser();
+						parse.parseFile(inputFile, gameData);
+						
 						fileNameLbl.setText(inputFile.getName());
 						validInput();
 						int ranking = gameData.getFileRanking();
@@ -338,7 +345,7 @@ public class FileChooser extends JFrame {
 				gameData.setNumTeams(teamSelectSlider.getValue());
 				validInput();
 				GenerateTeams(teamSelectSlider.getValue());
-				GamePlay.InitGame();
+				gameData.InitGame();
 				// Check for Quick Play
 				gameData.setNumberOfQuestions(quickPlay.isSelected());
 				new GameBoardUI(gameData, loggedInUser).setVisible(true);

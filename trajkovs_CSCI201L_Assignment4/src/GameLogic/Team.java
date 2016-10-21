@@ -24,4 +24,8 @@ public class Team {
 	public void subPoints(int pts) {
 		this.points -= pts;
 	}
+	
+	public void resetPoints() {
+		this.points = 0;
+	}
 }

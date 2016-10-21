@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import GameLogic.Question;
 import GameLogic.Team;
+import trajkovs_CSCI201L_Assignment1.GamePlay;
 import trajkovs_CSCI201L_Assignment1.Jeopardy;
 
 public class GameData {
@@ -14,21 +15,25 @@ public class GameData {
 //	protected GameBoardUI GameBoard;
 //	protected FileChooser fileChooser = new FileChooser(); 
 //	protected LoginScreenUI loginScreen = new LoginScreenUI();
-	protected ArrayList<Integer> fileRanking = new ArrayList<Integer>();
-	protected String [] Categories = new String[5]; // holds all the categories for the game
-	protected int [] Points = new int[5];	// holds the point values for the game
-	protected HashMap<String, ArrayList<Question>> Questions = new HashMap<String, ArrayList<Question>>();	// holds all the questions
-	protected Question FJQuestion = null;	// holds the Final Jeopardy question
-	protected ArrayList<Team> Teams = new ArrayList<Team>(0); // holds all the teams
-	protected int numTeams;
-	int qsAnswered;
+	private ArrayList<Integer> fileRanking = new ArrayList<Integer>();
+	private String [] Categories = new String[5]; // holds all the categories for the game
+	private int [] Points = new int[5];	// holds the point values for the game
+	private HashMap<String, ArrayList<Question>> Questions = new HashMap<String, ArrayList<Question>>();	// holds all the questions
+	private Question FJQuestion = null;	// holds the Final Jeopardy question
+	private ArrayList<Team> Teams = new ArrayList<Team>(0); // holds all the teams
+	private int numTeams, nextTeam, currTeam, qsAnswered;
+	
+	// 
+//	static protected Question currQuestion = null;
+//	static protected int numTries = 0;
+	static protected int [] FJBets = new int[4]; // FJBets
+	static protected String [] FJAnswers = new String[4];
 	
 	// background images
-	protected static String qBtnEnabledPath, qBtnDisabledPath, categoryPath;
-	
+	private static String qBtnEnabledPath, qBtnDisabledPath, categoryPath;
 	// used to track number of lines in files (used for reading)
-	protected int linesInFile;
-	protected File gameFile;
+	private int linesInFile;
+	private File gameFile;
 	
 	// Adds the categories to the Categories variable
 	public void setCategories(String [] cat) {
@@ -58,6 +63,10 @@ public class GameData {
 		return (FJQuestion != null);
 	}
 	
+	public void createFJQuestion(String q, String a) {
+		FJQuestion = new Question(q, a);
+	}
+	
 	public void setNumberOfQuestions(boolean quickPlay) {
 		if (quickPlay)
 			qsAnswered = 20;
@@ -66,13 +75,21 @@ public class GameData {
 	}
 	
 	// Checks if the point value exists
-	protected boolean pointsExist(String cat, int pts) {
+	public boolean pointsExist(String cat, int pts) {
 		ArrayList<Question> qs = Questions.get(cat.toLowerCase());
 		for (Question q : qs) {
 			if (q.getPointValue() == pts)
 				return true;
 		}
 		return false;
+	}
+	
+	public int [] getAllPoints() {
+		return Points;
+	}
+	
+	public String [] getAllCategories() {
+		return Categories;
 	}
 	
 	public int getNumTeams() {
@@ -117,6 +134,33 @@ public class GameData {
 			throw new RuntimeException("Missing ranking values\n Terminating...");
 	}
 	
+	
+	public boolean questionExists(String question, String category) {
+		for (Question q : Questions.get(category.toLowerCase())) {
+			if (q.getQuestion().toLowerCase().equals(question.toLowerCase()))
+				return true;
+		}
+		return false;
+	}
+	
+	public void addQuestion(String category, int pointValue, String question, String answer) throws Exception {
+    // if first time adding key
+    if (Questions.get(category.toLowerCase()) == null)
+      Questions.put(category.toLowerCase(), new ArrayList<Question>());
+    
+    // checks for questions with duplicate point values
+    if (pointsExist(category, pointValue)) {
+      throwException("Duplicate point value!\nExiting...");
+    }
+    
+    // Checks if the question exists. Only checks for same question not answer, since a question can't have 2 answers.
+    // Only checks within the same category
+    if (questionExists(question, category))
+    	throwException("Duplicate question!\nExiting...");
+		
+		Questions.get(category.toLowerCase()).add(new Question(category.toLowerCase(), pointValue, question.trim(), answer.trim()));
+	}
+	
 //	public static void createGameBoard() {
 //		fileChooser.setVisible(false);
 //		GameBoard = new GameBoardUI();
@@ -130,6 +174,11 @@ public class GameData {
 		else {
 			return (fileRanking.get(0)/fileRanking.get(1));
 		}
+	}
+	
+	public void setFileRanking(int totalRanking, int timesRanked) {
+		fileRanking.add(totalRanking);
+		fileRanking.add(timesRanked);
 	}
 	
 	public void resetVariables() {
@@ -147,6 +196,29 @@ public class GameData {
 		categoryPath = null;
 		fileRanking = new ArrayList<Integer>();
 		numTeams = 0;
+	}
+	
+	// Reinitializes the game after replay/exit is called
+	public void InitGame() {
+		for (Team team : Teams)
+			team.resetPoints();
+		
+		for (String key: Questions.keySet()) {
+			// Get all the Questions in a Category
+			ArrayList<Question> qs = Questions.get(key);
+			for (Question q: qs) {
+				q.setUnanswered();
+			}			
+		}
+		// Generate the starting team
+		currTeam = (int)(Math.random() * Teams.size());
+		nextTeam = currTeam;
+		// Set the number of answered questions to 0
+		qsAnswered = 0;
+		
+		// Reset bets fr all teams
+		Arrays.fill(FJBets, 0);
+		Arrays.fill(FJAnswers, null);
 	}
 	
 	// Reinitializes the game after replay/exit is called
@@ -206,4 +278,9 @@ public class GameData {
 //		}
 //
 //	}
+	
+	private void throwException(String message) throws Exception {
+//	clearData();
+		throw new Exception(message);
+	}
 }

@@ -222,7 +222,7 @@ public class FileParser {
 		
 		if (questionData[2].trim().equals("")) throwException( "The Final Jeopardy answer cannot be whitespace");
 		
-		GamePlay.FJQuestion = new Question(questionData[1].trim(), questionData[2].trim());
+		gameData.createFJQuestion(questionData[1].trim(), questionData[2].trim());
 	}
 	
 	//does not check whether there is a duplicate category/point value question
@@ -256,35 +256,33 @@ public class FileParser {
 			
 			if (questionData[3].trim().isEmpty()) throwException("The answer cannot be whitespace.");
 			
-      // if first time adding key
+/*      // if first time adding key
       if (GamePlay.Questions.get(category.toLowerCase()) == null)
         GamePlay.Questions.put(category.toLowerCase(), new ArrayList<Question>());
       
       // checks for questions with duplicate point values
-      if (Jeopardy.pointsExist(category, pointValue)) {
+      if (gameData.pointsExist(category, pointValue)) {
         throwException("Duplicate point value!\nExiting...");
       }
       
       // Checks if the question exists. Only checks for same question not answer, since a question can't have 2 answers.
       // Only checks within the same category
-      if (Helpers.questionExists(question, GamePlay.Questions.get(category.toLowerCase()))) {
-        throwException("Duplicate question!\nExiting...");
-      }
+      if (gameData.questionExists(question, category))
+      	throwException("Duplicate question!\nExiting...");*/
       
-      GamePlay.Questions.get(category.toLowerCase()).add(new Question(category.toLowerCase(), pointValue, questionData[2].trim(), questionData[3].trim()));
+      gameData.addQuestion(category, pointValue, questionData[2], questionData[3]);
 		}
 	}
 	
 	private void parseRanking(int timesRanked, int totalRanking) {
-		Jeopardy.fileRanking.add(totalRanking);
-		Jeopardy.fileRanking.add(timesRanked);
+		gameData.setFileRanking(totalRanking, timesRanked);
 	}
 	
 	private boolean hasCategory(String cat) {
-		return Helpers.elementExists(GamePlay.Categories, cat);
+		return Helpers.elementExists(gameData.getAllCategories(), cat);
 	}
 	
 	private boolean hasPoints(int pts) {
-		return Helpers.elementExists(GamePlay.Points, pts);
+		return Helpers.elementExists(gameData.getAllPoints(), pts);
 	}
 }

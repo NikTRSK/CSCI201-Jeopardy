@@ -10,19 +10,19 @@ import GameLogic.Team;
 import other.Helpers;
 
 public class GamePlay {
-	static protected String [] Categories = new String[5]; // holds all the categories for the game
-	static protected int [] Points = new int[5];	// holds the point values for the game
-	static protected HashMap<String, ArrayList<Question>> Questions = new HashMap<String, ArrayList<Question>>();	// holds all the questions
-	static protected Question FJQuestion = null;	// holds the Final Jeopardy question
-	static protected ArrayList<Team> Teams = new ArrayList<Team>(0); // holds all the teams
+//	static protected String [] Categories = new String[5]; // holds all the categories for the game
+//	static protected int [] Points = new int[5];	// holds the point values for the game
+//	static protected HashMap<String, ArrayList<Question>> Questions = new HashMap<String, ArrayList<Question>>();	// holds all the questions
+//	static protected Question FJQuestion = null;	// holds the Final Jeopardy question
+//	static protected ArrayList<Team> Teams = new ArrayList<Team>(0); // holds all the teams
 	
 	static protected String [][] Answers = { {"what", "who", "where", "when", "how"}, {"is", "are"} };	// used to check for question form of the answer
 	
-	static protected int numTeams, nextTeam, currTeam, qsAnswered;
+//	static protected int numTeams, nextTeam, currTeam, qsAnswered;
 	static protected Question currQuestion = null;
 	static protected int numTries = 0;
-	static protected int [] FJBets = new int[4]; // FJBets
-	static protected String [] FJAnswers = new String[4];
+//	static protected int [] FJBets = new int[4]; // FJBets
+//	static protected String [] FJAnswers = new String[4];
 	//////////////////
 	// LIST METHODS //
 	//////////////////
@@ -136,7 +136,7 @@ public class GamePlay {
 		return winner;
 	}
 	
-	// Check for Exit and Replay signals
+/*	// Check for Exit and Replay signals
 	private static boolean checkGame(String input, Scanner userInput) {
 		if (input.split("\\s+").length == 1) {
 			if (input.toLowerCase().equals("replay")) {
@@ -150,9 +150,9 @@ public class GamePlay {
 			}
 		}
 		return false;
-	}
+	}*/
 
-	// Gameplay for regular questions
+/*	// Gameplay for regular questions
 	public static void PlayGame(Scanner userInput) {
 		// Create instance variables
 		int currTeam = (int)(Math.random() * Teams.size());	// Randomly choose starting team
@@ -247,10 +247,10 @@ public class GamePlay {
 			// Answer the answer question count
 			++qsAnswered;
 		}
-	}
+	}*/
 	
 	
-	protected static void FinalJeopardy(Scanner userInput) {
+/*	protected static void FinalJeopardy(Scanner userInput) {
 		System.out.println("********************************");
 		System.out.println("******** Final Jeopardy ********");
 		System.out.println("********************************");
@@ -312,9 +312,9 @@ public class GamePlay {
 			}
 		}
 		System.out.println("The answer to the Final Jeopardy is: " + FJQuestion.getAnswer());
-	}
+	}*/
 	
-	// Reinitializes the game after replay/exit is called
+/*	// Reinitializes the game after replay/exit is called
 	protected static void InitGame() {
 		for (Team team : Teams)
 			team.points = 0;
@@ -335,7 +335,7 @@ public class GamePlay {
 		// Reset bets fr all teams
 		Arrays.fill(FJBets, 0);
 		Arrays.fill(FJAnswers, null);
-	}
+	}*/
 	
 	static protected void updateCurrentTeam() {
 		// Update current team
@@ -353,7 +353,7 @@ public class GamePlay {
 			nextTeam = 0;
 	}
 	
-	static protected void resetVariables() {
+/*	static protected void resetVariables() {
 		Categories = null;
 		Categories = new String[5]; // holds all the categories for the game
 		Points = null;
@@ -367,5 +367,5 @@ public class GamePlay {
 		Jeopardy.qBtnDisabledPath = null;
 		Jeopardy.categoryPath = null;
 		Jeopardy.fileRanking = new ArrayList<Integer>();
-	}
+	}*/
 }

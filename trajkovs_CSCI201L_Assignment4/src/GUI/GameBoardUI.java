@@ -95,8 +95,13 @@ public class GameBoardUI extends JFrame {
 	JTextField [] FJAArea = new JTextField[4];
 	JButton [] FJABtn = new JButton[4];
 	
-	public GameBoardUI () {
+	String loggedInUser; // current user
+	GameData gameData;
+	
+	public GameBoardUI (GameData gameData, String loggedInUser) {
 		super("Play Jeopardy");
+		this.loggedInUser = loggedInUser;
+		this.gameData = gameData;
 		initializeComponents();
 		createGUI();
 		addEvents();

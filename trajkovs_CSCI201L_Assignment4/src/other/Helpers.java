@@ -103,13 +103,13 @@ public class Helpers {
 		return false;
 	}
 	
-	public static boolean questionExists(String question, ArrayList<Question> qlist) {
+/*	public static boolean questionExists(String question, ArrayList<Question> qlist) {
 		for (Question q : qlist) {
 			if (q.getQuestion().toLowerCase().equals(question.toLowerCase()))
 				return true;
 		}
 		return false;
-	}
+	}*/
 
 	public static void styleComponent(JComponent item, Color backgroundColor, Color borderColor, int fontSize) {
 		item.setBackground(backgroundColor);
@@ -131,9 +131,9 @@ public class Helpers {
     item.setOpaque(opaque);
 	}
 	
-	public static void ParseFile(File input) throws Exception{  
+/*	public static void ParseFile(File input) throws Exception{  
 		FileParser parse = new FileParser();
 		parse.parseFile(input);
-	}
+	}*/
 }
 
