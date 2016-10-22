@@ -253,23 +253,8 @@ public class FileParser {
 			
 			//make sure the question and answer are not empty/white space
 			if (questionData[2].trim().isEmpty()) throwException("The question cannot be whitespace.");
-			
 			if (questionData[3].trim().isEmpty()) throwException("The answer cannot be whitespace.");
 			
-/*      // if first time adding key
-      if (GamePlay.Questions.get(category.toLowerCase()) == null)
-        GamePlay.Questions.put(category.toLowerCase(), new ArrayList<Question>());
-      
-      // checks for questions with duplicate point values
-      if (gameData.pointsExist(category, pointValue)) {
-        throwException("Duplicate point value!\nExiting...");
-      }
-      
-      // Checks if the question exists. Only checks for same question not answer, since a question can't have 2 answers.
-      // Only checks within the same category
-      if (gameData.questionExists(question, category))
-      	throwException("Duplicate question!\nExiting...");*/
-      
       gameData.addQuestion(category, pointValue, questionData[2], questionData[3]);
 		}
 	}

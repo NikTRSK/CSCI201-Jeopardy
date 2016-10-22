@@ -43,9 +43,7 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
-import other.userDB;
 import other.FileParser;
-import other.GameConstants;
 import other.Helpers;
 
 public class FileChooser extends JFrame {
@@ -310,7 +308,7 @@ public class FileChooser extends JFrame {
 						if (ranking == -1)
 							avgRatingLbl.setText("average rating: N/A");
 						else
-							avgRatingLbl.setText("average rating: " + GameConstants.fileRanking.get(0)/GameConstants.fileRanking.get(1) + "/5");
+							avgRatingLbl.setText("average rating: " + gameData.getFileRanking() + "/5");
 					} catch (Exception rte) {
 						System.out.println(rte.getMessage());
 						displayPopup(rte.getMessage());

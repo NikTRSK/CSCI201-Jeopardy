@@ -33,7 +33,6 @@ import javax.swing.event.DocumentListener;
 
 import other.Helpers;
 import other.userDB;
-import trajkovs_CSCI201L_Assignment1.Jeopardy;
 
 public class LoginScreen extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -289,9 +288,8 @@ public class LoginScreen extends JFrame {
 	private void loginUser(String username, String password) {
 		try {
 			if (db.loginUser(username, password)) {
-//			Jeopardy.loginScreen.setVisible(false);
-//			Jeopardy.fileChooser = new FileChooser();
-//			Jeopardy.fileChooser.setVisible(true);
+				new FileChooser(username).setVisible(true);
+				dispose();
 			} else
 				errorLbl.setText("This password and username combintion does not exist");
 		} catch (SQLException e) {

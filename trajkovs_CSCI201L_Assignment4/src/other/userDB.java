@@ -46,8 +46,6 @@ public class userDB {
 			String uname = rs.getString("username");
 			String pword = rs.getString("password");
 			
-			System.out.println(uname + " | " + pword);
-			
 			return true;
 		}
 	}

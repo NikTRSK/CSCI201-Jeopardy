@@ -2,7 +2,12 @@ package other;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.JComponent;
@@ -12,6 +17,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import GameLogic.Question;
+import trajkovs_CSCI201L_Assignment1.Jeopardy;
 
 public class Helpers {
 	public static String capitalize(String toCapitalize) {
@@ -131,9 +137,35 @@ public class Helpers {
     item.setOpaque(opaque);
 	}
 	
-/*	public static void ParseFile(File input) throws Exception{  
-		FileParser parse = new FileParser();
-		parse.parseFile(input);
-	}*/
+	public static void saveFile(File gameFile, ArrayList<Integer> fileRanking) {
+		BufferedReader br;
+		FileReader fr;
+		
+		try {
+			fr = new FileReader(gameFile);
+			br = new BufferedReader(fr);
+			String line;
+			String input = "";
+			while((line = br.readLine()) != null) input += line + '\n';
+			
+			br.close();
+			
+			String [] output = input.split("\n");
+			output[output.length-2] = Integer.toString(fileRanking.get(1)); // number of people
+			output[output.length-1] = Integer.toString(fileRanking.get(0)); // total score
+			
+			FileOutputStream outFile = new FileOutputStream(gameFile);
+			for (int i = 0; i < output.length; ++i)
+				outFile.write((output[i] + "\n").getBytes());
+			
+			outFile.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
 }
 

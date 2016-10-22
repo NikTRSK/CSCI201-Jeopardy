@@ -1,19 +1,9 @@
 package other;
 
-import java.io.File;
-import java.util.ArrayList;
-
 public class GameConstants {
-//	protected static userDB Users = new userDB();
-//	protected static GameBoardUI GameBoard;
-//	protected static FileChooser fileChooser = new FileChooser(); 
-//	protected static LoginScreenUI loginScreen = new LoginScreenUI();
-	public static ArrayList<Integer> fileRanking = new ArrayList<Integer>();
+	static private String [][] Answers = { {"what", "who", "where", "when", "how"}, {"is", "are"} };	// used to check for question form of the answer
 	
-	// background images
-	protected static String qBtnEnabledPath, qBtnDisabledPath, categoryPath;
-	
-	// used to track number of lines in files (used for reading)
-	protected static int linesInFile;
-	protected static File gameFile;
+	static public boolean checkValidBeginningOfQuestion(String p1, String p2) {
+		return Helpers.elementExists(Answers[0], p1) && Helpers.elementExists(Answers[1], p2);
+	}
 }

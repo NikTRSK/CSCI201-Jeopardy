@@ -111,7 +111,7 @@ public class GamePlay {
 			System.out.println("Team: " + team.getName() + ", Points: " + team.getPoints());
 	}
 
-	// Checks if all teams have negative scores. Used before Final Jeopardy
+/*	// Checks if all teams have negative scores. Used before Final Jeopardy
 	protected static boolean teamsAllNegative() {
 		boolean teamPos = false;
 		for (Team team : GamePlay.Teams) {
@@ -119,10 +119,10 @@ public class GamePlay {
 				teamPos = true;
 		}
 		return !teamPos;
-	}
+	}*/
 	
 	// Finds the winner of the game
-	protected static ArrayList<Integer> findWinner() { // add exceptions for when empty array
+/*	protected static ArrayList<Integer> findWinner() { // add exceptions for when empty array
 
 		ArrayList<Integer> winner = new ArrayList<Integer>(0); 
 		winner.add(0);
@@ -134,7 +134,7 @@ public class GamePlay {
 				winner.add(i);
 		}
 		return winner;
-	}
+	}*/
 	
 /*	// Check for Exit and Replay signals
 	private static boolean checkGame(String input, Scanner userInput) {
@@ -337,7 +337,7 @@ public class GamePlay {
 		Arrays.fill(FJAnswers, null);
 	}*/
 	
-	static protected void updateCurrentTeam() {
+/*	static protected void updateCurrentTeam() {
 		// Update current team
 		++currTeam;
 		if (currTeam >= Teams.size())
@@ -351,7 +351,7 @@ public class GamePlay {
 		++nextTeam;
 		if (nextTeam >= Teams.size())
 			nextTeam = 0;
-	}
+	}*/
 	
 /*	static protected void resetVariables() {
 		Categories = null;
