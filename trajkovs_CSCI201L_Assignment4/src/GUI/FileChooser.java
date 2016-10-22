@@ -16,6 +16,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -24,6 +25,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
@@ -59,7 +61,11 @@ public class FileChooser extends JFrame {
 	private JFileChooser chooseFile;
 	static protected JCheckBox quickPlay;
 	private File inputFile;
-	static private JPanel selectTeamPanel; // used with error popup 
+	static private JPanel selectTeamPanel; // used with error popup
+	private JPanel connectionSettingsPanel;
+	
+	private JRadioButton notNetworkedRadio, hostGameRadio, joinGameRadio;
+	private JTextField portArea, ipArea;
 	
 	String loggedInUser;
 	
@@ -75,6 +81,7 @@ public class FileChooser extends JFrame {
 		initializeComponents();
 		createGUI();
 		addEvents();
+		notNetworkedRadio.setSelected(true);
 	}
 	
 	private void initializeComponents() {
@@ -97,6 +104,37 @@ public class FileChooser extends JFrame {
 		promptLbl.setFont(new Font("Cambria", Font.BOLD, 18));
 		promptLbl.setForeground(Color.WHITE);
 		promptLbl.setBorder(new EmptyBorder(20,0,0,0));
+		
+		//////////////////
+		// Select Game //
+		/////////////////
+		notNetworkedRadio = new JRadioButton("Not Networked");
+		notNetworkedRadio.setOpaque(false);
+		notNetworkedRadio.setFont(new Font("Cambria", Font.BOLD, 18));
+		notNetworkedRadio.setForeground(Color.WHITE);
+		
+		hostGameRadio = new JRadioButton("Host Game");
+		hostGameRadio.setOpaque(false);
+		hostGameRadio.setFont(new Font("Cambria", Font.BOLD, 18));
+		hostGameRadio.setForeground(Color.WHITE);
+		
+		joinGameRadio = new JRadioButton("Join Game");
+		joinGameRadio.setOpaque(false);
+		joinGameRadio.setFont(new Font("Cambria", Font.BOLD, 18));
+		joinGameRadio.setForeground(Color.WHITE);
+		
+		ButtonGroup gameOptBtnGroup = new ButtonGroup();
+		gameOptBtnGroup.add(notNetworkedRadio);
+		gameOptBtnGroup.add(hostGameRadio);
+		gameOptBtnGroup.add(joinGameRadio);
+		
+		// Connection components
+		 portArea = new JTextField();
+		 Helpers.styleComponentFlat(portArea, Color.BLACK, Color.WHITE, Color.DARK_GRAY, 17, true);
+		 portArea.setPreferredSize(new Dimension(200, 30));
+		 ipArea = new JTextField();
+		 Helpers.styleComponentFlat(ipArea, Color.BLACK, Color.WHITE, Color.DARK_GRAY, 17, true);
+		 ipArea.setPreferredSize(new Dimension(200, 30));
 		
 		//////////////////
 		// File Chooser //
@@ -188,6 +226,14 @@ public class FileChooser extends JFrame {
 		welcomePanel.add(welcomePanelTop);
 		welcomePanel.add(promptLbl);
 		
+		JPanel gameOptPanel = new JPanel();
+		gameOptPanel.setOpaque(false);
+		gameOptPanel.add(notNetworkedRadio);
+		gameOptPanel.add(hostGameRadio);
+		gameOptPanel.add(joinGameRadio);
+		
+		welcomePanel.add(gameOptPanel);
+		
 		add(welcomePanel, BorderLayout.NORTH);
 		
 		//////////////////
@@ -198,6 +244,20 @@ public class FileChooser extends JFrame {
 		add(mainPanel, BorderLayout.CENTER);
 		mainPanel.setBackground(new Color(9,204,185));
 		
+		//////////////////////
+		// CONNECTION PANEL //
+		//////////////////////
+		connectionSettingsPanel = new JPanel();
+		connectionSettingsPanel.setOpaque(false);
+		connectionSettingsPanel.add(portArea);
+		connectionSettingsPanel.add(ipArea);
+		
+		JPanel dummyConnPanel = new JPanel();
+		dummyConnPanel.setOpaque(false);
+		dummyConnPanel.setPreferredSize(new Dimension((int)mainPanel.getPreferredSize().getWidth(), 40));
+		dummyConnPanel.add(connectionSettingsPanel);
+		
+		mainPanel.add(dummyConnPanel);
 		//////////////////////////
 		// File / Team chooser //
 		/////////////////////////
@@ -318,6 +378,16 @@ public class FileChooser extends JFrame {
 			}
 		});
 		
+		// GAME OPTION LISTENERS
+		notNetworkedRadio.addActionListener((ActionEvent e) -> {
+			setupNotNetworkedUI();
+		});
+		hostGameRadio.addActionListener((ActionEvent e) -> {
+			setupHostGameUI();
+		});
+		joinGameRadio.addActionListener((ActionEvent e) -> {
+			setupJoinGameUI();
+		});
 		
 		// Select teams
 		teamSelectSlider.addChangeListener(new ChangeListener() {
@@ -329,10 +399,12 @@ public class FileChooser extends JFrame {
 					teamLbls[i].setVisible(false);
 					teamTxtBoxes[i].setVisible(false);
 				}
-				// Show only the chosen teams
-				for(int i = 0; i < value; ++i) {
-					teamLbls[i].setVisible(true);
-					teamTxtBoxes[i].setVisible(true);
+				if (notNetworkedRadio.isSelected()) {
+					// Show only the chosen teams
+					for(int i = 0; i < value; ++i) {
+						teamLbls[i].setVisible(true);
+						teamTxtBoxes[i].setVisible(true);
+					}
 				}
 				validInput();
 			}
@@ -488,5 +560,39 @@ public class FileChooser extends JFrame {
 		popup.add(buttonPanel, BorderLayout.SOUTH);
 		popup.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 		popup.pack();
+	}
+	
+	private void setupNotNetworkedUI() {
+		connectionSettingsPanel.setVisible(false);
+		teamSelectSlider.setMinimum(1);
+		
+		// Hide all of the teams
+		for(int i = 0; i < 4; ++i) {
+			teamLbls[i].setVisible(true);
+			teamTxtBoxes[i].setVisible(true);
+		}
+		teamTxtBoxes[0].setText("");
+	}
+	
+	private void setupHostGameUI() {
+		connectionSettingsPanel.setVisible(true);
+		ipArea.setVisible(false);
+		teamSelectSlider.setMinimum(2);
+
+		// show only one team label
+		// Hide all of the teams
+		for(int i = 0; i < 4; ++i) {
+			teamLbls[i].setVisible(false);
+			teamTxtBoxes[i].setVisible(false);
+		}
+		teamLbls[0].setVisible(true);
+		teamTxtBoxes[0].setVisible(true);
+		teamTxtBoxes[0].setText(loggedInUser);
+		startBtn.setEnabled(true);
+	}
+	
+	private void setupJoinGameUI() {
+		setupHostGameUI();
+		ipArea.setVisible(true);
 	}
 }
