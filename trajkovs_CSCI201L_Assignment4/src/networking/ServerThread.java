@@ -11,29 +11,41 @@ import java.net.Socket;
 import GUI.GameData;
 
 public class ServerThread extends Thread {
-	private Socket s;
+	Socket s;
 	private BufferedReader br;
 	private PrintWriter pw;
-	private GameServer gs;
+//	private GameServer gs;
+	private String teamName;
+	// used to keep track of teams left to join
+//	private Integer teamID;
 	
-	private ObjectInputStream ois;
-	private ObjectOutputStream oos;
+	ObjectInputStream ois;
+	ObjectOutputStream oos;
 	
-	public ServerThread(Socket s, GameServer gs) {
-		this.gs = gs;
+	public ServerThread(Socket s/*, String teamName*//*, GameServer gs*/) {
+//		this.gs = gs;
 		this.s = s;
+//		this.teamName = teamName;
 		
 		try {
-//			br = new BufferedReader(new InputStreamReader(s.getInputStream()));
-//			pw = new PrintWriter(s.getOutputStream());
 			oos = new ObjectOutputStream(s.getOutputStream());
 			ois = new ObjectInputStream(s.getInputStream());
-			this.start();
-		} catch (IOException ioe) {
+			
+			System.out.println("Client Connected");
+			String str = (String)ois.readObject();
+			if (str != null) {
+				System.out.println("GOT name: " + str);
+				this.teamName = str; 
+			}
+			else
+				System.out.println("Team name is null");
+//			gs.broadcastGameData();
+//			this.start();
+		} catch (IOException | ClassNotFoundException ioe) {
 			System.out.println("ioe in Server Thread(): " + ioe.getMessage());
 		}
 	}
-	
+
 	public void sendGameData(GameData gd) {
 		try {
 			oos.writeObject(gd);
@@ -41,23 +53,52 @@ public class ServerThread extends Thread {
 		} catch (IOException e) {e.printStackTrace();}
 	}
 	
-	public void run() {
+	public void sendGameData(String s) {
 		try {
-			while (true) {
-				GameData gd = (GameData)ois.readObject();
-				gs.sendGameDataToAllClients(gd);
-			}
-		} catch (IOException ioe) {
-			System.out.println("ioe in run(): " + ioe.getMessage());
-		} catch (ClassNotFoundException cnfe) {
-			System.out.println("cnfe in run(): " + cnfe.getMessage());
-		}
-		finally {
+			oos.writeObject(s);
+			oos.flush();
+		} catch (IOException e) {e.printStackTrace();}
+	}
+	
+	public String getTeamName() {
+		return teamName;
+	}
+	
+	public void sendTeamsWaitingInQueue(Integer teamsWaiting) {
+		try {
+			oos.writeObject(teamsWaiting);
+			oos.flush();
+		} catch (IOException e) { e.printStackTrace(); }
+	}
+	
+	public void run() {
+		boolean listenForConnections = true;
+		while (listenForConnections) {
 			try {
-				if (pw != null) pw.close();
-				if (br != null) br.close();
-				if (s != null) s.close();
-			} catch (IOException ioe) {}
+				Object input = ois.readObject();
+				String teamName;
+				String s;
+				if (input instanceof String) {
+					teamName = (String)input;
+					if (teamName != null)
+						this.teamName = teamName;
+				} else {
+					s = (String)input;
+					if (s != null)
+						sendGameData(s);
+				}
+			} catch (IOException ioe) {
+				System.out.println("ioe in run(): " + ioe.getMessage()); break;
+			} catch (ClassNotFoundException cnfe) {
+				System.out.println("cnfe in run(): " + cnfe.getMessage()); break;
+			}
+			finally {
+				try {
+					if (pw != null) pw.close();
+					if (br != null) br.close();
+					if (s != null) s.close();
+				} catch (IOException ioe) {}
+			}
 		}
 	}
 }

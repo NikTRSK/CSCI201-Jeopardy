@@ -55,6 +55,7 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import GameLogic.GameClient;
 import GameLogic.Question;
 import GameLogic.Team;
 import other.GameConstants;
@@ -107,6 +108,8 @@ public class GameBoardUI extends JFrame {
 	
 	Question currQuestion = null;
 	int qsAnswered, numTries;
+	
+	GameClient gameClient = null;
 	
 	public GameBoardUI (GameData gameData, String loggedInUser) {
 		super("Play Jeopardy");
@@ -1073,5 +1076,9 @@ public class GameBoardUI extends JFrame {
 			return ("-$" + Math.abs(pts));
 		else
 			return ("$" + pts);
+	}
+	
+	private void sendGameData() {
+		gameClient.sendGameData(gameData);
 	}
 }

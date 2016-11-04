@@ -1,19 +1,20 @@
 package GUI;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import GameLogic.GameClient;
 import GameLogic.Question;
 import GameLogic.Team;
+import networking.GameServer;
 import trajkovs_CSCI201L_Assignment1.GamePlay;
 
-public class GameData {
-//	protected userDB Users = new userDB();
-//	protected GameBoardUI GameBoard;
-//	protected FileChooser fileChooser = new FileChooser(); 
-//	protected LoginScreenUI loginScreen = new LoginScreenUI();
+public class GameData implements Serializable {
+	private static final long serialVersionUID = -6502628326317732979L; // auto-generated
+	
 	private ArrayList<Integer> fileRanking = new ArrayList<Integer>();
 	private String [] Categories = new String[5]; // holds all the categories for the game
 	private int [] Points = new int[5];	// holds the point values for the game
@@ -22,9 +23,6 @@ public class GameData {
 	private ArrayList<Team> Teams = new ArrayList<Team>(0); // holds all the teams
 	private int numTeams, nextTeam, currTeam, qsAnswered;
 	
-	// 
-//	static protected Question currQuestion = null;
-//	static protected int numTries = 0;
 	private int [] FJBets = new int[4]; // FJBets
 	private String [] FJAnswers = new String[4];
 	
@@ -33,6 +31,17 @@ public class GameData {
 	// used to track number of lines in files (used for reading)
 	private int linesInFile;
 	private File gameFile;
+	
+	// GAME SERVER
+	transient GameServer gs = null;
+	transient GameClient gc = null;
+	transient int playersWaiting;
+	transient boolean startGame = false;
+	private String myTeamName; // used to check when to enable buttons 
+	
+	public void startGame() {
+		startGame = true;
+	}
 	
 	// Adds the categories to the Categories variable
 	public void setCategories(String [] cat) {
@@ -167,6 +176,7 @@ public class GameData {
 	public int getNumTeams() {
 		return numTeams;
 	}
+	
 	
 	public void initLines() {
 		linesInFile = 0;
@@ -326,6 +336,9 @@ public class GameData {
 		Arrays.fill(FJAnswers, null);
 	}
 	
+	public void createGameServer(int port, int numTeams, GameData gd) {
+		gs = new GameServer(port, numTeams, gd);
+	}
 	// Reinitializes the game after replay/exit is called
 /*	protected static void InitGame() {
 		for (Team team : Teams)
@@ -406,6 +419,18 @@ public class GameData {
 				winner.add(i);
 		}
 		return winner;
+	}
+	
+	public void startGameServer(String host, int port) {
+		gc = new GameClient(host, port);
+	}
+	
+	public int getPlayersWaiting() {
+		return playersWaiting;
+	}
+	
+	public void updatePlayersWaiting(int newValue) {
+		playersWaiting = newValue;
 	}
 	
 	private void throwException(String message) throws Exception {

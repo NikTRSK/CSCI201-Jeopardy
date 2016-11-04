@@ -45,15 +45,17 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import GameLogic.GameClient;
+import networking.GameServer;
 import other.FileParser;
 import other.Helpers;
 
 public class FileChooser extends JFrame {
 	private static final long serialVersionUID = 1L;
-	GameData gameData;
+	private GameData gameData;
 	
 	// GUI Elements
-	private JLabel welcomeLbl, promptLbl, fileChooserLbl, fileNameLbl, teamPromptLbl, avgRatingLbl;
+	private JLabel welcomeLbl, promptLbl, fileChooserLbl, fileNameLbl, teamPromptLbl, avgRatingLbl, waitingLbl;
 	private JLabel [] teamLbls = new JLabel[4];
 	private JTextField [] teamTxtBoxes = new JTextField[4];
 	private JButton chooseFileBtn, startBtn, clearBtn, logoutBtn, exitBtn;
@@ -68,6 +70,8 @@ public class FileChooser extends JFrame {
 	private JTextField portArea, ipArea;
 	
 	String loggedInUser;
+	transient GameServer gs = null;
+	transient GameClient gc = null;
 	
 	// Create Border
   Border line = new LineBorder(Color.DARK_GRAY);
@@ -82,6 +86,7 @@ public class FileChooser extends JFrame {
 		createGUI();
 		addEvents();
 		notNetworkedRadio.setSelected(true);
+		setupNotNetworkedUI();
 	}
 	
 	private void initializeComponents() {
@@ -183,6 +188,11 @@ public class FileChooser extends JFrame {
 			teamTxtBoxes[team].setVisible(false);
 		}
 
+		// Waiting label
+		waitingLbl = new JLabel("\n", SwingConstants.CENTER);
+		waitingLbl.setFont(new Font("Cambria", Font.BOLD, 18));
+		waitingLbl.setForeground(Color.WHITE);
+		
 		/////////////////////
 		// Navigation bar buttons //
 		/////////////////////
@@ -316,6 +326,9 @@ public class FileChooser extends JFrame {
 		// Default state show only Team 1
 		teamLbls[0].setVisible(true);
 		teamTxtBoxes[0].setVisible(true);
+		
+		
+		mainPanel.add(waitingLbl);
 		////////////////////
 		// Navigation Bar //
 		////////////////////
@@ -381,12 +394,15 @@ public class FileChooser extends JFrame {
 		// GAME OPTION LISTENERS
 		notNetworkedRadio.addActionListener((ActionEvent e) -> {
 			setupNotNetworkedUI();
+			validInput();
 		});
 		hostGameRadio.addActionListener((ActionEvent e) -> {
 			setupHostGameUI();
+			validInput();
 		});
 		joinGameRadio.addActionListener((ActionEvent e) -> {
 			setupJoinGameUI();
+			validInput();
 		});
 		
 		// Select teams
@@ -405,6 +421,9 @@ public class FileChooser extends JFrame {
 						teamLbls[i].setVisible(true);
 						teamTxtBoxes[i].setVisible(true);
 					}
+				} else { // other modes only show one option for seelect team
+					teamLbls[0].setVisible(true);
+					teamTxtBoxes[0].setVisible(true);
 				}
 				validInput();
 			}
@@ -414,24 +433,31 @@ public class FileChooser extends JFrame {
 			public void actionPerformed(ActionEvent ae) {
 				gameData.setNumTeams(teamSelectSlider.getValue());
 				validInput();
-				GenerateTeams(teamSelectSlider.getValue());
-				gameData.InitGame();
-				// Check for Quick Play
-				gameData.setNumberOfQuestions(quickPlay.isSelected());
-				new GameBoardUI(gameData, loggedInUser).setVisible(true);
-//				Jeopardy.createGameBoard();
-				
-				dispose();
+//				GenerateTeams(teamSelectSlider.getValue());
+				// networked game condition
+//				gameData.setNumTeams(nTeams);;
+				if (hostGameRadio.isSelected() || joinGameRadio.isSelected())
+					startClientAndWait();
+				else
+//					startGame();
+//				gameData.InitGame();
+//				// Check for Quick Play
+//				gameData.setNumberOfQuestions(quickPlay.isSelected());
+//				new GameBoardUI(gameData, loggedInUser).setVisible(true);
+//				
+//				dispose();
+				startBtn.setEnabled(false);
 			}
 			
-			private void GenerateTeams(int numTeams) {
-				for (int i = 1; i <= numTeams; ++i) {
-					String teamName = teamTxtBoxes[i-1].getText().trim();
-					if (teamName.isEmpty())
-						teamName = "Team " + i;
-					gameData.addTeam(teamName);
-				}
-			}
+//			private void GenerateTeams(int numTeams) {
+//				for (int i = 1; i <= numTeams; ++i) {
+//					String teamName = teamTxtBoxes[i-1].getText().trim();
+//					if (teamName.isEmpty())
+//						teamName = "Team " + i;
+//					gameData.addTeam(teamName);
+//				}
+//			}
+			
 		});
 		
 		clearBtn.addActionListener((ActionEvent event) -> { // playing around with instant instantiation
@@ -445,6 +471,7 @@ public class FileChooser extends JFrame {
 				teamTxtBoxes[team].setText("");
 			teamSelectSlider.setValue(1);
 			
+			waitingLbl.setText("\n");
 		});
 		
 		logoutBtn.addActionListener((ActionEvent event) -> {
@@ -453,6 +480,40 @@ public class FileChooser extends JFrame {
 		
 		exitBtn.addActionListener((ActionEvent event) -> {
       System.exit(0);
+		});
+		
+		portArea.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void changedUpdate(DocumentEvent documentEvent) {
+				validInput();
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent documentEvent) {
+				validInput();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent documentEvent) {
+				validInput();
+			}
+		});
+		
+		ipArea.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void changedUpdate(DocumentEvent documentEvent) {
+				validInput();
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent documentEvent) {
+				validInput();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent documentEvent) {
+				validInput();
+			}
 		});
 		
 		for(int i = 0; i < 4; ++i) {
@@ -505,13 +566,22 @@ public class FileChooser extends JFrame {
 		startBtn.setEnabled(false);
 		// check if any of the text boxes are empty
 		for(int i = 0; i < teamSelectSlider.getValue(); ++i) {
-			if(teamTxtBoxes[i].getText().trim().equals(""))
+			// only check if visible
+			if(teamTxtBoxes[i].getText().trim().equals("") && teamTxtBoxes[i].isVisible())
 				return;
 		}
 		// check if an input file has been chosen
-		if(inputFile == null)
+		if(inputFile == null && !joinGameRadio.isSelected())
 			return;
 
+		// check for game modes
+		if (hostGameRadio.isSelected() && portArea.getText().equals(""))
+			return;
+		if (joinGameRadio.isSelected() && portArea.getText().equals(""))
+			return;
+		
+		
+		
 		// if all selected enable startButton
 		startBtn.setEnabled(true);
 	}
@@ -566,12 +636,19 @@ public class FileChooser extends JFrame {
 		connectionSettingsPanel.setVisible(false);
 		teamSelectSlider.setMinimum(1);
 		
+		int numTeams = teamSelectSlider.getValue();
 		// Hide all of the teams
-		for(int i = 0; i < 4; ++i) {
+		for(int i = 0; i < numTeams; ++i) {
 			teamLbls[i].setVisible(true);
 			teamTxtBoxes[i].setVisible(true);
 		}
 		teamTxtBoxes[0].setText("");
+		fileChooserLbl.setVisible(true);
+		fileNameLbl.setVisible(true);
+		teamPromptLbl.setVisible(true);
+		avgRatingLbl.setVisible(true);
+		teamSelectSlider.setVisible(true);
+		chooseFileBtn.setVisible(true);
 	}
 	
 	private void setupHostGameUI() {
@@ -588,11 +665,79 @@ public class FileChooser extends JFrame {
 		teamLbls[0].setVisible(true);
 		teamTxtBoxes[0].setVisible(true);
 		teamTxtBoxes[0].setText(loggedInUser);
+		fileChooserLbl.setVisible(true);
+		fileNameLbl.setVisible(true);
+		teamPromptLbl.setVisible(true);
+		avgRatingLbl.setVisible(true);
+		teamSelectSlider.setVisible(true);
+		chooseFileBtn.setVisible(true);
+		
 		startBtn.setEnabled(true);
 	}
 	
 	private void setupJoinGameUI() {
 		setupHostGameUI();
+		fileChooserLbl.setVisible(false);
+		fileNameLbl.setVisible(false);
+		teamPromptLbl.setVisible(false);
+		avgRatingLbl.setVisible(false);
+		teamSelectSlider.setVisible(false);
+		chooseFileBtn.setVisible(false);
 		ipArea.setVisible(true);
+	}
+	
+	public void updateWaitingLabel(int playersWaiting) {
+		waitingLbl.setText("Waiting for " + playersWaiting + " other players to join...");
+	}
+	
+	private void startClientAndWait() {
+		if (hostGameRadio.isSelected()) {
+//			gameData.createGameServer(Integer.parseInt(portArea.getText()), teamSelectSlider.getValue(), gameData);
+//			gameData.startGameServer("localhost", Integer.parseInt(portArea.getText()));
+			gs = new GameServer(Integer.parseInt(portArea.getText()), teamSelectSlider.getValue(), gameData, this);
+//			gs.start();
+//			updateWaitingLabel(teamSelectSlider.getValue()-1);
+			new ServerRunning().start();
+			gc = new GameClient("localhost", Integer.parseInt(portArea.getText()), loggedInUser, this);
+			if(!gc.start()) return;			
+		}
+		else if (joinGameRadio.isSelected()) {
+			gc = new GameClient(ipArea.getText(), Integer.parseInt(portArea.getText()), loggedInUser, this);
+			if(!gc.start()) return;
+//			else startGame(gc.gd);
+			
+//			gameData.startGameServer(ipArea.getText(), Integer.parseInt(portArea.getText()));
+		}
+//		while (gameData.getPlayersWaiting() > 0) {
+//			int pw = gameData.getPlayersWaiting();
+//			waitingLbl.setText("Waiting for " + pw + " to join...");
+//		}
+	}
+	
+	public void startGame(GameData gd) {
+		gameData = gd;
+		gameData.InitGame();
+		// Check for Quick Play
+		gameData.setNumberOfQuestions(quickPlay.isSelected());
+		new GameBoardUI(gameData, loggedInUser).setVisible(true);
+		
+		dispose();
+	}
+	
+	private void GenerateTeams(int numTeams) {
+		for (int i = 1; i <= numTeams; ++i) {
+			String teamName = teamTxtBoxes[i-1].getText().trim();
+			if (teamName.isEmpty())
+				teamName = "Team " + i;
+			gameData.addTeam(teamName);
+		}
+	}
+	
+	class ServerRunning extends Thread {		
+		public void run() {
+			System.out.println("TEST");
+//			updateWaitingLabel(123);
+			gs.start(); // run server
+		}
 	}
 }
