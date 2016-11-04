@@ -336,67 +336,6 @@ public class GameData implements Serializable {
 		Arrays.fill(FJAnswers, null);
 	}
 	
-	public void createGameServer(int port, int numTeams, GameData gd) {
-		gs = new GameServer(port, numTeams, gd);
-	}
-	// Reinitializes the game after replay/exit is called
-/*	protected static void InitGame() {
-		for (Team team : Teams)
-			team.points = 0;
-		
-		for (String key: Questions.keySet()) {
-			// Get all the Questions in a Category
-			ArrayList<Question> qs = Questions.get(key);
-			for (Question q: qs) {
-				q.setUnanswered();
-			}			
-		}
-		// Generate the starting team
-		currTeam = (int)(Math.random() * Teams.size());
-		nextTeam = currTeam;
-		// Set the number of answered questions to 0
-		qsAnswered = 0;
-		
-		// Reset bets fr all teams
-		Arrays.fill(FJBets, 0);
-		Arrays.fill(FJAnswers, null);
-	}*/
-	
-//	public static void main(String [] args) {
-//		loginScreen.setVisible(true);
-//	}
-	
-//	public static void saveFile() {
-//		BufferedReader br;
-//		FileReader fr;
-//		
-//		try {
-//			fr = new FileReader(gameFile);
-//			br = new BufferedReader(fr);
-//			String line;
-//			String input = "";
-//			while((line = br.readLine()) != null) input += line + '\n';
-//			
-//			br.close();
-//			
-//			String [] output = input.split("\n");
-//			output[output.length-2] = Integer.toString(Jeopardy.fileRanking.get(1)); // number of people
-//			output[output.length-1] = Integer.toString(Jeopardy.fileRanking.get(0)); // total score
-//			
-//			FileOutputStream outFile = new FileOutputStream(gameFile);
-//			for (int i = 0; i < output.length; ++i)
-//				outFile.write((output[i] + "\n").getBytes());
-//			
-//			outFile.close();
-//		} catch (FileNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//
-//	}
-	
 	// Checks if all teams have negative scores. Used before Final Jeopardy
 	public boolean teamsAllNegative() {
 		boolean teamPos = false;
@@ -419,10 +358,6 @@ public class GameData implements Serializable {
 				winner.add(i);
 		}
 		return winner;
-	}
-	
-	public void startGameServer(String host, int port) {
-		gc = new GameClient(host, port);
 	}
 	
 	public int getPlayersWaiting() {

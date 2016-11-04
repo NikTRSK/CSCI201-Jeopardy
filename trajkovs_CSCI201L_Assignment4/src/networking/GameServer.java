@@ -65,6 +65,11 @@ public class GameServer {
 					for (ServerThread p : playerThreads) {
 						p.start();
 						gd.addTeam(p.getTeamName());
+						System.out.println("Size after add: " + gd.getAllTeams().size());
+//						p.sendGameData(this.gd);
+//						System.out.println("=== TEAM_NAME: " + p.getTeamName());
+					}
+					for (ServerThread p : playerThreads) {
 						p.sendGameData(this.gd);
 						System.out.println("=== TEAM_NAME: " + p.getTeamName());
 					}

@@ -1,6 +1,9 @@
 package GameLogic;
 
-public class Team {
+import java.io.Serializable;
+
+public class Team implements Serializable {
+	private static final long serialVersionUID = 6512517830077857944L; // auto-generated
 	String name;
 	int points;
 	

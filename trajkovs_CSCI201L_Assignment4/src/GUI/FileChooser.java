@@ -719,7 +719,7 @@ public class FileChooser extends JFrame {
 		gameData.InitGame();
 		// Check for Quick Play
 		gameData.setNumberOfQuestions(quickPlay.isSelected());
-		new GameBoardUI(gameData, loggedInUser).setVisible(true);
+		new GameBoardUI(gameData, loggedInUser, gc).setVisible(true);
 		
 		dispose();
 	}

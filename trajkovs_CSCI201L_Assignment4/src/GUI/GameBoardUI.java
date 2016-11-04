@@ -111,7 +111,7 @@ public class GameBoardUI extends JFrame {
 	
 	GameClient gameClient = null;
 	
-	public GameBoardUI (GameData gameData, String loggedInUser) {
+	public GameBoardUI (GameData gameData, String loggedInUser, GameClient gameClient) {
 		super("Play Jeopardy");
 		this.loggedInUser = loggedInUser;
 		this.gameData = gameData;
@@ -123,6 +123,7 @@ public class GameBoardUI extends JFrame {
 		initializeComponents();
 		createGUI();
 		addEvents();
+		this.gameClient = gameClient;
 	}
 	
 	private void initializeComponents() {
@@ -1079,6 +1080,6 @@ public class GameBoardUI extends JFrame {
 	}
 	
 	private void sendGameData() {
-		gameClient.sendGameData(gameData);
+		gameClient.sendUpdateToServer(gameData);;
 	}
 }

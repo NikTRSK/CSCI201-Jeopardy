@@ -1,6 +1,9 @@
 package GameLogic;
 
-public class Question {
+import java.io.Serializable;
+
+public class Question implements Serializable {
+	private static final long serialVersionUID = 3507507696283468618L; // auto-generated
 	private String Category;
 	private int PointValue;
 	private String Question;
