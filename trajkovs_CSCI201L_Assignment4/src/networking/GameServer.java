@@ -34,6 +34,7 @@ public class GameServer {
 	
 	// starts the server
 	public void start() {
+		System.out.println("SERVER DEBUG: " + gd.getQsAnswered());
 		listenForConnections = true;
 		allPlayersConnected = false;
 		

@@ -634,6 +634,7 @@ public class FileChooser extends JFrame {
 	}
 	
 	private void setupNotNetworkedUI() {
+		quickPlay.setVisible(true);
 		connectionSettingsPanel.setVisible(false);
 		teamSelectSlider.setMinimum(1);
 		
@@ -653,6 +654,7 @@ public class FileChooser extends JFrame {
 	}
 	
 	private void setupHostGameUI() {
+		quickPlay.setVisible(true);
 		connectionSettingsPanel.setVisible(true);
 		ipArea.setVisible(false);
 		teamSelectSlider.setMinimum(2);
@@ -678,6 +680,7 @@ public class FileChooser extends JFrame {
 	
 	private void setupJoinGameUI() {
 		setupHostGameUI();
+		quickPlay.setVisible(false);
 		fileChooserLbl.setVisible(false);
 		fileNameLbl.setVisible(false);
 		teamPromptLbl.setVisible(false);
@@ -695,11 +698,8 @@ public class FileChooser extends JFrame {
 		myTeamName = teamTxtBoxes[0].getText();
 		System.out.println("myTeamName: " + myTeamName);
 		if (hostGameRadio.isSelected()) {	
-//			gameData.createGameServer(Integer.parseInt(portArea.getText()), teamSelectSlider.getValue(), gameData);
-//			gameData.startGameServer("localhost", Integer.parseInt(portArea.getText()));
+			gameData.setNumberOfQuestions(quickPlay.isSelected());
 			gs = new GameServer(Integer.parseInt(portArea.getText()), teamSelectSlider.getValue(), gameData, this);
-//			gs.start();
-//			updateWaitingLabel(teamSelectSlider.getValue()-1);
 			new ServerRunning().start();
 			gc = new GameClient("localhost", Integer.parseInt(portArea.getText()), myTeamName, this);
 			if(!gc.start()) return;			
@@ -707,26 +707,19 @@ public class FileChooser extends JFrame {
 		else if (joinGameRadio.isSelected()) {
 			gc = new GameClient(ipArea.getText(), Integer.parseInt(portArea.getText()), myTeamName, this);
 			if(!gc.start()) return;
-//			else startGame(gc.gd);
-			
-//			gameData.startGameServer(ipArea.getText(), Integer.parseInt(portArea.getText()));
 		}
-//		while (gameData.getPlayersWaiting() > 0) {
-//			int pw = gameData.getPlayersWaiting();
-//			waitingLbl.setText("Waiting for " + pw + " to join...");
-//		}
 	}
 	
 	public void startGame(GameData gd) {
 		gameData = gd;
 //		gameData.InitGame();
 		// Check for Quick Play
-		gameData.setNumberOfQuestions(quickPlay.isSelected());
+//		gameData.setNumberOfQuestions(quickPlay.isSelected());
 		if (hostGameRadio.isSelected())
 			new GameBoardUI(gameData, myTeamName, gc, gs).setVisible(true);
 		else
 			new GameBoardUI(gameData, myTeamName, gc, null).setVisible(true);
-		
+		System.out.println("QSSSSSSSSSSSS: " + gameData.getQsAnswered());
 		this.setVisible(false);
 //		dispose();
 	}
@@ -742,8 +735,6 @@ public class FileChooser extends JFrame {
 	
 	class ServerRunning extends Thread {		
 		public void run() {
-			System.out.println("TEST");
-//			updateWaitingLabel(123);
 			gs.start(); // run server
 		}
 	}

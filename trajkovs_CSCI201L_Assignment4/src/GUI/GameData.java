@@ -21,6 +21,7 @@ public class GameData implements Serializable {
 	private Question FJQuestion = null;	// holds the Final Jeopardy question
 	private ArrayList<Team> Teams = new ArrayList<Team>(0); // holds all the teams
 	private int numTeams, nextTeam, currTeam, qsAnswered;
+	private boolean quickPlay;
 	
 	private int [] FJBets = new int[4]; // FJBets
 	private String [] FJAnswers = new String[4];
@@ -151,10 +152,16 @@ public class GameData implements Serializable {
 			qsAnswered = 20;
 		else
 			qsAnswered = 0;
+		
+		this.quickPlay = quickPlay;
 	}
 	
 	public int getQsAnswered() {
 		return qsAnswered;
+	}
+	
+	public void qsAnsweredIncrement() {
+		qsAnswered++;
 	}
 	
 	// Checks if the point value exists
@@ -329,7 +336,10 @@ public class GameData implements Serializable {
 		}
 		generateStartingTeam();
 		// Set the number of answered questions to 0
-		qsAnswered = 0;
+		if (quickPlay)
+			qsAnswered = 20;
+		else
+			qsAnswered = 0;
 		
 		// Reset bets fr all teams
 		Arrays.fill(FJBets, 0);
@@ -430,6 +440,16 @@ public class GameData implements Serializable {
 	
 	public String buzzedInTeam() {
 		return buzzIn;
+	}
+	
+	// runs before going back to the Question List panel
+	public void resetTeamAnsweredFlag() {
+		for (Team t : Teams)
+			t.clearSetAnsweredThisRound();
+	}
+	
+	public Team getTeam(int teamID) {
+		return Teams.get(teamID);
 	}
 	
 	private void throwException(String message) throws Exception {
