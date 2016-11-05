@@ -10,7 +10,6 @@ import GameLogic.GameClient;
 import GameLogic.Question;
 import GameLogic.Team;
 import networking.GameServer;
-import trajkovs_CSCI201L_Assignment1.GamePlay;
 
 public class GameData implements Serializable {
 	private static final long serialVersionUID = -6502628326317732979L; // auto-generated
@@ -31,13 +30,16 @@ public class GameData implements Serializable {
 	// used to track number of lines in files (used for reading)
 	private int linesInFile;
 	private File gameFile;
+	private boolean changePanel, correctAnswer, wrongAnswer;
+	private String currPanel;
+	private String buzzIn = null;
+	private int selectedQCat, selectedQPtVal;
 	
 	// GAME SERVER
 	transient GameServer gs = null;
 	transient GameClient gc = null;
 	transient int playersWaiting;
 	transient boolean startGame = false;
-	private String myTeamName; // used to check when to enable buttons 
 	
 	public void startGame() {
 		startGame = true;
@@ -325,15 +327,19 @@ public class GameData implements Serializable {
 				q.setUnanswered();
 			}			
 		}
-		// Generate the starting team
-		currTeam = (int)(Math.random() * Teams.size());
-		nextTeam = currTeam;
+		generateStartingTeam();
 		// Set the number of answered questions to 0
 		qsAnswered = 0;
 		
 		// Reset bets fr all teams
 		Arrays.fill(FJBets, 0);
 		Arrays.fill(FJAnswers, null);
+	}
+	
+	public void generateStartingTeam() {
+		// Generate the starting team
+		currTeam = (int)(Math.random() * Teams.size());
+		nextTeam = currTeam;
 	}
 	
 	// Checks if all teams have negative scores. Used before Final Jeopardy
@@ -366,6 +372,64 @@ public class GameData implements Serializable {
 	
 	public void updatePlayersWaiting(int newValue) {
 		playersWaiting = newValue;
+	}
+	
+	public void updateSwitchingLogic(boolean changePanel, String currPanel) {
+		this.changePanel = changePanel;
+		this.currPanel = currPanel;
+	}
+	
+	public void updateSwitchingLogic(boolean changePanel) {
+		this.changePanel = changePanel;
+	}
+	
+	public void updateSwitchingLogic(String currPanel) {
+		this.currPanel = currPanel;
+	}
+	
+	public String getCurrPanel() {
+		return this.currPanel;
+	}
+	
+	public boolean changePanel() {
+		return this.changePanel;
+	}
+	
+	public void setSelectedQuestion(int cat, int pt) {
+		selectedQCat = cat;
+		selectedQPtVal = pt;
+	}
+	
+	public int getSelectedQuestionCat() {
+		return selectedQCat;
+	}
+	
+	public int getSelectedQuestionPtValue() {
+		return selectedQPtVal;
+	}
+	
+	public void setCorrectAnswer(boolean qAnswered) {
+		correctAnswer = qAnswered;
+	}
+	
+	public boolean correctAnswer() {
+		return correctAnswer;
+	}
+	
+	public void setWrongAnswer(boolean qAnswered) {
+		wrongAnswer = qAnswered;
+	}
+	
+	public boolean wrongAnswer() {
+		return wrongAnswer;
+	}
+	
+	public void buzzInTeam(String myTeamName) {
+		buzzIn = myTeamName;
+	}
+	
+	public String buzzedInTeam() {
+		return buzzIn;
 	}
 	
 	private void throwException(String message) throws Exception {

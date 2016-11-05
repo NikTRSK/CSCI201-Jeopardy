@@ -14,7 +14,7 @@ public class ServerThread extends Thread {
 	Socket s;
 	private BufferedReader br;
 	private PrintWriter pw;
-//	private GameServer gs;
+	private GameServer gs;
 	private String teamName;
 	// used to keep track of teams left to join
 //	private Integer teamID;
@@ -22,8 +22,8 @@ public class ServerThread extends Thread {
 	ObjectInputStream ois;
 	ObjectOutputStream oos;
 	
-	public ServerThread(Socket s/*, String teamName*//*, GameServer gs*/) {
-//		this.gs = gs;
+	public ServerThread(Socket s/*, String teamName*/, GameServer gs) {
+		this.gs = gs;
 		this.s = s;
 //		this.teamName = teamName;
 		
@@ -37,10 +37,8 @@ public class ServerThread extends Thread {
 				System.out.println("GOT name: " + str);
 				this.teamName = str; 
 			}
-			else
-				System.out.println("Team name is null");
-//			gs.broadcastGameData();
-//			this.start();
+//			else
+//				System.out.println("Team name is null");
 		} catch (IOException | ClassNotFoundException ioe) {
 			System.out.println("ioe in Server Thread(): " + ioe.getMessage());
 		}
@@ -50,6 +48,7 @@ public class ServerThread extends Thread {
 		try {
 			oos.writeObject(gd);
 			oos.flush();
+//			System.out.println("_____made it through");
 		} catch (IOException e) {e.printStackTrace();}
 	}
 	
@@ -77,28 +76,28 @@ public class ServerThread extends Thread {
 			try {
 				Object input = ois.readObject();
 				String teamName;
-				String s;
 				if (input instanceof String) {
 					teamName = (String)input;
 					if (teamName != null)
 						this.teamName = teamName;
 				} else {
-					s = (String)input;
-					if (s != null)
-						sendGameData(s);
+					GameData gd = (GameData)input;
+					if (gd != null)
+//						sendGameData(gd);
+						gs.broadcastGameData(gd);
 				}
 			} catch (IOException ioe) {
 				System.out.println("ioe in run(): " + ioe.getMessage()); break;
 			} catch (ClassNotFoundException cnfe) {
 				System.out.println("cnfe in run(): " + cnfe.getMessage()); break;
 			}
-			finally {
+/*			finally {
 				try {
 					if (pw != null) pw.close();
 					if (br != null) br.close();
 					if (s != null) s.close();
 				} catch (IOException ioe) {}
-			}
+			}*/
 		}
 	}
 }

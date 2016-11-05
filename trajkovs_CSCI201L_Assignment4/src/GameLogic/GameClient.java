@@ -1,13 +1,11 @@
 package GameLogic;
 
-import java.awt.Window.Type;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Scanner;
+
+import javax.swing.JPanel;
 
 import GUI.FileChooser;
 import GUI.GameBoardUI;
@@ -21,7 +19,7 @@ public class GameClient/* extends Thread */{
 	private boolean gameDataChanged;
 	private boolean gameStarted;
 	public GameData gd = null;
-	private GameBoardUI gameBoard;
+	public GameBoardUI gameBoard;
 	private FileChooser fc;
 	
 	private int waitingForPlayers;
@@ -39,6 +37,29 @@ public class GameClient/* extends Thread */{
 		System.out.println(teamName + ": Sending game data update...");
 		try {
 			oos.writeObject(gameData);
+			oos.flush();
+		} catch (IOException e) {
+			System.out.println("IOE updating data: " + e.getMessage());
+//			e.printStackTrace();
+		}
+	}
+
+	// q - answer question panel; j - final jeopardy; l - list questions
+	public void sendUpdateToServer(Character c) {
+		System.out.println(teamName + ": Sending game data update...");
+		try {
+			oos.writeObject(c); // q - answer question panel; j - final jeopardy; l - list questions
+			oos.flush();
+		} catch (IOException e) {
+			System.out.println("IOE updating data: " + e.getMessage());
+//			e.printStackTrace();
+		}
+	}
+	
+	public void showAnswerPanel(JPanel answerPanel) {
+		System.out.println(teamName + ": Sending game data update...");
+		try {
+			oos.writeObject(answerPanel);
 			oos.flush();
 		} catch (IOException e) {
 			System.out.println("IOE updating data: " + e.getMessage());
@@ -67,27 +88,27 @@ public class GameClient/* extends Thread */{
 		new ListenFromServer().start();
 //		this.start();
 		
-//		try {
-////			if (gd != null) {
-////				oos.writeObject(gd);
-////				oos.flush();
-////				gd = null;
-//			
-//			// send team name to server
-//			if (!gameStarted){
-//				System.out.println("***SENDING TEAM NAME: " + teamName);
-//				oos.writeObject(teamName);
+		try {
+//			if (gd != null) {
+//				oos.writeObject(gd);
 //				oos.flush();
-//				gameStarted = true;
-//			} else {
-//				oos.writeObject("testing testing");
-//				oos.flush();
+//				gd = null;
+			
+			// send team name to server
+			if (!gameStarted){
+				System.out.println("***SENDING TEAM NAME: " + teamName);
+				oos.writeObject(teamName);
+				oos.flush();
+				gameStarted = true;
+			} else {
+				oos.writeObject("testing testing");
+				oos.flush();
+			}
 //			}
-////			}
-//		} catch (IOException ioe) {
-//			System.out.println("Exception during login: " + ioe);
-//			return false;
-//		}
+		} catch (IOException ioe) {
+			System.out.println("Exception during login: " + ioe);
+			return false;
+		}
 //		fc.startGame();
 		return true;
 	}
@@ -103,7 +124,6 @@ public class GameClient/* extends Thread */{
 //					GameData gd = (GameData)ois.readObject();
 					if (input instanceof Integer) {
 						Integer teamsWaiting = (Integer)input;
-						System.out.println("GC: waiting " + teamsWaiting);
 						if (teamsWaiting == 0) {
 							startGame = true;
 						}
@@ -122,11 +142,22 @@ public class GameClient/* extends Thread */{
 							fc.startGame(gd);
 							startGame = false;
 						} else {
-							// update gameboard
+							if (gameBoard != null) {
+								System.out.println("updating client ui... " + teamName);
+								gameBoard.updateClientData(gd);
+								gameBoard.updateClientGUI();
+							}
 						}
 //						ArrayList<Team> t = gd.getAllTeams();
 //						System.out.println("Size: " + t.size());
 						gd = null; // reset for when we get the data again
+					}
+					else if (input instanceof Character) {
+						Character c = (Character)(input);
+					// q - answer question panel; j - final jeopardy; l - list questions
+						System.out.println("changing display...");
+						if (c == 'q')
+							gameBoard.displayAnswerPanel(/*gameBoard.selectedQCat, gameBoard.selectedQPtVal*/);
 					}
 						
 						/*

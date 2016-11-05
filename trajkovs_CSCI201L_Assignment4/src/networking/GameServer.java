@@ -36,23 +36,24 @@ public class GameServer {
 	public void start() {
 		listenForConnections = true;
 		allPlayersConnected = false;
-		// create socket server and wait for connection requests
-		// server socket
-//		ServerSocket serverSocket = null;
+		
 		try {
 			ServerSocket serverSocket = new ServerSocket(port);
-//			new ServerRunning().start();
+			System.out.println("Game Server waiting for connections on port " + port + ".");
 			// keep listening for connections
 			while (listenForConnections) {
-				System.out.println("Game Server waiting for connections on port " + port + ".");
+				
 //				System.out.println("LP: " + serverSocket.getLocalPort() + "is closed?: " + serverSocket.isClosed());
 				Socket socket = serverSocket.accept();	// accept connections
 				// wait for all the clients to connect
 //				while (!allPlayersConnected) {
-					ServerThread pt = new ServerThread(socket/*, this*/);	// make it a thread
+					ServerThread pt = new ServerThread(socket, this);	// make it a thread
 					playerThreads.add(pt);	// add it to the list
 					System.out.println("Thread added " + playerThreads.size());
-					pt.sendTeamsWaitingInQueue(numTeams - playerThreads.size());
+					for (ServerThread p : playerThreads) {
+						System.out.println("updating label for " + p.getTeamName());
+						p.sendTeamsWaitingInQueue(numTeams - playerThreads.size());
+					}
 //				}
 				if (playerThreads.size() == numTeams)
 					allPlayersConnected = true;
@@ -65,13 +66,15 @@ public class GameServer {
 					for (ServerThread p : playerThreads) {
 						p.start();
 						gd.addTeam(p.getTeamName());
-						System.out.println("Size after add: " + gd.getAllTeams().size());
+//						System.out.println("Size after add: " + gd.getAllTeams().size());
 //						p.sendGameData(this.gd);
 //						System.out.println("=== TEAM_NAME: " + p.getTeamName());
 					}
 					for (ServerThread p : playerThreads) {
+						gd.InitGame();
+//						System.out.println("GD null? " + this.gd == null);
 						p.sendGameData(this.gd);
-						System.out.println("=== TEAM_NAME: " + p.getTeamName());
+//						System.out.println("=== TEAM_NAME: " + p.getTeamName());
 					}
 				}
 			}
@@ -113,10 +116,12 @@ public class GameServer {
 //		pt.sendGameData(s);
 //	}
 	if (gd != null) {
-		synchronized(playerThreads) {
-			for (ServerThread pt : playerThreads)
+//		synchronized(playerThreads) {
+			for (ServerThread pt : playerThreads) {
+				System.out.println("Broadcasting to: " + pt.getTeamName());
 				pt.sendGameData(gd);
-		}
+			}
+//		}
 	}
 }
 	

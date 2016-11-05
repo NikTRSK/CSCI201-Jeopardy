@@ -70,6 +70,7 @@ public class FileChooser extends JFrame {
 	private JTextField portArea, ipArea;
 	
 	String loggedInUser;
+	String myTeamName;
 	transient GameServer gs = null;
 	transient GameClient gc = null;
 	
@@ -438,7 +439,7 @@ public class FileChooser extends JFrame {
 //				gameData.setNumTeams(nTeams);;
 				if (hostGameRadio.isSelected() || joinGameRadio.isSelected())
 					startClientAndWait();
-				else
+//				else
 //					startGame();
 //				gameData.InitGame();
 //				// Check for Quick Play
@@ -691,18 +692,20 @@ public class FileChooser extends JFrame {
 	}
 	
 	private void startClientAndWait() {
-		if (hostGameRadio.isSelected()) {
+		myTeamName = teamTxtBoxes[0].getText();
+		System.out.println("myTeamName: " + myTeamName);
+		if (hostGameRadio.isSelected()) {	
 //			gameData.createGameServer(Integer.parseInt(portArea.getText()), teamSelectSlider.getValue(), gameData);
 //			gameData.startGameServer("localhost", Integer.parseInt(portArea.getText()));
 			gs = new GameServer(Integer.parseInt(portArea.getText()), teamSelectSlider.getValue(), gameData, this);
 //			gs.start();
 //			updateWaitingLabel(teamSelectSlider.getValue()-1);
 			new ServerRunning().start();
-			gc = new GameClient("localhost", Integer.parseInt(portArea.getText()), loggedInUser, this);
+			gc = new GameClient("localhost", Integer.parseInt(portArea.getText()), myTeamName, this);
 			if(!gc.start()) return;			
 		}
 		else if (joinGameRadio.isSelected()) {
-			gc = new GameClient(ipArea.getText(), Integer.parseInt(portArea.getText()), loggedInUser, this);
+			gc = new GameClient(ipArea.getText(), Integer.parseInt(portArea.getText()), myTeamName, this);
 			if(!gc.start()) return;
 //			else startGame(gc.gd);
 			
@@ -716,12 +719,16 @@ public class FileChooser extends JFrame {
 	
 	public void startGame(GameData gd) {
 		gameData = gd;
-		gameData.InitGame();
+//		gameData.InitGame();
 		// Check for Quick Play
 		gameData.setNumberOfQuestions(quickPlay.isSelected());
-		new GameBoardUI(gameData, loggedInUser, gc).setVisible(true);
+		if (hostGameRadio.isSelected())
+			new GameBoardUI(gameData, myTeamName, gc, gs).setVisible(true);
+		else
+			new GameBoardUI(gameData, myTeamName, gc, null).setVisible(true);
 		
-		dispose();
+		this.setVisible(false);
+//		dispose();
 	}
 	
 	private void GenerateTeams(int numTeams) {
