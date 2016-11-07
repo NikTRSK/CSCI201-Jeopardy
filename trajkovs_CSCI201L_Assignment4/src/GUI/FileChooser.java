@@ -135,11 +135,11 @@ public class FileChooser extends JFrame {
 		gameOptBtnGroup.add(joinGameRadio);
 		
 		// Connection components
-		 portArea = new JTextField();
-		 Helpers.styleComponentFlat(portArea, Color.BLACK, Color.WHITE, Color.DARK_GRAY, 17, true);
+		 portArea = new JTextField("port");
+		 Helpers.styleComponentFlat(portArea, Color.BLACK, Color.WHITE, Color.DARK_GRAY, 16, true);
 		 portArea.setPreferredSize(new Dimension(200, 30));
-		 ipArea = new JTextField();
-		 Helpers.styleComponentFlat(ipArea, Color.BLACK, Color.WHITE, Color.DARK_GRAY, 17, true);
+		 ipArea = new JTextField("IP Address");
+		 Helpers.styleComponentFlat(ipArea, Color.BLACK, Color.WHITE, Color.DARK_GRAY, 16, true);
 		 ipArea.setPreferredSize(new Dimension(200, 30));
 		
 		//////////////////
@@ -396,14 +396,17 @@ public class FileChooser extends JFrame {
 		notNetworkedRadio.addActionListener((ActionEvent e) -> {
 			setupNotNetworkedUI();
 			validInput();
+			startBtn.setText("Start Game");
 		});
 		hostGameRadio.addActionListener((ActionEvent e) -> {
 			setupHostGameUI();
 			validInput();
+			startBtn.setText("Start Game");
 		});
 		joinGameRadio.addActionListener((ActionEvent e) -> {
 			setupJoinGameUI();
 			validInput();
+			startBtn.setText("Join Game");
 		});
 		
 		// Select teams
@@ -437,8 +440,12 @@ public class FileChooser extends JFrame {
 //				GenerateTeams(teamSelectSlider.getValue());
 				// networked game condition
 //				gameData.setNumTeams(nTeams);;
-				if (hostGameRadio.isSelected() || joinGameRadio.isSelected())
+				if (hostGameRadio.isSelected() || joinGameRadio.isSelected()) {
 					startClientAndWait();
+					hostGameRadio.setEnabled(false);
+					joinGameRadio.setEnabled(false);
+					notNetworkedRadio.setEnabled(false);
+				}
 //				else
 //					startGame();
 //				gameData.InitGame();
@@ -448,6 +455,7 @@ public class FileChooser extends JFrame {
 //				
 //				dispose();
 				startBtn.setEnabled(false);
+				clearBtn.setEnabled(false);
 			}
 			
 //			private void GenerateTeams(int numTeams) {
@@ -576,9 +584,11 @@ public class FileChooser extends JFrame {
 			return;
 
 		// check for game modes
-		if (hostGameRadio.isSelected() && portArea.getText().equals(""))
+		boolean checkValidPortInput = !portArea.getText().trim().equals("") || portArea.getText().trim().matches("\\d+");
+		boolean checkValidIPInput = !ipArea.getText().trim().equals("") || !ipArea.getText().trim().equalsIgnoreCase("ip address");
+		if ( (hostGameRadio.isSelected() || joinGameRadio.isSelected()) && !checkValidPortInput )
 			return;
-		if (joinGameRadio.isSelected() && portArea.getText().equals(""))
+		if (joinGameRadio.isSelected() && !checkValidIPInput)
 			return;
 		
 		

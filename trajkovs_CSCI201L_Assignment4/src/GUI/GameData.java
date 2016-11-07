@@ -31,10 +31,10 @@ public class GameData implements Serializable {
 	// used to track number of lines in files (used for reading)
 	private int linesInFile;
 	private File gameFile;
-	private boolean changePanel, correctAnswer, wrongAnswer;
+	private boolean changePanel, correctAnswer, wrongAnswer, teamBet, inFJ;
 	private String currPanel;
 	private String buzzIn = null;
-	private int selectedQCat, selectedQPtVal;
+	private int selectedQCat, selectedQPtVal, teamJustBet;
 	
 	// GAME SERVER
 	transient GameServer gs = null;
@@ -213,6 +213,7 @@ public class GameData implements Serializable {
 	
 	public void setBetForTeam(int teamID, int betValue) {
 		FJBets[teamID] = betValue;
+		Teams.get(teamID).setBet(betValue);
 	}
 	
 	public void setFJAnswerForTeam(int teamID, String answer) {
@@ -337,7 +338,7 @@ public class GameData implements Serializable {
 		generateStartingTeam();
 		// Set the number of answered questions to 0
 		if (quickPlay)
-			qsAnswered = 20;
+			qsAnswered = 23;
 		else
 			qsAnswered = 0;
 		
@@ -450,6 +451,48 @@ public class GameData implements Serializable {
 	
 	public Team getTeam(int teamID) {
 		return Teams.get(teamID);
+	}
+	
+	public int findTeamID(String teamName) {
+		for (int i = 0; i < Teams.size(); ++i) {
+			if (Teams.get(i).getName().equals(teamName))
+				return i;
+		}
+		return -1;
+	}
+	
+	public boolean checkFJEligible(String teamName) {
+		for (Team t : Teams) {
+			if (t.getName().equals(teamName)) {
+				if (t.getPoints() > 0)
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	public void setTeamJustBet(int id) {
+		teamJustBet = id;
+	}
+	
+	public int getTeamJustBet() {
+		return teamJustBet;
+	}
+	
+	public boolean teamBet() {
+		return teamBet;
+	}
+	
+	public void teamBet(boolean flag) {
+		teamBet = flag;
+	}
+	
+	public boolean inFinalJeopardy() {
+		return inFJ;
+	}
+
+	public void inFinalJeopardy(boolean flag) {
+		inFJ = flag;
 	}
 	
 	private void throwException(String message) throws Exception {
