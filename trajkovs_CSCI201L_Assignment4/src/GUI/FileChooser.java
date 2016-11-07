@@ -441,36 +441,22 @@ public class FileChooser extends JFrame {
 				gameData.setNumTeams(teamSelectSlider.getValue());
 				teamSelectSlider.setEnabled(false);
 				validInput();
-//				GenerateTeams(teamSelectSlider.getValue());
-				// networked game condition
-//				gameData.setNumTeams(nTeams);;
 				if (hostGameRadio.isSelected() || joinGameRadio.isSelected()) {
 					startClientAndWait();
 					hostGameRadio.setEnabled(false);
 					joinGameRadio.setEnabled(false);
 					notNetworkedRadio.setEnabled(false);
 				}
-//				else
-//					startGame();
-//				gameData.InitGame();
-//				// Check for Quick Play
-//				gameData.setNumberOfQuestions(quickPlay.isSelected());
-//				new GameBoardUI(gameData, loggedInUser).setVisible(true);
-//				
-//				dispose();
+				else if (notNetworkedRadio.isSelected()) {
+					GenerateTeams(gameData.getNumTeams());
+					gameData.InitGame();
+					gameData.setNumberOfQuestions(quickPlay.isSelected());
+					new GameBoardUI_notNetworked(gameData, myTeamName).setVisible(true);
+					dispose();
+				}
 				startBtn.setEnabled(false);
 				clearBtn.setEnabled(false);
-			}
-			
-//			private void GenerateTeams(int numTeams) {
-//				for (int i = 1; i <= numTeams; ++i) {
-//					String teamName = teamTxtBoxes[i-1].getText().trim();
-//					if (teamName.isEmpty())
-//						teamName = "Team " + i;
-//					gameData.addTeam(teamName);
-//				}
-//			}
-			
+			}			
 		});
 		
 		clearBtn.addActionListener((ActionEvent event) -> { // playing around with instant instantiation
@@ -486,8 +472,8 @@ public class FileChooser extends JFrame {
 				dispose();
 			} else {
 				// if a client
-				// commented this out
-//				gc.disconnect();
+				gc.disconnect();
+				gc = null;
 				new LoginScreen().setVisible(true);
 				dispose();
 			}
@@ -733,18 +719,30 @@ public class FileChooser extends JFrame {
 	
 	private void startClientAndWait() {
 		myTeamName = teamTxtBoxes[0].getText();
-		System.out.println("myTeamName: " + myTeamName);
+//		if (hostGameRadio.isSelected()) {	
+//			gameData.setNumberOfQuestions(quickPlay.isSelected());
+//			gs = new GameServer(Integer.parseInt(portArea.getText()), teamSelectSlider.getValue(), gameData, this);
+//			new ServerRunning().start();
+//			gc = new GameClient("localhost", Integer.parseInt(portArea.getText()), myTeamName, this);
+//			if(!gc.start()) return;			
+//		}
+//		else if (joinGameRadio.isSelected()) {
+//			gc = new GameClient(ipArea.getText(), Integer.parseInt(portArea.getText()), myTeamName, this);
+//			if(!gc.start()) return;
+//		}
+
 		if (hostGameRadio.isSelected()) {	
 			gameData.setNumberOfQuestions(quickPlay.isSelected());
 			gs = new GameServer(Integer.parseInt(portArea.getText()), teamSelectSlider.getValue(), gameData, this);
 			new ServerRunning().start();
 			gc = new GameClient("localhost", Integer.parseInt(portArea.getText()), myTeamName, this);
-			if(!gc.start()) return;			
+//			if(!gc.start()) return;			
 		}
 		else if (joinGameRadio.isSelected()) {
 			gc = new GameClient(ipArea.getText(), Integer.parseInt(portArea.getText()), myTeamName, this);
-			if(!gc.start()) return;
 		}
+		if(!gc.start()) return;
+		
 	}
 	
 	public void startGame(GameData gd) {
@@ -752,23 +750,24 @@ public class FileChooser extends JFrame {
 //		gameData.InitGame();
 		// Check for Quick Play
 //		gameData.setNumberOfQuestions(quickPlay.isSelected());
+		System.out.println("QSSSSSSSSSSSS: " + gameData.getQsAnswered());
 		if (hostGameRadio.isSelected())
 			new GameBoardUI(gameData, myTeamName, gc, gs).setVisible(true);
 		else
 			new GameBoardUI(gameData, myTeamName, gc, null).setVisible(true);
-		System.out.println("QSSSSSSSSSSSS: " + gameData.getQsAnswered());
+		
 		this.setVisible(false);
 //		dispose();
 	}
 	
-//	private void GenerateTeams(int numTeams) {
-//		for (int i = 1; i <= numTeams; ++i) {
-//			String teamName = teamTxtBoxes[i-1].getText().trim();
-//			if (teamName.isEmpty())
-//				teamName = "Team " + i;
-//			gameData.addTeam(teamName);
-//		}
-//	}
+	private void GenerateTeams(int numTeams) {
+		for (int i = 1; i <= numTeams; ++i) {
+			String teamName = teamTxtBoxes[i-1].getText().trim();
+			if (teamName.isEmpty())
+				teamName = "Team " + i;
+			gameData.addTeam(teamName);
+		}
+	}
 	
 	private void clearGame() {
     // Clear file

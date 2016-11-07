@@ -34,7 +34,7 @@ public class GameClient/* extends Thread */{
 	}
 	
 	public void sendUpdateToServer(GameData gameData) {
-		System.out.println(teamName + ": Sending game data update...");
+//		System.out.println(teamName + ": Sending game data update...");
 		try {
 			oos.writeObject(gameData);
 			oos.flush();
@@ -43,21 +43,9 @@ public class GameClient/* extends Thread */{
 //			e.printStackTrace();
 		}
 	}
-
-	// q - answer question panel; j - final jeopardy; l - list questions
-	public void sendUpdateToServer(Character c) {
-		System.out.println(teamName + ": Sending game data update...");
-		try {
-			oos.writeObject(c); // q - answer question panel; j - final jeopardy; l - list questions
-			oos.flush();
-		} catch (IOException e) {
-			System.out.println("IOE updating data: " + e.getMessage());
-//			e.printStackTrace();
-		}
-	}
 	
 	public void showAnswerPanel(JPanel answerPanel) {
-		System.out.println(teamName + ": Sending game data update...");
+//		System.out.println(teamName + ": Sending game data update...");
 		try {
 			oos.writeObject(answerPanel);
 			oos.flush();
@@ -91,13 +79,13 @@ public class GameClient/* extends Thread */{
 		try {
 			// send team name to server
 			if (!gameStarted){
-				System.out.println("***SENDING TEAM NAME: " + teamName);
+//				System.out.println("***SENDING TEAM NAME: " + teamName);
 				oos.writeObject(teamName);
 				oos.flush();
 				gameStarted = true;
 			} else {
-				oos.writeObject("testing testing");
-				oos.flush();
+//				oos.writeObject("testing testing");
+//				oos.flush();
 			}
 //			}
 		} catch (IOException ioe) {

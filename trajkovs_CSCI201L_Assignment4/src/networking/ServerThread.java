@@ -37,19 +37,18 @@ public class ServerThread extends Thread {
     }
   }
 
-  public void sendGameData(GameData gd) {
-    try {
+  public void sendGameData (GameData gd) throws IOException {
+//    try {
       oos.writeObject(gd);
       oos.flush();
-//      System.out.println("_____made it through");
-    } catch (IOException e) {e.printStackTrace();}
+//    } catch (IOException e) {e.printStackTrace();}
   }
   
-  public void sendGameData(String s) {
-    try {
+  public void sendGameData(String s)  throws IOException {
+//    try {
       oos.writeObject(s);
       oos.flush();
-    } catch (IOException e) {e.printStackTrace();}
+//    } catch (IOException e) {e.printStackTrace();}
   }
   
   public String getTeamName() {
@@ -60,7 +59,11 @@ public class ServerThread extends Thread {
     try {
       oos.writeObject(teamsWaiting);
       oos.flush();
-    } catch (IOException e) { e.printStackTrace(); }
+    } catch (IOException e) { System.out.println("whaataatat"); e.printStackTrace(); }
+  }
+  
+  public boolean isConnected() {
+  	return !s.isClosed();
   }
   
   public void run() {
@@ -74,8 +77,8 @@ public class ServerThread extends Thread {
           if (teamName.contains("LOGOUT:")) {
             String logoutUser = teamName.replace("LOGOUT:", "");
             System.out.println("THREAD DEBUG: LOGOUT " + logoutUser);
-//            gs.removeThread(logoutUser);
-//            gs.logoutUser(logoutUser);
+            s.close();
+//            gs.checkPlayers();
           }
           if (teamName != null)
             this.teamName = teamName;
