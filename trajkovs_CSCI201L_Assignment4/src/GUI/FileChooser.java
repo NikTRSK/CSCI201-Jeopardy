@@ -11,6 +11,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -191,6 +193,7 @@ public class FileChooser extends JFrame {
 
 		// Waiting label
 		waitingLbl = new JLabel("\n", SwingConstants.CENTER);
+		waitingLbl.setAlignmentX(CENTER_ALIGNMENT);
 		waitingLbl.setFont(new Font("Cambria", Font.BOLD, 18));
 		waitingLbl.setForeground(Color.WHITE);
 		
@@ -436,6 +439,7 @@ public class FileChooser extends JFrame {
 		startBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
 				gameData.setNumTeams(teamSelectSlider.getValue());
+				teamSelectSlider.setEnabled(false);
 				validInput();
 //				GenerateTeams(teamSelectSlider.getValue());
 				// networked game condition
@@ -470,20 +474,23 @@ public class FileChooser extends JFrame {
 		});
 		
 		clearBtn.addActionListener((ActionEvent event) -> { // playing around with instant instantiation
-      // Clear file
-			inputFile = null;
-			fileNameLbl.setText("");
-			gameData.resetVariables();
-			
-			// Clear teams
-			for (int team = 0; team < 4; ++team)
-				teamTxtBoxes[team].setText("");
-			teamSelectSlider.setValue(1);
-			
-			waitingLbl.setText("\n");
+			clearGame();
 		});
 		
 		logoutBtn.addActionListener((ActionEvent event) -> {
+			if (gs != null) {
+				// if a server
+				gs.stop();
+				gs = null;
+				new LoginScreen().setVisible(true);
+				dispose();
+			} else {
+				// if a client
+				// commented this out
+//				gc.disconnect();
+				new LoginScreen().setVisible(true);
+				dispose();
+			}
 //			userDB.logoutUser();
 		});
 		
@@ -508,6 +515,16 @@ public class FileChooser extends JFrame {
 			}
 		});
 		
+		portArea.addFocusListener(new FocusListener() {
+			public void focusGained(FocusEvent e) {
+				((JTextField)e.getSource()).setText("");
+			}
+
+			public void focusLost(FocusEvent e) {
+				// Nothing to do
+			}
+		});
+		
 		ipArea.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent documentEvent) {
@@ -522,6 +539,16 @@ public class FileChooser extends JFrame {
 			@Override
 			public void removeUpdate(DocumentEvent documentEvent) {
 				validInput();
+			}
+		});
+		
+		ipArea.addFocusListener(new FocusListener() {
+			public void focusGained(FocusEvent e) {
+				((JTextField)e.getSource()).setText("");
+			}
+
+			public void focusLost(FocusEvent e) {
+				// Nothing to do
 			}
 		});
 		
@@ -584,8 +611,8 @@ public class FileChooser extends JFrame {
 			return;
 
 		// check for game modes
-		boolean checkValidPortInput = !portArea.getText().trim().equals("") || portArea.getText().trim().matches("\\d+");
-		boolean checkValidIPInput = !ipArea.getText().trim().equals("") || !ipArea.getText().trim().equalsIgnoreCase("ip address");
+		boolean checkValidPortInput = !portArea.getText().trim().equals("") && portArea.getText().trim().matches("\\d+");
+		boolean checkValidIPInput = !ipArea.getText().trim().equals("") && !ipArea.getText().trim().equalsIgnoreCase("ip address");
 		if ( (hostGameRadio.isSelected() || joinGameRadio.isSelected()) && !checkValidPortInput )
 			return;
 		if (joinGameRadio.isSelected() && !checkValidIPInput)
@@ -734,13 +761,42 @@ public class FileChooser extends JFrame {
 //		dispose();
 	}
 	
-	private void GenerateTeams(int numTeams) {
-		for (int i = 1; i <= numTeams; ++i) {
-			String teamName = teamTxtBoxes[i-1].getText().trim();
-			if (teamName.isEmpty())
-				teamName = "Team " + i;
-			gameData.addTeam(teamName);
-		}
+//	private void GenerateTeams(int numTeams) {
+//		for (int i = 1; i <= numTeams; ++i) {
+//			String teamName = teamTxtBoxes[i-1].getText().trim();
+//			if (teamName.isEmpty())
+//				teamName = "Team " + i;
+//			gameData.addTeam(teamName);
+//		}
+//	}
+	
+	private void clearGame() {
+    // Clear file
+		inputFile = null;
+		fileNameLbl.setText("");
+		gameData.resetVariables();
+		teamSelectSlider.setEnabled(true);
+		notNetworkedRadio.setEnabled(true);
+		hostGameRadio.setEnabled(true);
+		joinGameRadio.setEnabled(true);
+		clearBtn.setEnabled(true);
+		
+		// Clear teams
+		for (int team = 0; team < 4; ++team)
+			teamTxtBoxes[team].setText("");
+		teamSelectSlider.setValue(1);
+		
+		if (!waitingLbl.getText().equalsIgnoreCase("Sorry, the host canceled the game. Please choose another game to join"))
+			waitingLbl.setText("\n");
+	}
+	
+	public void serverLoggedOut() {
+		waitingLbl.setText("Sorry, the host canceled the game. Please choose another game to join");
+		clearGame();
+		joinGameRadio.setSelected(true);
+		teamTxtBoxes[0].setText(myTeamName);
+		gc = null;
+//		joinGameRadio.isEnabled()
 	}
 	
 	class ServerRunning extends Thread {		

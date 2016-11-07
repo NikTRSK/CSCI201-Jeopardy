@@ -74,4 +74,8 @@ public class Team implements Serializable {
 	public String getFinalJeopardyAnswer() {
 		return this.FJAnswer;
 	}
+	
+	public boolean answeredFinalJeopardy() {
+		return this.FJAnswer != null;
+	}
 }

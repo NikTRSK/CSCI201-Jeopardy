@@ -109,16 +109,13 @@ public class GameBoardUI extends JFrame {
 	String myTeamName; // current user
 	int myTeamID;
 	GameData gameData;
-//	ArrayList<Team> Teams; // teams playing
 	String [] Categories;
 	int [] Points;
 	
 	Question currQuestion = null;
-	int qsAnswered, numTries;
-//	public int selectedQCat, selectedQPtVal;
-//	boolean changePanel = false;
-//	String currPanel;
-	boolean notNetworkedGame;
+	int qsAnswered, numTries;;
+	private boolean notNetworkedGame;
+	private boolean myTurn;
 //	boolean [] teamsAnswered;
 	GameClient gameClient = null;
 	GameServer gameServer = null;
@@ -144,8 +141,13 @@ public class GameBoardUI extends JFrame {
 			notNetworkedGame = true;
 		if (!notNetworkedGame)
 			myTeamID = gameData.findTeamID(myTeamName);
+		teamPrompt.append("Welcome to Jeopardy!\nThe team to go first is " + gameData.getTeam(gameData.getNextTeam()).getName() + "\n");
 //			gameData.getQsAnswered()= gameData.getQsAnswered();
 //		 teamsAnswered = new boolean[gameData.getNumTeams()];
+		if (gameData.getNextTeam() != myTeamID)
+			myTurn = false;
+		else
+			myTurn = true;
 	}
 	
 	private void initializeComponents() {
@@ -238,7 +240,7 @@ public class GameBoardUI extends JFrame {
 		progressTitle.setForeground(Color.BLACK);
 		progressTitle.setFont(new Font("Cambria", Font.BOLD, 25));
 		
-		teamPrompt = new JTextArea("Welcome to Jeopardy!\nThe team to go first is " + gameData.getTeam(gameData.getNextTeam()).getName() + "\n");
+		teamPrompt = new JTextArea("");
 		promptPane = new JScrollPane(teamPrompt);
 		promptPane.getViewport().setBackground(new Color(0,137,123));
 		promptPane.setBorder(new LineBorder(new Color(0,137,123)));
@@ -482,31 +484,34 @@ public class GameBoardUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				gameData.setSelectedQuestion(cat, ptValue);
-//				selectedQCat = cat;
-//				selectedQPtVal = ptValue;
-				gameData.updateSwitchingLogic(true, "answerQuestionPanel");
-//				changePanel = true;
-//				currPanel = "answerQuestionPanel";
-//				displayAnswerPanel(/*cat, ptValue*/);
-//				
-//				currQuestion = gameData.getQuestion(Categories[cat], Points[ptValue]);
-//				// Update info on questionPanel
-//				qTeamLbl.setText(Teams.get(gameData.getNextTeam()).getName());
-//				qCatLbl.setText(Helpers.capitalize(currQuestion.getCategory()));
-//				qPtValueLbl.setText("$" + currQuestion.getPointValue());
-//				qQuestionArea.setText(currQuestion.getQuestion());
-//				qErrorLbl.setText("\n");
-//				qAnswerArea.setText("");
-//				showPanel("answerQuestionPanel"); // show question panel
-//				teamPrompt.append(Teams.get(gameData.getNextTeam()).getName() + " chose the question in " + Helpers.capitalize(currQuestion.getCategory()) + " worth $" + currQuestion.getPointValue() + "\n");
-				((JButton)e.getSource()).setEnabled(false);
-				((JButton)e.getSource()).setBackground(new Color(113, 115, 98));
-//				qAnswerArea.requestFocusInWindow();
-//				qPassBtn.setVisible(false);
-				
-//				gameClient.sendUpdateToServer('q');;
-				sendGameData();
+				if (myTurn || notNetworkedGame) {
+//				if (true) {	
+					gameData.setSelectedQuestion(cat, ptValue);
+	//				selectedQCat = cat;
+	//				selectedQPtVal = ptValue;
+					gameData.updateSwitchingLogic(true, "answerQuestionPanel");
+	//				changePanel = true;
+	//				currPanel = "answerQuestionPanel";
+	//				displayAnswerPanel(/*cat, ptValue*/);
+	//				
+	//				currQuestion = gameData.getQuestion(Categories[cat], Points[ptValue]);
+	//				// Update info on questionPanel
+	//				qTeamLbl.setText(Teams.get(gameData.getNextTeam()).getName());
+	//				qCatLbl.setText(Helpers.capitalize(currQuestion.getCategory()));
+	//				qPtValueLbl.setText("$" + currQuestion.getPointValue());
+	//				qQuestionArea.setText(currQuestion.getQuestion());
+	//				qErrorLbl.setText("\n");
+	//				qAnswerArea.setText("");
+	//				showPanel("answerQuestionPanel"); // show question panel
+	//				teamPrompt.append(Teams.get(gameData.getNextTeam()).getName() + " chose the question in " + Helpers.capitalize(currQuestion.getCategory()) + " worth $" + currQuestion.getPointValue() + "\n");
+					((JButton)e.getSource()).setEnabled(false);
+					((JButton)e.getSource()).setBackground(new Color(113, 115, 98));
+	//				qAnswerArea.requestFocusInWindow();
+	//				qPassBtn.setVisible(false);
+					
+	//				gameClient.sendUpdateToServer('q');;
+					sendGameData();
+				}
 			}
 		}
 		// Create Question buttons
@@ -671,8 +676,8 @@ public class GameBoardUI extends JFrame {
 					numTries = 0;
 					gameData.updateCurrentTeam();
 					gameData.setNextTeam(gameData.getCurrentTeam());
-					teamPrompt.append("Now it's " + gameData.getTeam(gameData.getNextTeam()).getName() + "'s Please Choose a question.\n");
-					gameData.qsAnsweredIncrement();
+//					teamPrompt.append("Now it's " + gameData.getTeam(gameData.getNextTeam()).getName() + "'s Please Choose a question.\n");
+//					gameData.qsAnsweredIncrement();
 //					if (gameData.getQsAnswered()== 25)
 //						createFinalJeopardy();
 //					else {
@@ -1251,7 +1256,10 @@ public class GameBoardUI extends JFrame {
 //		System.out.println("chaning on client");
 		currQuestion = gameData.getQuestion(Categories[gameData.getSelectedQuestionCat()], Points[gameData.getSelectedQuestionPtValue()]);
 		// Update info on questionPanel
-		qTeamLbl.setText(gameData.getTeam(gameData.getNextTeam()).getName());
+		if(gameData.getTeam(gameData.getNextTeam()).getName().equals(myTeamName))
+			qTeamLbl.setText(gameData.getTeam(gameData.getNextTeam()).getName());
+		else
+			qTeamLbl.setText("\n");
 		qCatLbl.setText(Helpers.capitalize(currQuestion.getCategory()));
 		qPtValueLbl.setText("$" + currQuestion.getPointValue());
 		qQuestionArea.setText(currQuestion.getQuestion());
@@ -1265,7 +1273,7 @@ public class GameBoardUI extends JFrame {
 	}
 	
 	private void sendGameData() {
-		gameClient.sendUpdateToServer(gameData);;
+		gameClient.sendUpdateToServer(gameData);
 	}
 	
 	public void updateClientData(GameData gd) {
@@ -1284,7 +1292,7 @@ public class GameBoardUI extends JFrame {
 		qPassBtn.setEnabled(true);
 //		if (gameData.getQsAnswered()< 25/* && (gameData.getCurrentTeam() != gameData.getNextTeam())*/) {
 		if (gameData.getQsAnswered()< 25 && allTeamsAnswered()) {
-			gameData.qsAnsweredIncrement();
+//			gameData.qsAnsweredIncrement();
 			currQuestion.setAnswered();
 			showPanel("questionListPanel");
 			qPassBtn.setVisible(false);
@@ -1396,12 +1404,18 @@ public class GameBoardUI extends JFrame {
 	}
 	
 	public void setupQuestionListPanel() {
-		gameData.updateCurrentTeam();
-		gameData.setNextTeam(gameData.getCurrentTeam());
+		// used to disable key listeners when not players turn
+//		gameData.updateCurrentTeam();
+//		gameData.setNextTeam(gameData.getCurrentTeam());
 		gameData.qsAnsweredIncrement();
 		currQuestion.setAnswered();
 		teamLbl.get(gameData.getNextTeam()).getItem2().setText(printPts(gameData.getTeam(gameData.getNextTeam()).getPoints()));
 //		GamePlay.updateCurrentTeam();
+//		System.out.println("myTEAM: " + myTeamID + ", " + gameData.getNextTeam() + ", flag: " + myTurn);
+		if (gameData.getNextTeam() != myTeamID)
+			myTurn = false;
+		else
+			myTurn = true;
 		teamPrompt.append("Now it's " + gameData.getTeam(gameData.getNextTeam()).getName() + "'s Please Choose a question.\n");
 		numTries = 0;
 		showPanel("questionListPanel");
@@ -1452,7 +1466,8 @@ public class GameBoardUI extends JFrame {
 	
 	private boolean allAnswersEntered() {
 		for (Team t : gameData.getAllTeams()) {
-			if (t.isFJEligible() && t.getFinalJeopardyAnswer() == null)
+			System.out.println(t.getName() + ",eligibile " + t.isFJEligible() + ",has finalJ " + t.answeredFinalJeopardy());
+			if (t.isFJEligible() && !t.answeredFinalJeopardy())
 				return false;
 		}
 		
@@ -1490,6 +1505,7 @@ public class GameBoardUI extends JFrame {
 				}
 			}
 		}
+		createRatingsPanel(true);
 	}
 	
 	public void updateClientGUI() {
@@ -1522,7 +1538,7 @@ public class GameBoardUI extends JFrame {
 		// in case the answer is wrong
 		if (gameData.wrongAnswer()) {
 			wrongAnswerNetworked();
-			
+			qTeamLbl.setText("\n");
 			gameData.setWrongAnswer(false);
 		}
 		// if someone buzzed in
@@ -1537,6 +1553,8 @@ public class GameBoardUI extends JFrame {
 				qErrorLbl.setText(gameData.buzzedInTeam() + " buzzed in to answer");
 			}
 			teamPrompt.append(gameData.buzzedInTeam() + " buzzed in to answer.\n");
+			qTeamLbl.setText(gameData.buzzedInTeam());
+				
 			gameData.buzzInTeam(null); // reset the buzzed in team after label
 		}
 		System.out.println("Checking if all answered");
@@ -1562,11 +1580,11 @@ public class GameBoardUI extends JFrame {
 			checkAllBetsNetworked();
 			gameData.teamBet(false);
 //			gameClient.sendUpdateToServer(gameData);
-		}
-		// check if all users have entered their answers
-		if (allAnswersEntered()) {
-			checkFJAnswersNetworked();
-			displayWinner();
+			
+			// check if all users have entered their answers
+			if (allAnswersEntered()) {
+				checkFJAnswersNetworked();
+			}
 		}
 	}
 }

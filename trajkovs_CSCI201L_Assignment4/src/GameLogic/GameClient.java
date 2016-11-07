@@ -89,11 +89,6 @@ public class GameClient/* extends Thread */{
 //		this.start();
 		
 		try {
-//			if (gd != null) {
-//				oos.writeObject(gd);
-//				oos.flush();
-//				gd = null;
-			
 			// send team name to server
 			if (!gameStarted){
 				System.out.println("***SENDING TEAM NAME: " + teamName);
@@ -111,6 +106,28 @@ public class GameClient/* extends Thread */{
 		}
 //		fc.startGame();
 		return true;
+	}
+	
+	public void disconnect() {
+		String logoutClient = "LOGOUT:" + teamName;
+		try {
+			System.out.println("GAMECLIENT: " + logoutClient);
+			oos.writeObject(logoutClient);
+			oos.flush();
+		} catch (IOException e1) {}
+/*		try { 
+			if(ois != null) ois.close();
+		}
+		catch(Exception e) {}
+		try {
+			if(oos != null) oos.close();
+		}
+		catch(Exception e) {}
+        try{
+			if(socket != null) socket.close();
+		}
+		catch(Exception e) {}*/
+			
 	}
 	
 	class ListenFromServer extends Thread {
@@ -148,26 +165,13 @@ public class GameClient/* extends Thread */{
 								gameBoard.updateClientGUI();
 							}
 						}
-//						ArrayList<Team> t = gd.getAllTeams();
-//						System.out.println("Size: " + t.size());
 						gd = null; // reset for when we get the data again
 					}
-					else if (input instanceof Character) {
-						Character c = (Character)(input);
-					// q - answer question panel; j - final jeopardy; l - list questions
-						System.out.println("changing display...");
-						if (c == 'q')
-							gameBoard.displayAnswerPanel(/*gameBoard.selectedQCat, gameBoard.selectedQPtVal*/);
-					}
-						
-						/*
-					else {
-						output = (String)input;
-					}*/
-
 					// do stuff with data on client side
 				} catch (IOException ioe) {
-					System.out.println("Connection closed by server: " + ioe.getMessage()); break;
+					System.out.println("Connection closed by server: " + ioe.getMessage());
+					fc.serverLoggedOut();
+					break;
 				} catch (ClassNotFoundException cnfe) {
 					cnfe.printStackTrace(); break;
 				}
