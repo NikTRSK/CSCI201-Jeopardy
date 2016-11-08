@@ -32,9 +32,11 @@ public class GameData implements Serializable {
 	private int linesInFile;
 	private File gameFile;
 	private boolean changePanel, correctAnswer, wrongAnswer, teamBet, inFJ;
+	private int lastTeamBet; // holds the id of the last team that bet
 	private String currPanel;
 	private String buzzIn = null;
 	private int selectedQCat, selectedQPtVal, teamJustBet;
+	private int fileRatedByNumOfTeams;
 	
 	// GAME SERVER
 	transient GameServer gs = null;
@@ -294,6 +296,7 @@ public class GameData implements Serializable {
 	}
 	
 	public void updateFileRanking(int updateBy) {
+		fileRatedByNumOfTeams++;
 		fileRanking.set(0, fileRanking.get(0) + updateBy);
 		fileRanking.set(1, fileRanking.get(1) + 1);
 	}
@@ -345,6 +348,7 @@ public class GameData implements Serializable {
 		// Reset bets fr all teams
 		Arrays.fill(FJBets, 0);
 		Arrays.fill(FJAnswers, null);
+		fileRatedByNumOfTeams = 0;
 	}
 	
 	public void generateStartingTeam() {
@@ -483,6 +487,14 @@ public class GameData implements Serializable {
 		return teamBet;
 	}
 	
+	public void setLastTeamBet(int lastTeamBet) {
+		this.lastTeamBet = lastTeamBet;
+	}
+
+	public int getLastTeamBet() {
+		return this.lastTeamBet;
+	}
+	
 	public void teamBet(boolean flag) {
 		teamBet = flag;
 	}
@@ -493,6 +505,10 @@ public class GameData implements Serializable {
 
 	public void inFinalJeopardy(boolean flag) {
 		inFJ = flag;
+	}
+	
+	public boolean allTeamsRatedFile() {
+		return Teams.size() == fileRatedByNumOfTeams;
 	}
 	
 	private void throwException(String message) throws Exception {

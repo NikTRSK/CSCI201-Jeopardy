@@ -16,22 +16,22 @@ public class GameServer {
   // The game data that we send
   private GameData gd = null;
   // holds the gui
-//  private FileChooser fc;
+  private FileChooser fc;
   // start stop server
   private boolean listenForConnections;
   // used to check if all clients have connected
   private boolean allPlayersConnected;
   //used to check the amount of teams playing
   int numTeams;
-//  private String logoutUser;
+  private String logoutUser;
   
   public GameServer(int port, int numTeams, GameData gd, FileChooser fc) {
     this.port = port;
     playerThreads = new Vector<ServerThread>();
     this.numTeams = numTeams;
     this.gd = gd;
-//    this.fc = fc;
-//    this.logoutUser = null;
+    this.fc = fc;
+    this.logoutUser = null;
   }
   
   // starts the server
@@ -43,16 +43,16 @@ public class GameServer {
       ServerSocket serverSocket = new ServerSocket(port);
       System.out.println("Game Server waiting for connections on port " + port + ".");
       // keep listening for connections
-      while (listenForConnections) {      	
+      while (listenForConnections) {
         Socket socket = serverSocket.accept();  // accept connections
-//        checkPlayers();
-        // if the server is stopped
+        // for stop signal
         if (!listenForConnections) {
           break;
         }
         // wait for all the clients to connect
           ServerThread pt = new ServerThread(socket, this); // make it a thread
           playerThreads.add(pt);  // add it to the list
+          System.out.println("Thread added " + playerThreads.size());
           for (ServerThread p : playerThreads) {
             p.sendTeamsWaitingInQueue(numTeams - playerThreads.size());
           }
@@ -61,14 +61,14 @@ public class GameServer {
         // after all clients have connected start the threads
         if (allPlayersConnected) {
           for (ServerThread p : playerThreads) {
+            System.out.println("SERVER DEBUG: SENDING INIT TO " + p.getTeamName());
             p.start();
             gd.addTeam(p.getTeamName());
           }
           gd.InitGame();
-          sendToAllClients();
-//          for (ServerThread p : playerThreads) {
-//            p.sendGameData(this.gd);
-//          }
+          for (ServerThread p : playerThreads) {
+            p.sendGameData(this.gd);
+          }
         }
 //        logoutUser();
       }
@@ -103,17 +103,10 @@ public class GameServer {
     } catch (Exception e) { }
   }
   
-  public void checkPlayers() {
-    System.out.println("----++++Verifying clients connected");
-    for (ServerThread t: playerThreads)
-    	System.out.println("Player " + t.getTeamName() + " is connected: " + t.isConnected());
-  }
-  
   // remove logged out user
   public synchronized void removeThread(String teamName) {
     for (int i = 0; i < playerThreads.size(); ++i) {
       if (playerThreads.get(i).getTeamName().equals(teamName)) {
-      	System.out.println(i);
         playerThreads.removeElementAt(i);
         break;
       }
@@ -125,47 +118,32 @@ public class GameServer {
   
   protected synchronized void broadcastGameData(GameData gd) {
   if (gd != null) {
-  	for (int i = playerThreads.size(); i > 0; --i) {
-  		try {
-  			playerThreads.get(i).sendGameData(gd);
-  		} catch (IOException ioe) {
-  			playerThreads.remove(i);
-  			continue;
-  		}
-    }
+      for (ServerThread pt : playerThreads) {
+        System.out.println("Broadcasting to: " + pt.getTeamName());
+        pt.sendGameData(gd);
+      }
   }
 }
   
-//  public void logoutUser(String username) {
-//    this.logoutUser = username;
-//  }
+  public void logoutUser(String username) {
+    this.logoutUser = username;
+  }
   
-  private void sendToAllClients() {
-  	for (int i = playerThreads.size() -1; i > 0; --i) {
-  		try {
-  			playerThreads.get(i).sendGameData(this.gd);
-  		} catch (IOException ioe) {
-  			playerThreads.remove(i);
-  			System.out.println(i + " disconnected");
-  			
-  			for (ServerThread p : playerThreads) {
-  				p.sendTeamsWaitingInQueue(numTeams - playerThreads.size());
-  			}
-  			
-  			continue;
-  		}
+  private void logoutUser() {
+    System.out.println("````Sever DEBUG logout: " + logoutUser);
+    System.out.println("SIZE: " + playerThreads.size());
+    for (ServerThread t : playerThreads) {
+      System.out.println(t.getTeamName());
     }
+    if (logoutUser != null)
+      removeThread(logoutUser);
   }
   
   protected synchronized void broadcastGameData(String s) {
     if (s != null) {
-    	for (int i = playerThreads.size(); i > 0; --i) {
-    		try {
-    			playerThreads.get(i).sendGameData(s);
-    		} catch (IOException ioe) {
-    			playerThreads.remove(i);
-    			continue;
-    		}
+      synchronized(playerThreads) {
+        for (ServerThread pt : playerThreads)
+          pt.sendGameData(s);
       }
     }
   }
