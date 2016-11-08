@@ -125,7 +125,6 @@ public class GameBoardUI extends JFrame {
 		super("Play Jeopardy");
 		this.myTeamName = myTeamName;
 		this.gameData = gameData;
-//		this.gameData.getQsAnswered()= gameData.getQsAnswered();
 		this.numTries = 0;
 //		Teams = gameData.getAllTeams();
 		Categories = gameData.getAllCategories();
@@ -133,10 +132,14 @@ public class GameBoardUI extends JFrame {
 		initializeComponents();
 		createGUI();
 		addEvents();
+		System.out.print("###gameServer");
+		if (gameServer == null) System.out.println("is null");
+		else System.out.println("is not null");
 		if (gameClient != null) {
 			this.gameClient = gameClient;
 			this.gameClient.gameBoard = this;
 		}
+
 		if (gameServer != null)
 			this.gameServer = gameServer;
 		// check for a networked game
@@ -145,8 +148,6 @@ public class GameBoardUI extends JFrame {
 		if (!notNetworkedGame)
 			myTeamID = gameData.findTeamID(myTeamName);
 		teamPrompt.append("Welcome to Jeopardy!\nThe team to go first is " + gameData.getTeam(gameData.getNextTeam()).getName() + "\n");
-//			gameData.getQsAnswered()= gameData.getQsAnswered();
-//		 teamsAnswered = new boolean[gameData.getNumTeams()];
 		if (gameData.getNextTeam() != myTeamID)
 			myTurn = false;
 		else
@@ -173,12 +174,16 @@ public class GameBoardUI extends JFrame {
 		logoutGame = new JMenuItem("Logout");
 		menu.add(logoutGame);
 		logoutGame.addActionListener((ActionEvent event) -> {
+			gameData.gameTerminatedBy(myTeamName);
+			gameClient.sendUpdateToServer(gameData);
       new LoginScreen().setVisible(true);
       dispose();
 		});
 
 		exitGame= new JMenuItem("Exit Game");
 		exitGame.addActionListener((ActionEvent event) -> {
+			gameData.gameTerminatedBy(myTeamName);
+			gameClient.sendUpdateToServer(gameData);
       System.exit(0);
 		});
 		menu.add(exitGame);
@@ -449,13 +454,16 @@ public class GameBoardUI extends JFrame {
 		////////////////////
 		restartGame.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
+				gameData.restartGame(true);
+				gameClient.sendUpdateToServer(gameData);
 			}
 		});
 		
 		chooseNewGameFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				gameData.resetVariables();
+				gameData.gameTerminatedBy(myTeamName);
+				gameClient.sendUpdateToServer(gameData);
 				new FileChooser(myTeamName).setVisible(true);
 				dispose();
 			}
@@ -1353,17 +1361,21 @@ public class GameBoardUI extends JFrame {
 			for (int cat = 0; cat < 5; ++cat) {
 				qBtns[cat][pt].setEnabled(true);
 				qBtns[cat][pt].setIcon(qBtnsEnabled);
-//				qBtns[cat][pt].setBackground(new Color(56,57,49));
 			}
 		}
 		// Reset points in Point side panel
 		for (int i = 0; i < gameData.getNumTeams(); i++)
 			teamLbl.get(i).getItem2().setText("$" + gameData.getTeam(i).getPoints());
 		teamPrompt.setText("Game Restarted!\nWelcome to Jeopardy!\nThe team to go first is " + gameData.getTeam(gameData.getNextTeam()).getName() + "\n");
+		
+		// reset restart flag
+		gameData.restartGame(false);
 	}
 	
 	public void updateClientGUI() {
 		System.out.println("Running update on GUI " + myTeamName);
+		if (gameData.restartGame())
+			restartGame();
 		if (gameData.changePanel()) {
 //			System.out.println("CHANGING PANEL" + gameData.getCurrPanel());
 			displayAnswerPanel();

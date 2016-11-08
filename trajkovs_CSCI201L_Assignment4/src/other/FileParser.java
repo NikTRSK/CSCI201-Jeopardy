@@ -10,8 +10,6 @@ import java.util.Arrays;
 
 import GUI.GameData;
 import GameLogic.Question;
-import trajkovs_CSCI201L_Assignment1.GamePlay;
-import trajkovs_CSCI201L_Assignment1.Jeopardy;
 
 // Liked the parser from the solution code so I used it
 public class FileParser {

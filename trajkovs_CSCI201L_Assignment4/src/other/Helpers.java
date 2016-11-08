@@ -17,7 +17,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import GameLogic.Question;
-import trajkovs_CSCI201L_Assignment1.Jeopardy;
 
 public class Helpers {
 	public static String capitalize(String toCapitalize) {

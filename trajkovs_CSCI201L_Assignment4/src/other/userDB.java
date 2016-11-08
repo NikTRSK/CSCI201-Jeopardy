@@ -15,13 +15,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import trajkovs_CSCI201L_Assignment1.FileChooser;
-import trajkovs_CSCI201L_Assignment1.GamePlay;
-import trajkovs_CSCI201L_Assignment1.Jeopardy;
-import trajkovs_CSCI201L_Assignment1.User;
-
 public class userDB {
-	ArrayList<User> users = new ArrayList<User>();
+//	ArrayList<User> users = new ArrayList<User>();
 	
 	// SQL Connection
 	Connection conn = null;

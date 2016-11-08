@@ -73,8 +73,8 @@ public class FileChooser extends JFrame {
 	
 	String loggedInUser;
 	String myTeamName;
-	transient GameServer gs = null;
-	transient GameClient gc = null;
+	GameServer gs;
+	GameClient gc = null;
 	
 	// Create Border
   Border line = new LineBorder(Color.DARK_GRAY);
@@ -719,17 +719,6 @@ public class FileChooser extends JFrame {
 	
 	private void startClientAndWait() {
 		myTeamName = teamTxtBoxes[0].getText();
-//		if (hostGameRadio.isSelected()) {	
-//			gameData.setNumberOfQuestions(quickPlay.isSelected());
-//			gs = new GameServer(Integer.parseInt(portArea.getText()), teamSelectSlider.getValue(), gameData, this);
-//			new ServerRunning().start();
-//			gc = new GameClient("localhost", Integer.parseInt(portArea.getText()), myTeamName, this);
-//			if(!gc.start()) return;			
-//		}
-//		else if (joinGameRadio.isSelected()) {
-//			gc = new GameClient(ipArea.getText(), Integer.parseInt(portArea.getText()), myTeamName, this);
-//			if(!gc.start()) return;
-//		}
 
 		if (hostGameRadio.isSelected()) {	
 			gameData.setNumberOfQuestions(quickPlay.isSelected());
@@ -747,14 +736,13 @@ public class FileChooser extends JFrame {
 	
 	public void startGame(GameData gd) {
 		gameData = gd;
-//		gameData.InitGame();
-		// Check for Quick Play
-//		gameData.setNumberOfQuestions(quickPlay.isSelected());
-		System.out.println("QSSSSSSSSSSSS: " + gameData.getQsAnswered());
-		if (hostGameRadio.isSelected())
-			new GameBoardUI(gameData, myTeamName, gc, gs).setVisible(true);
-		else
-			new GameBoardUI(gameData, myTeamName, gc, null).setVisible(true);
+		System.out.println("SERVER IS " + (this.gs == null));
+		new GameBoardUI(gameData, myTeamName, gc, gs).setVisible(true);
+//		if (hostGameRadio.isSelected()) {
+//			new GameBoardUI(gameData, myTeamName, gc, gs).setVisible(true);
+//		}
+//		else
+//			new GameBoardUI(gameData, myTeamName, gc, null).setVisible(true);
 		
 		this.setVisible(false);
 //		dispose();

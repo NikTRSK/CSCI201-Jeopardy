@@ -6,10 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import GameLogic.GameClient;
 import GameLogic.Question;
 import GameLogic.Team;
-import networking.GameServer;
 
 public class GameData implements Serializable {
 	private static final long serialVersionUID = -6502628326317732979L; // auto-generated
@@ -37,17 +35,10 @@ public class GameData implements Serializable {
 	private String buzzIn = null;
 	private int selectedQCat, selectedQPtVal, teamJustBet;
 	private int fileRatedByNumOfTeams;
-	
-	// GAME SERVER
-	transient GameServer gs = null;
-	transient GameClient gc = null;
-	transient int playersWaiting;
-	transient boolean startGame = false;
-	
-	public void startGame() {
-		startGame = true;
-	}
-	
+	private boolean restartGame;
+	private int playersWaiting;
+	private String terminatedBy;
+
 	// Adds the categories to the Categories variable
 	public void setCategories(String [] cat) {
 		Categories = cat.clone();
@@ -509,6 +500,22 @@ public class GameData implements Serializable {
 	
 	public boolean allTeamsRatedFile() {
 		return Teams.size() == fileRatedByNumOfTeams;
+	}
+	
+	public void restartGame(boolean flag) {
+		this.restartGame = flag;
+	}
+	
+	public boolean restartGame() {
+		return this.restartGame;
+	}
+	
+	public void gameTerminatedBy(String user) {
+		this.terminatedBy = user;
+	}
+	
+	public String gameTerminatedBy() {
+		return this.terminatedBy;
 	}
 	
 	private void throwException(String message) throws Exception {
