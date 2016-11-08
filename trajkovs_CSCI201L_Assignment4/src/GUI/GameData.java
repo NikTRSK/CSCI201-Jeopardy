@@ -38,6 +38,7 @@ public class GameData implements Serializable {
 	private boolean restartGame;
 	private int playersWaiting;
 	private String terminatedBy;
+	private String gameServer;
 
 	// Adds the categories to the Categories variable
 	public void setCategories(String [] cat) {
@@ -516,6 +517,14 @@ public class GameData implements Serializable {
 	
 	public String gameTerminatedBy() {
 		return this.terminatedBy;
+	}
+	
+	public void setGameServer(String gs) {
+		this.gameServer = gs;
+	}
+	
+	public String gameServerIs() {
+		return this.gameServer;
 	}
 	
 	private void throwException(String message) throws Exception {

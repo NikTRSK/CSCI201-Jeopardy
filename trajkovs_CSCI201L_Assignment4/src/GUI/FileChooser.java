@@ -32,7 +32,6 @@ import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -74,7 +73,7 @@ public class FileChooser extends JFrame {
 	String loggedInUser;
 	String myTeamName;
 	GameServer gs;
-	GameClient gc = null;
+	GameClient gc;
 	
 	// Create Border
   Border line = new LineBorder(Color.DARK_GRAY);
@@ -90,6 +89,8 @@ public class FileChooser extends JFrame {
 		addEvents();
 		notNetworkedRadio.setSelected(true);
 		setupNotNetworkedUI();
+		this.gs = null;
+		this.gc = null;
 	}
 	
 	private void initializeComponents() {
@@ -102,6 +103,7 @@ public class FileChooser extends JFrame {
 		
 		// Create Quick Play checkbox
 		quickPlay = new JCheckBox("Quick Play");
+		quickPlay.setVisible(true);
 		quickPlay.setBackground(new Color(0,137,123));
 		quickPlay.setForeground(Color.WHITE);
 		quickPlay.setFont(new Font("Cambria", Font.BOLD, 15));
@@ -358,7 +360,7 @@ public class FileChooser extends JFrame {
 				new dialogBox();
 				int result = dialogBox.showOptionDialog(null, "Are you sure you want to quit?", "Quit Program", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, Btns, Btns[1]);
 				if (result == JOptionPane.YES_OPTION) {
-					System.exit(0);
+					exitGame();
 				}
 			}
 		});
@@ -454,6 +456,7 @@ public class FileChooser extends JFrame {
 					new GameBoardUI_notNetworked(gameData, myTeamName).setVisible(true);
 					dispose();
 				}
+				quickPlay.setEnabled(false);
 				startBtn.setEnabled(false);
 				clearBtn.setEnabled(false);
 			}			
@@ -472,16 +475,17 @@ public class FileChooser extends JFrame {
 				dispose();
 			} else {
 				// if a client
-				gc.disconnect();
-				gc = null;
+				if (gc != null) {
+					gc.disconnect();
+					gc = null;
+				}
 				new LoginScreen().setVisible(true);
 				dispose();
 			}
-//			userDB.logoutUser();
 		});
 		
 		exitBtn.addActionListener((ActionEvent event) -> {
-      System.exit(0);
+			exitGame();
 		});
 		
 		portArea.getDocument().addDocumentListener(new DocumentListener() {
@@ -558,16 +562,16 @@ public class FileChooser extends JFrame {
 		}
 	}
 	
-	class dialogBox extends JOptionPane {
-		private static final long serialVersionUID = 1L;
-		public dialogBox() {
-			UIManager.put("OptionPane.background", new Color(0,150,136));
-			UIManager.put("Panel.background", new Color(0,150,136));
-			UIManager.put("Panel.foreground", Color.WHITE);
-			UIManager.put("Button.background", new Color(39,40,34));
-			UIManager.put("Button.foreground", Color.WHITE);
-		}
-	}
+//	class dialogBox extends JOptionPane {
+//		private static final long serialVersionUID = 1L;
+//		public dialogBox() {
+//			UIManager.put("OptionPane.background", new Color(0,150,136));
+//			UIManager.put("Panel.background", new Color(0,150,136));
+//			UIManager.put("Panel.foreground", Color.WHITE);
+//			UIManager.put("Button.background", new Color(39,40,34));
+//			UIManager.put("Button.foreground", Color.WHITE);
+//		}
+//	}
 	
 	private void createTeamSlider() {
 		teamSelectSlider = new JSlider(JSlider.HORIZONTAL);
@@ -603,8 +607,6 @@ public class FileChooser extends JFrame {
 			return;
 		if (joinGameRadio.isSelected() && !checkValidIPInput)
 			return;
-		
-		
 		
 		// if all selected enable startButton
 		startBtn.setEnabled(true);
@@ -722,28 +724,21 @@ public class FileChooser extends JFrame {
 
 		if (hostGameRadio.isSelected()) {	
 			gameData.setNumberOfQuestions(quickPlay.isSelected());
+			gameData.setGameServer(myTeamName);
 			gs = new GameServer(Integer.parseInt(portArea.getText()), teamSelectSlider.getValue(), gameData, this);
 			new ServerRunning().start();
 			gc = new GameClient("localhost", Integer.parseInt(portArea.getText()), myTeamName, this);
-//			if(!gc.start()) return;			
 		}
 		else if (joinGameRadio.isSelected()) {
 			gc = new GameClient(ipArea.getText(), Integer.parseInt(portArea.getText()), myTeamName, this);
 		}
 		if(!gc.start()) return;
-		
 	}
 	
 	public void startGame(GameData gd) {
 		gameData = gd;
 		System.out.println("SERVER IS " + (this.gs == null));
 		new GameBoardUI(gameData, myTeamName, gc, gs).setVisible(true);
-//		if (hostGameRadio.isSelected()) {
-//			new GameBoardUI(gameData, myTeamName, gc, gs).setVisible(true);
-//		}
-//		else
-//			new GameBoardUI(gameData, myTeamName, gc, null).setVisible(true);
-		
 		this.setVisible(false);
 //		dispose();
 	}
@@ -783,7 +778,28 @@ public class FileChooser extends JFrame {
 		joinGameRadio.setSelected(true);
 		teamTxtBoxes[0].setText(myTeamName);
 		gc = null;
-//		joinGameRadio.isEnabled()
+	}
+	
+	public void cantConnect() {
+		waitingLbl.setText("Cannot connect to server. Check your settings.");
+		clearGame();
+		joinGameRadio.setSelected(true);
+		teamTxtBoxes[0].setText(myTeamName);
+		gc = null;
+	}
+	
+	private void exitGame() {
+		if (gs != null) {
+			// if a server
+			gs.stop();
+		} else {
+			// if a client
+			if (gc != null) {
+				gc.disconnect();
+				gc = null;
+			}
+		}
+		System.exit(0);
 	}
 	
 	class ServerRunning extends Thread {		

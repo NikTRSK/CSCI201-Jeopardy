@@ -50,19 +50,22 @@ public class GameServer {
           break;
         }
         // wait for all the clients to connect
-          ServerThread pt = new ServerThread(socket, this); // make it a thread
-          playerThreads.add(pt);  // add it to the list
-          System.out.println("Thread added " + playerThreads.size());
-          for (ServerThread p : playerThreads) {
-            p.sendTeamsWaitingInQueue(numTeams - playerThreads.size());
-          }
-        if (playerThreads.size() == numTeams)
+        ServerThread pt = new ServerThread(socket, this); // make it a thread
+        playerThreads.add(pt);  // add it to the list
+        pt.start();
+//          if (pt.getName().equals(gd.gameServerIs().equals(pt))
+//          	pt.start();
+        System.out.println("Thread added " + playerThreads.size());
+        for (ServerThread p : playerThreads) {
+          p.sendTeamsWaitingInQueue(numTeams - playerThreads.size());
+        }
+      if (playerThreads.size() == numTeams)
           allPlayersConnected = true;
         // after all clients have connected start the threads
         if (allPlayersConnected) {
           for (ServerThread p : playerThreads) {
-            System.out.println("SERVER DEBUG: SENDING INIT TO " + p.getTeamName());
-            p.start();
+//            System.out.println("SERVER DEBUG: SENDING INIT TO " + p.getTeamName());
+//            p.start();
             gd.addTeam(p.getTeamName());
           }
           gd.InitGame();
@@ -127,16 +130,9 @@ public class GameServer {
   
   public void logoutUser(String username) {
     this.logoutUser = username;
-  }
-  
-  private void logoutUser() {
-    System.out.println("````Sever DEBUG logout: " + logoutUser);
-    System.out.println("SIZE: " + playerThreads.size());
-    for (ServerThread t : playerThreads) {
-      System.out.println(t.getTeamName());
-    }
-    if (logoutUser != null)
-      removeThread(logoutUser);
+    System.out.println("logging out user");
+    removeThread(username);
+    System.out.println("Size now: " + playerThreads.size());
   }
   
   protected synchronized void broadcastGameData(String s) {

@@ -18,7 +18,6 @@ public class ServerThread extends Thread {
   public ServerThread(Socket s, GameServer gs) {
     this.gs = gs;
     this.s = s;
-//    this.teamName = teamName;
     
     try {
       oos = new ObjectOutputStream(s.getOutputStream());
@@ -30,8 +29,6 @@ public class ServerThread extends Thread {
         System.out.println("GOT name: " + str);
         this.teamName = str; 
       }
-//      else
-//        System.out.println("Team name is null");
     } catch (IOException | ClassNotFoundException ioe) {
       System.out.println("ioe in Server Thread(): " + ioe.getMessage());
     }
@@ -41,7 +38,6 @@ public class ServerThread extends Thread {
     try {
       oos.writeObject(gd);
       oos.flush();
-//      System.out.println("_____made it through");
     } catch (IOException e) {e.printStackTrace();}
   }
   
@@ -63,6 +59,14 @@ public class ServerThread extends Thread {
     } catch (IOException e) { e.printStackTrace(); }
   }
   
+  public boolean isClosed() {
+  	return s.isClosed();
+  }
+  
+  public boolean isConnected() {
+  	return s.isConnected();
+  }
+  
   public void run() {
     boolean listenForConnections = true;
     while (listenForConnections) {
@@ -72,11 +76,9 @@ public class ServerThread extends Thread {
         if (input instanceof String) {
           teamName = (String)input;
           if (teamName.contains("LOGOUT:")) {
-            String logoutUser = teamName.replace("LOGOUT:", "");
-            System.out.println("THREAD DEBUG: LOGOUT " + logoutUser);
-            s.close(); // ADDED
-//            gs.removeThread(logoutUser);
-//            gs.logoutUser(logoutUser);
+            String logoutUser = teamName.substring(7);
+            gs.removeThread(logoutUser);
+            s.close();
           }
           if (teamName != null)
             this.teamName = teamName;
@@ -90,13 +92,6 @@ public class ServerThread extends Thread {
       } catch (ClassNotFoundException cnfe) {
         System.out.println("cnfe in run(): " + cnfe.getMessage()); break;
       }
-/*      finally {
-        try {
-          if (pw != null) pw.close();
-          if (br != null) br.close();
-          if (s != null) s.close();
-        } catch (IOException ioe) {}
-      }*/
     }
   }
 }

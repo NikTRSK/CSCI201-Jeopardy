@@ -15,14 +15,10 @@ public class GameClient/* extends Thread */{
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
 	private Socket socket;
-	
-	private boolean gameDataChanged;
 	private boolean gameStarted;
 	public GameData gd = null;
 	public GameBoardUI gameBoard;
 	private FileChooser fc;
-	
-	private int waitingForPlayers;
 	private int port;
 	private String hostname, teamName;
 	
@@ -34,24 +30,20 @@ public class GameClient/* extends Thread */{
 	}
 	
 	public void sendUpdateToServer(GameData gameData) {
-//		System.out.println(teamName + ": Sending game data update...");
 		try {
 			oos.writeObject(gameData);
 			oos.flush();
 		} catch (IOException e) {
 			System.out.println("IOE updating data: " + e.getMessage());
-//			e.printStackTrace();
 		}
 	}
 	
 	public void showAnswerPanel(JPanel answerPanel) {
-//		System.out.println(teamName + ": Sending game data update...");
 		try {
 			oos.writeObject(answerPanel);
 			oos.flush();
 		} catch (IOException e) {
 			System.out.println("IOE updating data: " + e.getMessage());
-//			e.printStackTrace();
 		}
 	}
 	
@@ -61,9 +53,12 @@ public class GameClient/* extends Thread */{
 			socket = new Socket(hostname, port);
 		} catch(Exception e) {
 			System.out.println("Error Connecting to server: " + e.getMessage());
+			System.out.println("here");
+//			if (fc != null)
+//			fc.serverLoggedOut();
+			fc.cantConnect();;
 			return false;
 		}
-		System.out.println("Connection accepted " + socket.getInetAddress() + ":" + socket.getPort());
 		
 		try {
 			ois = new ObjectInputStream(socket.getInputStream());
@@ -71,51 +66,29 @@ public class GameClient/* extends Thread */{
 		} catch (IOException ioe) {
 			System.out.println("Exception in creation new I/O stream: " + ioe.getMessage());
 		}
-		
 		// create the thread to listen from the server
 		new ListenFromServer().start();
-//		this.start();
 		
 		try {
 			// send team name to server
 			if (!gameStarted){
-//				System.out.println("***SENDING TEAM NAME: " + teamName);
 				oos.writeObject(teamName);
 				oos.flush();
 				gameStarted = true;
-			} else {
-//				oos.writeObject("testing testing");
-//				oos.flush();
 			}
-//			}
 		} catch (IOException ioe) {
 			System.out.println("Exception during login: " + ioe);
 			return false;
 		}
-//		fc.startGame();
 		return true;
 	}
 	
 	public void disconnect() {
 		String logoutClient = "LOGOUT:" + teamName;
 		try {
-			System.out.println("GAMECLIENT: " + logoutClient);
 			oos.writeObject(logoutClient);
 			oos.flush();
 		} catch (IOException e1) {}
-/*		try { 
-			if(ois != null) ois.close();
-		}
-		catch(Exception e) {}
-		try {
-			if(oos != null) oos.close();
-		}
-		catch(Exception e) {}
-        try{
-			if(socket != null) socket.close();
-		}
-		catch(Exception e) {}*/
-			
 	}
 	
 	class ListenFromServer extends Thread {
@@ -125,8 +98,6 @@ public class GameClient/* extends Thread */{
 			while (true) {
 				try {
 					Object input = ois.readObject();
-					
-//					GameData gd = (GameData)ois.readObject();
 					if (input instanceof Integer) {
 						Integer teamsWaiting = (Integer)input;
 						if (teamsWaiting == 0) {
@@ -135,20 +106,13 @@ public class GameClient/* extends Thread */{
 						else
 							fc.updateWaitingLabel(teamsWaiting);
 					}
-					else if (input instanceof String) {
-						String output;
-						output = (String)input;
-						if (output != null)
-							System.out.println("Got data from server: " + output);
-					}
-					else if (input instanceof GameData) {
+					if (input instanceof GameData) {
 						GameData gd = (GameData)input;
 						if (startGame) {
 							fc.startGame(gd);
 							startGame = false;
 						} else {
 							if (gameBoard != null) {
-								System.out.println("updating client ui... " + teamName);
 								gameBoard.updateClientData(gd);
 								gameBoard.updateClientGUI();
 							}
