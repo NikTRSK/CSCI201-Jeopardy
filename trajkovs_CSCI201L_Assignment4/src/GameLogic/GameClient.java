@@ -11,7 +11,7 @@ import GUI.FileChooser;
 import GUI.GameBoardUI;
 import GUI.GameData;
 
-public class GameClient/* extends Thread */{
+public class GameClient {
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
 	private Socket socket;

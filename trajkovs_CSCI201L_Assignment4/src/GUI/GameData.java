@@ -131,7 +131,7 @@ public class GameData implements Serializable {
 		if (currTeam >= Teams.size())
 			currTeam = 0;
 		
-		nextTeam = currTeam;
+//		nextTeam = currTeam;
 	}
 	
 	public void updateNextTeam() {
@@ -333,7 +333,7 @@ public class GameData implements Serializable {
 		generateStartingTeam();
 		// Set the number of answered questions to 0
 		if (quickPlay)
-			qsAnswered = 23;
+			qsAnswered = 22;
 		else
 			qsAnswered = 0;
 		

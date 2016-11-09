@@ -737,7 +737,6 @@ public class FileChooser extends JFrame {
 	
 	public void startGame(GameData gd) {
 		gameData = gd;
-		System.out.println("SERVER IS " + (this.gs == null));
 		new GameBoardUI(gameData, myTeamName, gc, gs).setVisible(true);
 		this.setVisible(false);
 //		dispose();

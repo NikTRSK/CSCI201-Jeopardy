@@ -23,7 +23,6 @@ public class GameServer {
   private boolean allPlayersConnected;
   //used to check the amount of teams playing
   int numTeams;
-  private String logoutUser;
   
   public GameServer(int port, int numTeams, GameData gd, FileChooser fc) {
     this.port = port;
@@ -31,7 +30,6 @@ public class GameServer {
     this.numTeams = numTeams;
     this.gd = gd;
     this.fc = fc;
-    this.logoutUser = null;
   }
   
   // starts the server
@@ -53,9 +51,6 @@ public class GameServer {
         ServerThread pt = new ServerThread(socket, this); // make it a thread
         playerThreads.add(pt);  // add it to the list
         pt.start();
-//          if (pt.getName().equals(gd.gameServerIs().equals(pt))
-//          	pt.start();
-        System.out.println("Thread added " + playerThreads.size());
         for (ServerThread p : playerThreads) {
           p.sendTeamsWaitingInQueue(numTeams - playerThreads.size());
         }
@@ -64,8 +59,6 @@ public class GameServer {
         // after all clients have connected start the threads
         if (allPlayersConnected) {
           for (ServerThread p : playerThreads) {
-//            System.out.println("SERVER DEBUG: SENDING INIT TO " + p.getTeamName());
-//            p.start();
             gd.addTeam(p.getTeamName());
           }
           gd.InitGame();
@@ -73,7 +66,6 @@ public class GameServer {
             p.sendGameData(this.gd);
           }
         }
-//        logoutUser();
       }
       // If stop requested
       try {
@@ -122,18 +114,10 @@ public class GameServer {
   protected synchronized void broadcastGameData(GameData gd) {
   if (gd != null) {
       for (ServerThread pt : playerThreads) {
-        System.out.println("Broadcasting to: " + pt.getTeamName());
         pt.sendGameData(gd);
       }
   }
 }
-  
-  public void logoutUser(String username) {
-    this.logoutUser = username;
-    System.out.println("logging out user");
-    removeThread(username);
-    System.out.println("Size now: " + playerThreads.size());
-  }
   
   protected synchronized void broadcastGameData(String s) {
     if (s != null) {

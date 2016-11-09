@@ -25,8 +25,8 @@ public class ServerThread extends Thread {
       
       System.out.println("Client Connected");
       String str = (String)ois.readObject();
+      // read in player teamname
       if (str != null) {
-        System.out.println("GOT name: " + str);
         this.teamName = str; 
       }
     } catch (IOException | ClassNotFoundException ioe) {
@@ -38,14 +38,14 @@ public class ServerThread extends Thread {
     try {
       oos.writeObject(gd);
       oos.flush();
-    } catch (IOException e) {e.printStackTrace();}
+    } catch (IOException e) { }
   }
   
   public void sendGameData(String s) {
     try {
       oos.writeObject(s);
       oos.flush();
-    } catch (IOException e) {e.printStackTrace();}
+    } catch (IOException e) { }
   }
   
   public String getTeamName() {
