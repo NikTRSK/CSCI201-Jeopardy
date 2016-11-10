@@ -1059,6 +1059,7 @@ public class GameBoardUI_notNetworked extends JFrame {
 				new FileChooser(loggedInUser).setVisible(true);;
 				
 				dispose();
+				winnerDialog.dispose();
 			}
 			
 		});

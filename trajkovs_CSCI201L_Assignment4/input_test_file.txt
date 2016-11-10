@@ -26,5 +26,5 @@ Birds::Planes::Songs::Cars::Cities::resources/category.png
 ::Cities::100::MAINE PORT::Portland
 ::Planes::1000::It's the part of the airport where you are able to board your plane::TERMINAL
 ::Cars::1000::What Does SS Stand For::Super Sport
-41
-132
+44
+143

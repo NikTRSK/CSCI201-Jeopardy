@@ -1,19 +1,11 @@
 package other;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 
 public class userDB {
 //	ArrayList<User> users = new ArrayList<User>();
@@ -38,11 +30,12 @@ public class userDB {
 			return false;
 		}
 		else {
-			String uname = rs.getString("username");
+//			String uname = rs.getString("username");
 			String pword = rs.getString("password");
-			
-			return true;
+			if (!pword.equals(password))
+				return false;
 		}
+		return true;
 	}
 	
 	// return false if duplicate user; true otherwise

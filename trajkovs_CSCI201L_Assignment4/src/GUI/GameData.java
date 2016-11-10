@@ -333,7 +333,7 @@ public class GameData implements Serializable {
 		generateStartingTeam();
 		// Set the number of answered questions to 0
 		if (quickPlay)
-			qsAnswered = 22;
+			qsAnswered = 20;
 		else
 			qsAnswered = 0;
 		
