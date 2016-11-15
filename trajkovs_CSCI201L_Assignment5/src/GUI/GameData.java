@@ -36,6 +36,7 @@ public class GameData implements Serializable {
 	private int selectedQCat, selectedQPtVal, teamJustBet;
 	private int fileRatedByNumOfTeams;
 	private boolean restartGame;
+	private boolean timerExpired;
 	private int playersWaiting;
 	private String terminatedBy;
 	private String gameServer;
@@ -525,6 +526,14 @@ public class GameData implements Serializable {
 	
 	public String gameServerIs() {
 		return this.gameServer;
+	}
+	
+	public boolean timerExpired() {
+		return timerExpired;
+	}
+	
+	public void timerExpired(boolean flag) {
+		timerExpired = flag;
 	}
 	
 	private void throwException(String message) throws Exception {

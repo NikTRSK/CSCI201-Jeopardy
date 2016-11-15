@@ -114,10 +114,12 @@ public class GameClient {
 						} else {
 							if (gameBoard != null) {
 								gameBoard.updateClientData(gd);
+								gd = null; // reset for when we get the data again
+								System.out.println("Updating client...");
 								gameBoard.updateClientGUI();
 							}
 						}
-						gd = null; // reset for when we get the data again
+//						gd = null; // reset for when we get the data again
 					}
 					// do stuff with data on client side
 				} catch (IOException ioe) {

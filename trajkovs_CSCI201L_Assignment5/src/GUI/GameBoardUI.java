@@ -63,6 +63,8 @@ import networking.GameServer;
 import other.GameConstants;
 import other.Helpers;
 import other.Pair;
+import other.Timer;
+import other.TimerAnimation;
 
 
 // Ref: https://docs.oracle.com/javase/tutorial/uiswing/components/menu.html
@@ -75,7 +77,7 @@ public class GameBoardUI extends JFrame {
 	JMenu menu;
 	JMenuItem restartGame, chooseNewGameFile, logoutGame, exitGame;
 	JLabel titleLbl;
-	JLabel progressTitle;
+	JLabel progressTitle, currUserLbl;
 	JTextArea teamPrompt;
 	JScrollPane promptPane;
 
@@ -88,6 +90,8 @@ public class GameBoardUI extends JFrame {
 	
 	JLabel [] catLbls = new JLabel [5];
 	List<Pair<JLabel, JLabel>> teamLbl;
+//	List<ImageIcon> waitTimerIcon;
+	ArrayList<JLabel> waitTimerImage;
 	JButton [][] qBtns = new JButton[5][5];
 	ImageIcon qBtnsEnabled, qBtnsDisabled;
 	
@@ -121,6 +125,9 @@ public class GameBoardUI extends JFrame {
 //	boolean [] teamsAnswered;
 	GameClient gameClient = null;
 	GameServer gameServer = null;
+	//Assignment 5 additions
+	Timer timer;
+	TimerAnimation timerAnimation;
 	
 	public GameBoardUI (GameData gameData, String myTeamName, GameClient gameClient, GameServer gameServer) {
 		super("Play Jeopardy");
@@ -149,11 +156,17 @@ public class GameBoardUI extends JFrame {
 		if (!notNetworkedGame)
 			myTeamID = gameData.findTeamID(myTeamName);
 		teamPrompt.append("Welcome to Jeopardy!\nThe team to go first is " + gameData.getTeam(gameData.getNextTeam()).getName() + "\n");
+		currUserLbl.setText(gameData.getTeam(gameData.getNextTeam()).getName());
 		if (gameData.getNextTeam() != myTeamID)
 			myTurn = false;
 		else
 			myTurn = true;
 		ratingsOpen = false;
+		
+		timer = new Timer(titleLbl, waitTimerImage, this);
+		// Start timer
+//		timer.restart(gameData.getNextTeam());
+		timer.start(gameData.getNextTeam());
 	}
 	
 	private void initializeComponents() {
@@ -232,8 +245,13 @@ public class GameBoardUI extends JFrame {
 		
 		// fill out an empty array of pairs for teams
 		teamLbl = new ArrayList<Pair<JLabel, JLabel> >() ;
-		for (int i = 0; i < 4; ++i)
+//		waitTimerIcon = new ArrayList<ImageIcon>();
+		waitTimerImage = new ArrayList<JLabel>();
+		
+		for (int i = 0; i < 4; ++i) {
 			teamLbl.add(new Pair<JLabel, JLabel>(new JLabel("", SwingConstants.CENTER), new JLabel("", SwingConstants.CENTER)));
+			waitTimerImage.add(new JLabel());
+		}
 		
 		// Generate all teams and values to Score Panel
 		for (int i = 0; i < gameData.getNumTeams(); i++) {
@@ -248,9 +266,11 @@ public class GameBoardUI extends JFrame {
 		// Progress panel components
 		progressTitle = new JLabel("Game Progress", SwingConstants.CENTER);
 		progressTitle.setAlignmentX(CENTER_ALIGNMENT); progressTitle.setAlignmentY(TOP_ALIGNMENT);
-//		progressTitle.setPreferredSize(new Dimension(400, 50));
 		progressTitle.setForeground(Color.BLACK);
 		progressTitle.setFont(new Font("Cambria", Font.BOLD, 25));
+		
+		currUserLbl = new JLabel();
+		currUserLbl.setFont(new Font("Cambria", Font.PLAIN, 23));
 		
 		teamPrompt = new JTextArea("");
 		promptPane = new JScrollPane(teamPrompt);
@@ -395,13 +415,14 @@ public class GameBoardUI extends JFrame {
 		add(Box.createGlue());
 		add(sidePanel);
 		
-		JPanel scorePanel = new JPanel(new GridLayout(4, 2));
+		JPanel scorePanel = new JPanel(new GridLayout(4, 3));
 		scorePanel.setBackground(new Color(56,57,49));
 		sidePanel.add(scorePanel);
 		
 		// add all teams to Score Panel
 		for (int i = 0; i < teamLbl.size(); i++) {
 			scorePanel.add(teamLbl.get(i).getItem1());
+			scorePanel.add(waitTimerImage.get(i));
 			scorePanel.add(teamLbl.get(i).getItem2());
 		}
 		
@@ -412,7 +433,14 @@ public class GameBoardUI extends JFrame {
 		
 		// Create the Game Progress panel		
 
+//		JPanel progressTitlePanel = new JPanel();
+//		progressTitlePanel.setSize(new Dimension(progressTitle.getPreferredSize()));
+//		progressTitlePanel.setOpaque(false);
 		gameProgressPanel.add(progressTitle);
+		gameProgressPanel.add(currUserLbl);
+//		gameProgressPanel.add(progressTitlePanel);
+//		gameProgressPanel.add(progressTitle);
+//		progressTitle
 		
 		// Create the team prompt
 		gameProgressPanel.add(promptPane);
@@ -487,6 +515,7 @@ public class GameBoardUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				timer.stopTimer();
 				if (myTurn || notNetworkedGame) {
 					gameData.setSelectedQuestion(cat, ptValue);
 					gameData.updateSwitchingLogic(true, "answerQuestionPanel");
@@ -1056,14 +1085,23 @@ public class GameBoardUI extends JFrame {
 		qQuestionArea.setText(currQuestion.getQuestion());
 		qErrorLbl.setText("\n");
 		qAnswerArea.setText("");
-//		showPanel("answerQuestionPanel"); // show question panel
+		// if timer expires no need to change the panel
+//		if (!gameData.timerExpired())
 		showPanel(gameData.getCurrPanel());
 		teamPrompt.append(gameData.getTeam(gameData.getNextTeam()).getName() + " chose the question in " + Helpers.capitalize(currQuestion.getCategory()) + " worth $" + currQuestion.getPointValue() + "\n");
 		qAnswerArea.requestFocusInWindow();
 		qPassBtn.setVisible(false);
+		
+		timer.setupAnswerPane(qTeamLbl);
+		// added
+		if (!gameData.changePanel())
+//			timer.start(gameData.getNextTeam());
+			timer.restart(gameData.getNextTeam());
+		qErrorLbl.setText("Answer within 20 seconds!");
 	}
 	
 	private void sendGameData() {
+		System.out.println("!!!!!!___Client is sending data.");
 		gameClient.sendUpdateToServer(gameData);
 	}
 	
@@ -1085,6 +1123,7 @@ public class GameBoardUI extends JFrame {
 			qPassBtn.setEnabled(true);
 			if (gameData.getQsAnswered() != 25)
 				teamPrompt.append("Now it's " + gameData.getTeam(gameData.getNextTeam()).getName() + "'s turn! Please Choose a question.\n");
+			currUserLbl.setText(gameData.getTeam(gameData.getNextTeam()).getName());
 		}
 		numTries = 0;
 	}
@@ -1127,9 +1166,11 @@ public class GameBoardUI extends JFrame {
 	}
 	
 	public void setupQuestionListPanel() {
-		gameData.qsAnsweredIncrement();
+		if (!gameData.timerExpired()) {
+			gameData.qsAnsweredIncrement();
+			currQuestion.setAnswered();
+		}
 		
-		currQuestion.setAnswered();
 		teamLbl.get(gameData.getNextTeam()).getItem2().setText(printPts(gameData.getTeam(gameData.getNextTeam()).getPoints()));
 		if (gameData.getNextTeam() != myTeamID)
 			myTurn = false;
@@ -1141,7 +1182,12 @@ public class GameBoardUI extends JFrame {
 		if(gameData.getQsAnswered() != 25)
 			showPanel("questionListPanel");
 		qPassBtn.setVisible(false);
-		qBtns[gameData.getSelectedQuestionCat()][gameData.getSelectedQuestionPtValue()].setEnabled(false);
+		if (!gameData.timerExpired())
+			qBtns[gameData.getSelectedQuestionCat()][gameData.getSelectedQuestionPtValue()].setEnabled(false);
+		
+		// start timer
+		currUserLbl.setText(gameData.getTeam(gameData.getNextTeam()).getName());
+		timer.restart(gameData.getCurrentTeam());
 	}
 	
 	private void checkAllBetsNetworked() {
@@ -1219,6 +1265,24 @@ public class GameBoardUI extends JFrame {
 		gameData.restartGame(false);
 	}
 	
+	public void timeExpired() {
+		gameData.timerExpired(true);
+		gameData.getTeam(gameData.getNextTeam()).hasAnswered();
+		gameClient.sendUpdateToServer(gameData);
+//		System.out.println("Timer Expired");
+	}
+	
+	private void updateExpired() {
+		if (gameData.timerExpired()) {
+			teamPrompt.append("Timer expired for " + gameData.getTeam(gameData.getNextTeam()).getName() + "\n");
+			gameData.updateCurrentTeam();
+			gameData.setNextTeam(gameData.getCurrentTeam());
+			setupQuestionListPanel();
+		}
+			
+		gameData.timerExpired(false);
+	}
+	
 	public void updateClientGUI() {
 		// if the server Restarts the Game
 		if (gameData.restartGame())
@@ -1238,15 +1302,19 @@ public class GameBoardUI extends JFrame {
 				gameServer.stop();
 			return;
 		}
+//		if (gameData.timerExpired() && !gameData.changePanel()) {
+//			updateExpired();
+//		}
 		if (gameData.changePanel()) {
+			timer.stopTimer();
 			displayAnswerPanel();
 			
 			if (!gameData.getTeam(gameData.getNextTeam()).getName().equals(myTeamName)) {
-				qTeamLbl.setVisible(true);
+//				qTeamLbl.setVisible(true);
 				qAnswerArea.setEditable(false);
 				qSubmitBtn.setEnabled(false);
 			} else {
-				qTeamLbl.setVisible(true);
+//				qTeamLbl.setVisible(true);
 				qAnswerArea.setEditable(true);
 				qSubmitBtn.setEnabled(true);
 			}
