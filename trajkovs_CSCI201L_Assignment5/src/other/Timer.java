@@ -81,8 +81,10 @@ public class Timer extends Thread {
 			try {
 				if (stopTimer) break;
 				synchronized (this) {
-					editLbl.setText("Jeopardy: " + timer--);
-				waitLbl.get(teamID).setIcon(images.get(imageIdx++));
+					if (inAnswerPane)
+						editLbl.setText("" + timer--);
+						editLbl.setText("Jeopardy: " + timer--);
+					waitLbl.get(teamID).setIcon(images.get(imageIdx++));
 				}
 				Thread.yield();
 				Thread.sleep(sleepTime);

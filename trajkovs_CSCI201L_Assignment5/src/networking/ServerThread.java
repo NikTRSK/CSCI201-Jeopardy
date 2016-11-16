@@ -70,6 +70,7 @@ public class ServerThread extends Thread {
   public void run() {
     boolean listenForConnections = true;
     while (listenForConnections) {
+    	System.out.println("Thread sending update.");
       try {
         Object input = ois.readObject();
         String teamName;
@@ -86,6 +87,7 @@ public class ServerThread extends Thread {
           GameData gd = (GameData)input;
           if (gd != null)
             gs.broadcastGameData(gd);
+          gs = null;
         }
       } catch (IOException ioe) {
         System.out.println("ioe in run(): " + ioe.getMessage()); break;

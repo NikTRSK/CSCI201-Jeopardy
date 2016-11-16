@@ -515,7 +515,7 @@ public class GameBoardUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				timer.stopTimer();
+//				timer.stopTimer();
 				if (myTurn || notNetworkedGame) {
 					gameData.setSelectedQuestion(cat, ptValue);
 					gameData.updateSwitchingLogic(true, "answerQuestionPanel");
@@ -523,6 +523,7 @@ public class GameBoardUI extends JFrame {
 					((JButton)e.getSource()).setBackground(new Color(113, 115, 98));
 					
 					sendGameData();
+					System.out.println("Action listener clicked");
 				}
 			}
 		}
@@ -1306,7 +1307,7 @@ public class GameBoardUI extends JFrame {
 //			updateExpired();
 //		}
 		if (gameData.changePanel()) {
-			timer.stopTimer();
+//			timer.stopTimer();
 			displayAnswerPanel();
 			
 			if (!gameData.getTeam(gameData.getNextTeam()).getName().equals(myTeamName)) {
@@ -1319,6 +1320,10 @@ public class GameBoardUI extends JFrame {
 				qSubmitBtn.setEnabled(true);
 			}
 			gameData.updateSwitchingLogic(false);
+			// Setup timer for anwer panel
+			timer.stopTimer();
+			timer.setupAnswerPane(qCatLbl);
+			timer.restart(gameData.getNextTeam());
 		}
 		// check if question answered
 		if (gameData.correctAnswer()) {
