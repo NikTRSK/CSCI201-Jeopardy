@@ -85,10 +85,12 @@ public class ServerThread extends Thread {
             this.teamName = teamName;
         } else if (input instanceof GameData) {
           GameData gd = (GameData)input;
+          
           if (gd != null)
             gs.broadcastGameData(gd);
-          gs = null;
+          gd = null;
         }
+        input = null;
       } catch (IOException ioe) {
         System.out.println("ioe in run(): " + ioe.getMessage()); break;
       } catch (ClassNotFoundException cnfe) {

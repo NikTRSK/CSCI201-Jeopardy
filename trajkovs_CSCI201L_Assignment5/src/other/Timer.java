@@ -15,8 +15,9 @@ public class Timer extends Thread {
 	private GameBoardUI gameBoard;
 	private JLabel editLbl;
 	private ArrayList<JLabel> waitLbl;
+	private JLabel buzzInWait;
 	private ArrayList<ImageIcon> images;
-	private Boolean inAnswerPane;
+	private Boolean inAnswerPane, inBuzzInTime, inQuestionListPane, inFJ;
 	private Boolean stopTimer;
 	
 	public Timer(JLabel editLbl, ArrayList<JLabel> waitLbl, GameBoardUI gameBoard) {
@@ -25,8 +26,12 @@ public class Timer extends Thread {
 		timer = 15;
 		imageIdx = 0;
 		sleepTime = 1000;
-		inAnswerPane = false;
 		stopTimer = false;
+		// track panel
+		this.inQuestionListPane = true;
+		this.inAnswerPane = false;
+		this.inBuzzInTime = false;
+		// track panel end
 		
 		this.gameBoard = gameBoard;
 		loadImages();
@@ -34,6 +39,8 @@ public class Timer extends Thread {
 	}
 	
 	public void start(int teamID) {
+		this.stopTimer = false;
+//		this.inBuzzInTime = false;
 		this.teamID = teamID;
 		this.timer = 15;
 		this.imageIdx = 0;
@@ -50,10 +57,13 @@ public class Timer extends Thread {
 	}
 	
 	public void restart(int teamID) {
-		this.teamID = teamID;
-		this.timer = 15;
-		this.imageIdx = 0;
-		run();
+		// restart timer only if it's already running
+		if (!stopTimer) {
+			this.teamID = teamID;
+			this.timer = 15;
+			this.imageIdx = 0;
+			run();
+		}
 	}
 	
 	public void stopTimer() {
@@ -63,48 +73,87 @@ public class Timer extends Thread {
 		
 	}
 	
+	public boolean stopped() {
+		return this.stopTimer;
+	}
+	
+	public void setupQuestionListPane(JLabel editLbl, ArrayList<JLabel> waitLbl) {
+		System.out.println("Setting up questionlist timer");
+		this.editLbl = editLbl;
+		this.waitLbl = waitLbl;
+		timer = 15;
+		imageIdx = 0;
+		sleepTime = 1000;
+		stopTimer = false;
+		// track panel
+		this.inQuestionListPane = true;
+		this.inAnswerPane = false;
+		this.inBuzzInTime = false;
+		// track panel end
+	}
+	
 	public void setupAnswerPane(JLabel userLbl) {
+		System.out.println("Setting up answerpane timer");
 		this.inAnswerPane = true;
+		this.inQuestionListPane = false;
+		this.stopTimer = false;
 		this.editLbl = userLbl;
 		this.timer = 20;
 		this.imageIdx = 0;
+//		run();
+	}
+	
+	public void setupBuzzInTimer(JLabel buzzInLabel) {
+		System.out.println("Setting up buzzin timer");
+		this.editLbl.setText("\n");
+		this.inBuzzInTime = true;
+		this.inQuestionListPane = false;
+		this.stopTimer = false;
+		this.buzzInWait = buzzInLabel;
+		this.timer = 20;
+		this.imageIdx = 0;
+		waitLbl.get(teamID).setIcon(null);
 		run();
+	}
+	
+	public boolean inAnswerPane() {
+		return this.inAnswerPane;
+	}
+	
+	public boolean inQuestionListPane() {
+		return this.inQuestionListPane;
+	}
+	
+	public boolean inBuzzInTime() {
+		return this.inBuzzInTime;
 	}
 	
 	@Override
 	public void run() {
 		while (timer >= 0) {
+//			System.out.println("Timer in while: " + timer);
 //			if (inAnswerPane)
 //				editLbl.setText("" + timer--);
 //			else
 			
 			try {
 				if (stopTimer) break;
-				synchronized (this) {
+//				synchronized (this) {
 					if (inAnswerPane)
 						editLbl.setText("" + timer--);
+					else
 						editLbl.setText("Jeopardy: " + timer--);
-					waitLbl.get(teamID).setIcon(images.get(imageIdx++));
-				}
+					if (inBuzzInTime)
+						buzzInWait.setIcon(images.get(imageIdx++));
+					else
+						waitLbl.get(teamID).setIcon(images.get(imageIdx++));
+//				}
 				Thread.yield();
 				Thread.sleep(sleepTime);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-		
-//		while (timer >= 0) {
-//			if (inAnswerPane)
-//				editLbl.setText("" + timer--);
-//			else
-//				editLbl.setText("Jeopardy: " + timer--);
-//			waitLbl.get(teamID).setIcon(images.get(imageIdx++));
-//			try {
-//				Thread.sleep(sleepTime);
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
-//		}
 		waitLbl.get(teamID).setIcon(null);
 		gameBoard.timeExpired();
 	}

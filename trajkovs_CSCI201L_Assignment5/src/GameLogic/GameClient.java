@@ -30,6 +30,7 @@ public class GameClient {
 	}
 	
 	public void sendUpdateToServer(GameData gameData) {
+		System.out.println("CLIENT LISTENER IS SENDING DATA");
 		try {
 			oos.writeObject(gameData);
 			oos.flush();
@@ -113,14 +114,18 @@ public class GameClient {
 							startGame = false;
 						} else {
 							if (gameBoard != null) {
+								if (gd.timerStopped())
+									gameBoard.timer.stopTimer();
 								gameBoard.updateClientData(gd);
 								gd = null; // reset for when we get the data again
 								System.out.println("Updating client...");
+//								if (gd.sto)
 								gameBoard.updateClientGUI();
 							}
 						}
 //						gd = null; // reset for when we get the data again
 					}
+					input = null;
 					// do stuff with data on client side
 				} catch (IOException ioe) {
 					System.out.println("Connection closed by server: " + ioe.getMessage());
