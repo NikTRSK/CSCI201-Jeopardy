@@ -94,8 +94,11 @@ public class Timer extends Thread {
 	
 	public void setupAnswerPane(JLabel userLbl) {
 		System.out.println("Setting up answerpane timer");
-		this.inAnswerPane = true;
+		// track panel
 		this.inQuestionListPane = false;
+		this.inAnswerPane = true;
+		this.inBuzzInTime = false;
+		// track panel end
 		this.stopTimer = false;
 		this.editLbl = userLbl;
 		this.timer = 20;
@@ -106,8 +109,11 @@ public class Timer extends Thread {
 	public void setupBuzzInTimer(JLabel buzzInLabel) {
 		System.out.println("Setting up buzzin timer");
 		this.editLbl.setText("\n");
-		this.inBuzzInTime = true;
+		// track panel
 		this.inQuestionListPane = false;
+		this.inAnswerPane = false;
+		this.inBuzzInTime = true;
+		// track panel end
 		this.stopTimer = false;
 		this.buzzInWait = buzzInLabel;
 		this.timer = 20;
@@ -139,7 +145,7 @@ public class Timer extends Thread {
 			try {
 				if (stopTimer) break;
 //				synchronized (this) {
-					if (inAnswerPane)
+					if (inAnswerPane || inBuzzInTime)
 						editLbl.setText("" + timer--);
 					else
 						editLbl.setText("Jeopardy: " + timer--);

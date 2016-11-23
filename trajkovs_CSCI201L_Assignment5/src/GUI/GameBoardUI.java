@@ -701,8 +701,8 @@ public class GameBoardUI extends JFrame {
 		qTitlePanel.setPreferredSize(new Dimension(answerQuestionPanel.getWidth(), 100));
 		qTitlePanel.setBackground(new Color(0,150,136));
 		qTitlePanel.add(qTeamLbl);
-		qTitlePanel.add(qCatLbl);
 		qTitlePanel.add(qBuzzInTimerLbl);
+		qTitlePanel.add(qCatLbl);
 		qTitlePanel.add(qPtValueLbl);
 		answerQuestionPanel.add(qTitlePanel);
 		
@@ -1190,7 +1190,7 @@ public class GameBoardUI extends JFrame {
 		if(gameData.getQsAnswered() != 25)
 			showPanel("questionListPanel");
 		qPassBtn.setVisible(false);
-		if (!gameData.timerExpired())
+		if (!gameData.timerExpired() || timer.inBuzzInTime())
 			qBtns[gameData.getSelectedQuestionCat()][gameData.getSelectedQuestionPtValue()].setEnabled(false);
 		
 		// start timer
@@ -1279,6 +1279,13 @@ public class GameBoardUI extends JFrame {
 	
 	public void timeExpired() {
 		System.out.println("RUNNING TIMER EXPIRED");
+		if (timer.inQuestionListPane())
+			System.out.println("INQLIST - TRUE");
+		if (timer.inAnswerPane())
+			System.out.println("INANSPANE - TRUE");
+		if (timer.inBuzzInTime())
+			System.out.println("INBUZZTIME - TRUE");
+		
 		gameData.timerExpired(true);
 		gameData.getTeam(gameData.getNextTeam()).hasAnswered();
 		if (timer.inQuestionListPane()) {
