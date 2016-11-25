@@ -1175,6 +1175,7 @@ public class GameBoardUI extends JFrame {
 	
 	public void setupQuestionListPanel() {
 		if (!gameData.timerExpired() || timer.inBuzzInTime()) {
+			System.out.print("Marking q as answered");
 			gameData.qsAnsweredIncrement();
 			currQuestion.setAnswered();
 		}
@@ -1190,8 +1191,10 @@ public class GameBoardUI extends JFrame {
 		if(gameData.getQsAnswered() != 25)
 			showPanel("questionListPanel");
 		qPassBtn.setVisible(false);
-		if (!gameData.timerExpired() || timer.inBuzzInTime())
+		if (!gameData.timerExpired() || timer.inBuzzInTime()) {
 			qBtns[gameData.getSelectedQuestionCat()][gameData.getSelectedQuestionPtValue()].setEnabled(false);
+			System.out.print("Marking q as answered 2");
+		}
 		
 		// start timer
 		currUserLbl.setText(gameData.getTeam(gameData.getNextTeam()).getName());
@@ -1257,7 +1260,13 @@ public class GameBoardUI extends JFrame {
 	}
 	
 	public void noTeamBuzzedIn() {
-		//TODO
+		System.out.println("inBuzzInTime");
+		teamPrompt.append("Nobody buzzed in. \n");
+		gameData.updateCurrentTeam();
+		gameData.setNextTeam(gameData.getCurrentTeam());
+		setupQuestionListPanel();
+		//TODO flipped this
+		timer.setupQuestionListPane(titleLbl, waitTimerImage);
 	}
 	
 	public void restartGame() {
@@ -1300,15 +1309,22 @@ public class GameBoardUI extends JFrame {
 			updateInAnswerPane();
 		}
 		else if (timer.inBuzzInTime()) {
-			System.out.println("inBuzzInTime");
-			teamPrompt.append("Nobody buzzed in. \n");
-			timer.setupQuestionListPane(titleLbl, waitTimerImage);
-			setupQuestionListPanel();
+			timer.stopTimer();
+			gameData.timerStopped(true);
+			gameClient.sendUpdateToServer(gameData);
+//			System.out.println("inBuzzInTime");
+//			teamPrompt.append("Nobody buzzed in. \n");
+//			gameData.updateCurrentTeam();
+//			gameData.setNextTeam(gameData.getCurrentTeam());
+//			setupQuestionListPanel();
+//			//TODO flipped this
+//			timer.setupQuestionListPane(titleLbl, waitTimerImage);
 		}
 	}
 	
 	private void updateExpired() {
 		if (gameData.timerExpired() && !timer.stopped()) {
+			System.out.println("in updateExpired");
 			teamPrompt.append("Timer expired for " + gameData.getTeam(gameData.getNextTeam()).getName() + "\n");
 			gameData.updateCurrentTeam();
 			gameData.setNextTeam(gameData.getCurrentTeam());
@@ -1367,10 +1383,16 @@ public class GameBoardUI extends JFrame {
 		// handle cases of the timer expired
 		if (gameData.timerExpired()) {
 			System.out.println("UPDATE EXPIRED");
-			if (!gameData.timerStopped())
-				updateExpired();
-			if (timer.inQuestionListPane())
-				noTeamBuzzedIn();
+			if (!gameData.timerStopped()) {
+				if (!timer.inBuzzInTime())
+					System.out.println("InBuzzInTime FALSE");
+//				if (timer.inBuzzInTime())
+//					noTeamBuzzedIn();
+//				else
+					updateExpired();
+//			if (timer.inQuestionListPane())
+//				noTeamBuzzedIn();
+			}
 				
 		}
 		if (gameData.changePanel() && timer.stopped()) {
