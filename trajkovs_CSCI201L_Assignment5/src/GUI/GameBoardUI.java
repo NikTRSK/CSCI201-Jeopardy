@@ -83,7 +83,7 @@ public class GameBoardUI extends JFrame {
 
 	// Question Panel
 	JPanel answerQuestionPanel, finalJeopardyPanel;
-	JLabel qTeamLbl, qCatLbl, qPtValueLbl, qErrorLbl, qBuzzInTimerLbl;
+	JLabel qTeamLbl, qCatLbl, qPtValueLbl, qErrorLbl, qBuzzInTimerLbl, qBuzzInLbl;
 	JTextArea qQuestionArea;
 	JTextArea qAnswerArea;
 	JButton qSubmitBtn, qPassBtn;
@@ -359,6 +359,10 @@ public class GameBoardUI extends JFrame {
 		qErrorLbl.setVerticalAlignment(SwingConstants.CENTER);
 		qErrorLbl.setForeground(Color.LIGHT_GRAY);
 		qErrorLbl.setFont(new Font("Cambria", Font.BOLD, 22));
+		
+		qBuzzInLbl = new JLabel();
+		qBuzzInLbl.setVerticalAlignment(SwingConstants.CENTER);
+		qBuzzInLbl.setOpaque(false);
 	}
 	
 	private void createGUI() {
@@ -709,6 +713,7 @@ public class GameBoardUI extends JFrame {
 		JPanel errorPanel = new JPanel(new GridBagLayout());
 		errorPanel.setPreferredSize(new Dimension(answerQuestionPanel.getWidth(), 150));
 		errorPanel.setBackground(new Color(56,57,49));
+		errorPanel.add(qBuzzInLbl);
 		errorPanel.add(qErrorLbl);
 		answerQuestionPanel.add(errorPanel);
 		
@@ -1100,12 +1105,15 @@ public class GameBoardUI extends JFrame {
 		qAnswerArea.requestFocusInWindow();
 		qPassBtn.setVisible(false);
 		
-		timer.setupAnswerPane(qTeamLbl);
+		timer.setupAnswerPane(qTeamLbl, qBuzzInLbl);
 		// added
 //		if (!gameData.changePanel())
 //			timer.start(gameData.getNextTeam());
 //			timer.restart(gameData.getNextTeam());
-		qErrorLbl.setText("Answer within 20 seconds!");
+		if (gameData.buzzedInTeam() == null)
+			qErrorLbl.setText("Answer within 20 seconds!");
+		else
+			qErrorLbl.setText(gameData.buzzedInTeam() + " buzzed in to answer.");
 	}
 	
 	private void sendGameData() {
@@ -1174,7 +1182,7 @@ public class GameBoardUI extends JFrame {
 	}
 	
 	public void setupQuestionListPanel() {
-		if (!gameData.timerExpired() || timer.inBuzzInTime()) {
+		if (!gameData.timerExpired() || timer.inBuzzInTime() || timer.inAnswerPane()) {
 			System.out.print("Marking q as answered");
 			gameData.qsAnsweredIncrement();
 			currQuestion.setAnswered();
@@ -1191,7 +1199,7 @@ public class GameBoardUI extends JFrame {
 		if(gameData.getQsAnswered() != 25)
 			showPanel("questionListPanel");
 		qPassBtn.setVisible(false);
-		if (!gameData.timerExpired() || timer.inBuzzInTime()) {
+		if (!gameData.timerExpired() || timer.inBuzzInTime() || timer.inAnswerPane()) {
 			qBtns[gameData.getSelectedQuestionCat()][gameData.getSelectedQuestionPtValue()].setEnabled(false);
 			System.out.print("Marking q as answered 2");
 		}
@@ -1308,7 +1316,14 @@ public class GameBoardUI extends JFrame {
 		else if (timer.inAnswerPane()) {
 			gameData.getTeam(gameData.getNextTeam()).setAnsweredThisRound();
 			System.out.println("timeExpired: inAnswerPane");
-			updateInAnswerPane();
+			if (!allTeamsAnswered())
+				updateInAnswerPane();
+			else {
+				timer.stopTimer();
+				gameData.timerStopped(true);
+				gameData.timerExpired(true);;
+				gameClient.sendUpdateToServer(gameData);
+			}
 		}
 		else if (timer.inBuzzInTime()) {
 			System.out.println("timeExpired: inBuzzInTime");
@@ -1342,26 +1357,34 @@ public class GameBoardUI extends JFrame {
 		System.out.println("updateInAnswerPane");
 //		if (gameData.timerExpired() && !timer.stopped()) {
 //		if (inBuzzInPanel)
-			teamPrompt.append(gameData.getTeam(gameData.getNextTeam()).getName() + " got the answer wrong!" + printPts(currQuestion.getPointValue()) + " will be deducted from their total.\n");
-			teamPrompt.append("Another team can buzz in within the next 20 seconds to answer.\n");
-			gameData.getTeam(gameData.getCurrentTeam()).subPoints(currQuestion.getPointValue());
-			for (Team t : gameData.getAllTeams()) {
-				if (t.getName().equals(myTeamName)) {
-					if (!t.hasAnswered()) {
-						qPassBtn.setVisible(true);
-						qPassBtn.setEnabled(true);
-						qErrorLbl.setText("Buzz in to answer!");
-					} else {
-						qPassBtn.setVisible(false);
-						qPassBtn.setEnabled(false);
-						qErrorLbl.setText("You cannot buzz in. You already answered");
-					}
+		System.out.print("All teams answered: ");
+		if (allTeamsAnswered()) System.out.println("true");
+		else System.out.println("false");
+		
+		// TODO: check all answered
+//		if (allTeamsAnswered()) {
+//			
+//		}
+		teamPrompt.append(gameData.getTeam(gameData.getNextTeam()).getName() + " got the answer wrong!" + printPts(currQuestion.getPointValue()) + " will be deducted from their total.\n");
+		teamPrompt.append("Another team can buzz in within the next 20 seconds to answer.\n");
+		gameData.getTeam(gameData.getCurrentTeam()).subPoints(currQuestion.getPointValue());
+		for (Team t : gameData.getAllTeams()) {
+			if (t.getName().equals(myTeamName)) {
+				if (!t.hasAnswered()) {
+					qPassBtn.setVisible(true);
+					qPassBtn.setEnabled(true);
+					qErrorLbl.setText("Buzz in to answer!");
+				} else {
+					qPassBtn.setVisible(false);
+					qPassBtn.setEnabled(false);
+					qErrorLbl.setText("You cannot buzz in. You already answered");
 				}
-				qSubmitBtn.setEnabled(false);
-				qAnswerArea.setEditable(false);
 			}
-			gameData.timerExpired(false);
-			timer.setupBuzzInTimer(qBuzzInTimerLbl);
+			qSubmitBtn.setEnabled(false);
+			qAnswerArea.setEditable(false);
+		}
+		gameData.timerExpired(false);
+		timer.setupBuzzInTimer(qBuzzInTimerLbl);
 //		}		
 	}
 	
@@ -1415,15 +1438,17 @@ public class GameBoardUI extends JFrame {
 //				qTeamLbl.setVisible(true);
 				qAnswerArea.setEditable(false);
 				qSubmitBtn.setEnabled(false);
+				timer.myTurn(false);
 			} else {
 //				qTeamLbl.setVisible(true);
 				qAnswerArea.setEditable(true);
 				qSubmitBtn.setEnabled(true);
+				timer.myTurn(true);
 			}
 			gameData.updateSwitchingLogic(false);
 			// Setup timer for anwer panel
 //			timer.stopTimer();
-			timer.setupAnswerPane(qTeamLbl);
+			timer.setupAnswerPane(qTeamLbl, qBuzzInLbl);
 //			timer.restart(gameData.getNextTeam());
 		}
 		// check if question answered
@@ -1449,10 +1474,15 @@ public class GameBoardUI extends JFrame {
 				qAnswerArea.setEditable(true);
 				qPassBtn.setVisible(false);
 				qPassBtn.setEnabled(false);
+				timer.myTurn(true);
+				// TODO : call answer pane
 			} else {
 				qPassBtn.setVisible(false);
+				timer.myTurn(false);
+				qErrorLbl.setText(gameData.buzzedInTeam() + " buzzed in to answer.");
 			}
-			qTeamLbl.setText(gameData.buzzedInTeam());
+			timer.setupAnswerPane(qTeamLbl, qBuzzInLbl);
+//			qTeamLbl.setText(gameData.buzzedInTeam());
 			teamPrompt.append(gameData.buzzedInTeam() + " buzzed in.\n");	
 			gameData.buzzInTeam(null); // reset the buzzed in team after label
 		}

@@ -15,10 +15,11 @@ public class Timer extends Thread {
 	private GameBoardUI gameBoard;
 	private JLabel editLbl;
 	private ArrayList<JLabel> waitLbl;
-	private JLabel buzzInWait;
+	private JLabel buzzInWait, buzzedInWait;
 	private ArrayList<ImageIcon> images;
-	private Boolean inAnswerPane, inBuzzInTime, inQuestionListPane, inFJ;
-	private Boolean stopTimer;
+	private ArrayList<ImageIcon> imagesWaiting;
+	private Boolean inAnswerPane, inBuzzInTime, inQuestionListPane;
+	private Boolean stopTimer, myTurn;
 	
 	public Timer(JLabel editLbl, ArrayList<JLabel> waitLbl, GameBoardUI gameBoard) {
 		this.editLbl = editLbl;
@@ -31,6 +32,8 @@ public class Timer extends Thread {
 		this.inQuestionListPane = true;
 		this.inAnswerPane = false;
 		this.inBuzzInTime = false;
+		this.myTurn = false;
+		this.buzzInWait = new JLabel("\n");
 		// track panel end
 		
 		this.gameBoard = gameBoard;
@@ -53,6 +56,12 @@ public class Timer extends Thread {
 		images = new ArrayList<ImageIcon>();
 		for (File file : folder.listFiles()) {
 			images.add(new ImageIcon(file.getAbsolutePath()));
+		}
+		// load up the images for waiting
+		folder = new File("resources/waitingAnimation/");
+		imagesWaiting = new ArrayList<ImageIcon>();
+		for (File file : folder.listFiles()) {
+			imagesWaiting.add(new ImageIcon(file.getAbsolutePath()));
 		}
 	}
 	
@@ -92,7 +101,8 @@ public class Timer extends Thread {
 		// track panel end
 	}
 	
-	public void setupAnswerPane(JLabel userLbl) {
+	// used for both the answering and the team that answered
+	public void setupAnswerPane(JLabel userLbl, JLabel buzzedInLabel) {
 		System.out.println("Setting up answerpane timer");
 		// track panel
 		this.inQuestionListPane = false;
@@ -101,6 +111,10 @@ public class Timer extends Thread {
 		// track panel end
 		this.stopTimer = false;
 		this.editLbl = userLbl;
+//		if (!myTurn)
+//		this.buzzInWait.setText("\n");;
+		this.buzzedInWait = buzzedInLabel;
+		this.buzzInWait.setText(null);
 		this.timer = 20;
 		this.imageIdx = 0;
 //		run();
@@ -108,7 +122,6 @@ public class Timer extends Thread {
 	
 	public void setupBuzzInTimer(JLabel buzzInLabel) {
 		System.out.println("Setting up buzzin timer");
-		this.editLbl.setText("\n");
 		// track panel
 		this.inQuestionListPane = false;
 		this.inAnswerPane = false;
@@ -116,6 +129,7 @@ public class Timer extends Thread {
 		// track panel end
 		this.stopTimer = false;
 		this.buzzInWait = buzzInLabel;
+		this.buzzedInWait.setIcon(null);
 		this.timer = 20;
 		this.imageIdx = 0;
 		waitLbl.get(teamID).setIcon(null);
@@ -132,6 +146,24 @@ public class Timer extends Thread {
 	
 	public boolean inBuzzInTime() {
 		return this.inBuzzInTime;
+	}
+	
+	public void myTurn(boolean flag) {
+		if (flag) {
+			this.waitLbl.get(teamID).setVisible(true);
+			this.buzzedInWait.setVisible(false);
+			this.buzzInWait.setVisible(true);
+		}
+		else {
+			this.waitLbl.get(teamID).setVisible(false);
+			this.buzzedInWait.setVisible(true);
+			this.buzzInWait.setVisible(false);
+		}
+		myTurn = flag;
+	}
+	
+	public boolean myTurn() {
+		return myTurn;
 	}
 	
 	@Override
@@ -151,8 +183,13 @@ public class Timer extends Thread {
 						editLbl.setText("Jeopardy: " + timer--);
 					if (inBuzzInTime)
 						buzzInWait.setIcon(images.get(imageIdx++));
-					else
-						waitLbl.get(teamID).setIcon(images.get(imageIdx++));
+					else {
+						buzzInWait.setIcon(null);
+						if (myTurn)
+							waitLbl.get(teamID).setIcon(images.get(imageIdx++));
+						else if (this.inAnswerPane && !myTurn)
+							buzzedInWait.setIcon(imagesWaiting.get(imageIdx++));
+					}
 //				}
 				Thread.yield();
 				Thread.sleep(sleepTime);
@@ -160,6 +197,7 @@ public class Timer extends Thread {
 				e.printStackTrace();
 			}
 		}
+//		if (waitLbl.get(teamID).getIcon() != null)
 		waitLbl.get(teamID).setIcon(null);
 		gameBoard.timeExpired();
 	}
