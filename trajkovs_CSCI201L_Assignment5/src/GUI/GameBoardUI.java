@@ -1142,6 +1142,7 @@ public class GameBoardUI extends JFrame {
 			currUserLbl.setText(gameData.getTeam(gameData.getNextTeam()).getName());
 		}
 		numTries = 0;
+		timer.setupQuestionListPane(titleLbl, waitTimerImage);
 	}
 	
 	private boolean allTeamsAnswered() {
@@ -1179,6 +1180,8 @@ public class GameBoardUI extends JFrame {
 		}
 	  else
 			teamPrompt.append("Another team can buzz in.\n");
+		
+//		timer.setupQuestionListPane(titleLbl, waitTimerImage);
 	}
 	
 	public void setupQuestionListPanel() {
