@@ -129,6 +129,7 @@ public class FactoryWorker extends FactoryObject implements Runnable, FactoryRep
 //            Thread.sleep(5000);
             ((DiningRoom)mDestinationNode.getObject()).takeOne();
             Thread.sleep(5000);
+            ((DiningRoom)mDestinationNode.getObject()).leaveOne()
 //          ((CoffeeShop)mDestinationNode.getObject()).addOrder(" - " + this.mLabel + " ordered coffee at " + ZonedDateTime.now());
 //          Thread.sleep(500);
 //          if
