@@ -127,11 +127,12 @@ public class FactorySimulation {
 //        if (this.factorySim.isDone()) {
           System.out.println("FACTORY DONE");
           FactoryNode cs = getNode("Coffee Shop");
-//          for ( String order : ((CoffeeShop)cs.getObject()).getAllOrder() ) {
-//            sendMessage(mSocket.getLocalPort() + order);
+          for ( String order : ((CoffeeShop)cs.getObject()).getAllOrder() ) {
             
-//            factoryClientListener.sendMessage(order);
-//          }
+//            fcl.sendMessage(order);
+            
+            factoryClientListener.sendMessage(order);
+          }
           
 //        }
 //       }

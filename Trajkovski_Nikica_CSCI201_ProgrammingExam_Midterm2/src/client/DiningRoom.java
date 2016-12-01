@@ -11,6 +11,8 @@ public class DiningRoom extends FactoryResource {
   
   Semaphore numberOfSpots;
   
+  boolean available = true;
+  
   DiningRoom(Resource inResource) {
     super(inResource);
     numberOfSpots = new Semaphore(3);
@@ -21,9 +23,17 @@ public class DiningRoom extends FactoryResource {
     super.draw(g, mouseLocation);
   }
   
-  public void takeOne() throws InterruptedException {
-    if (numberOfSpots.tryAcquire();
-    super.takeResource(1);
+  public boolean takeOne() throws InterruptedException {
+//    numberOfSpots.tryAcquire();
+    if (numberOfSpots.tryAcquire()) {
+      super.takeResource(1);
+      available = true;
+      return true;
+    }
+    else {
+      available = false;
+      return false;
+    }
 //    Thread.sleep(5000);
 //    super.takeResource(-1);
 //    numberOfSpots.release();

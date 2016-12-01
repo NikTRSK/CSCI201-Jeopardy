@@ -104,13 +104,36 @@ public class FactoryWorker extends FactoryObject implements Runnable, FactoryRep
 				
 				
 				// go to dining room
+        DiningRoom dm;
         mDestinationNode = mFactorySimulation.getNode("Dining Room");
+        dm = ((DiningRoom)mDestinationNode.getObject());
         mShortestPath = mCurrentNode.findShortestPath(mDestinationNode);
         mNextNode = mShortestPath.pop();
         atLocation.await();
-        ((DiningRoom)mDestinationNode.getObject()).takeOne();
-//        Thread.sleep(5000);
-        ((DiningRoom)mDestinationNode.getObject()).leaveOne();
+        if (((DiningRoom)mDestinationNode.getObject()).takeOne()) {
+          Thread.sleep(5000);
+          ((DiningRoom)mDestinationNode.getObject()).leaveOne();
+        }
+        else {
+          mDestinationNode = mFactorySimulation.getNode("Coffee Shop");
+          mShortestPath = mCurrentNode.findShortestPath(mDestinationNode);
+          mNextNode = mShortestPath.pop();
+          atLocation.await();
+          while (!dm.available)
+            Thread.yield();
+          mDestinationNode = mFactorySimulation.getNode("Dining Room");
+          mShortestPath = mCurrentNode.findShortestPath(mDestinationNode);
+          mNextNode = mShortestPath.pop();
+          atLocation.await();
+//          if (((DiningRoom)mDestinationNode.getObject()).takeOne()) {
+//            Thread.sleep(5000);
+            ((DiningRoom)mDestinationNode.getObject()).takeOne();
+            Thread.sleep(5000);
+//          ((CoffeeShop)mDestinationNode.getObject()).addOrder(" - " + this.mLabel + " ordered coffee at " + ZonedDateTime.now());
+//          Thread.sleep(500);
+//          if
+        }
+
         
 				//build the product
 				for(Resource resource : mProductToMake.getResourcesNeeded()) {

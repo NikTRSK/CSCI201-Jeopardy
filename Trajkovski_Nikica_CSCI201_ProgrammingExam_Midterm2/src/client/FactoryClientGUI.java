@@ -27,17 +27,19 @@ public class FactoryClientGUI extends JFrame {
 	private DefaultTableModel productTableModel;
 	private JScrollPane tableScrollPane;
 	private JSlider simulationSpeedController;
+	FactoryClientListener fcl;
 	
 	FactoryClientGUI(Socket socket){
 		super(Constants.factoryGUITitleString);
 		factoryManager = new FactoryManager();
 		initializeVariables();
 		createGUI();
-		new FactoryClientListener(factoryManager, this, socket);
+		fcl = new FactoryClientListener(factoryManager, this, socket);
 		addActionAdapters();
 		setLocationRelativeTo(null);
 		setVisible(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		factoryManager.setfcl(fcl);
 	}
 	
 	private void initializeVariables() {

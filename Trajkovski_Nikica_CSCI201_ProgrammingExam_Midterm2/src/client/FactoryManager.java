@@ -12,6 +12,7 @@ import resource.Factory;
 
 public class FactoryManager implements Runnable , ChangeListener{
 
+  FactoryClientListener fcl;
 	//This lock ensures that only one animation thread will go at a time
 	private Lock animationLock;
 	
@@ -39,6 +40,7 @@ public class FactoryManager implements Runnable , ChangeListener{
 		mFactorySimulation = new FactorySimulation(inFactory, inTable);
 		mRenderPanel.refresh();
 		start();
+		mFactorySimulation.setListener(fcl);
 	}
 	
 	public void setFactoryRenderer(FactoryPanel inRenderPanel) {
@@ -101,5 +103,8 @@ public class FactoryManager implements Runnable , ChangeListener{
 		JSlider source = (JSlider) ce.getSource();
 		speed = source.getValue();
 	}
+	
+	public void setfcl(FactoryClientListener fcl) {
+	  this.fcl = fcl;	}
 	
 }

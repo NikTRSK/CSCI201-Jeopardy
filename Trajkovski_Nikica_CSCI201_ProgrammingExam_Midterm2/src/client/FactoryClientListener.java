@@ -63,8 +63,9 @@ public class FactoryClientListener extends Thread {
 				mFClientGUI.addMessage(factory.toString());
 //				if (this.factorySim != null) {
 				  if (mFManager.mFactorySimulation.getTaskBoard().isDone()) {
-//				    System.out.println("FACTORY DONE");
+				    System.out.println("FACTORY DONE ----");
 				    FactoryNode cs = this.factorySim.getNode("Coffee Shop");
+				    System.out.println( ((CoffeeShop)cs.getObject()).getAllOrder().size() );
 				    for ( String order : ((CoffeeShop)cs.getObject()).getAllOrder() )
 				      sendMessage(mSocket.getLocalPort() + order);
 //				    
