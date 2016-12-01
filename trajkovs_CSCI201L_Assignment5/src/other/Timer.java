@@ -51,6 +51,10 @@ public class Timer extends Thread {
 		start();
 	}
 	
+	public void setTeamCurrentlyAnswering(int teamID) {
+		this.teamID = teamID;
+	}
+	
 	private void loadImages() {
 		File folder = new File("resources/clockAnimation/");
 		images = new ArrayList<ImageIcon>();

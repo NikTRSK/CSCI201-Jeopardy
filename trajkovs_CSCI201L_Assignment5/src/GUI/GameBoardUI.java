@@ -1158,7 +1158,8 @@ public class GameBoardUI extends JFrame {
 	}
 	
 	private void wrongAnswerNetworked() {
-		teamPrompt.append(gameData.getTeam(gameData.getNextTeam()).getName() + ", that is the wrong answer! " + printPts(currQuestion.getPointValue()) + " will be subtracted from the score.\n");
+//		teamPrompt.append(gameData.getTeam(gameData.getNextTeam()).getName() + ", that is the wrong answer! " + printPts(currQuestion.getPointValue()) + " will be subtracted from the score.\n");
+		teamPrompt.append(gameData.getTeam(gameData.getNextTeam()).getName() + " got the answer wrong!" + printPts(currQuestion.getPointValue()) + " will be deducted from their total.\n");
 		gameData.getTeam(gameData.getNextTeam()).subPoints(currQuestion.getPointValue());
 		teamLbl.get(gameData.getNextTeam()).getItem2().setText(printPts(gameData.getTeam(gameData.getNextTeam()).getPoints()));
 		for (Team t : gameData.getAllTeams()) {
@@ -1182,8 +1183,8 @@ public class GameBoardUI extends JFrame {
 			gameData.updateCurrentTeam();
 			gameData.setNextTeam(gameData.getCurrentTeam());
 		}
-	  else
-			teamPrompt.append("Another team can buzz in.\n");
+//	  else
+//			teamPrompt.append("Another team can buzz in.\n");
 		
 //		timer.setupQuestionListPane(titleLbl, waitTimerImage);
 	}
@@ -1215,7 +1216,7 @@ public class GameBoardUI extends JFrame {
 		// start timer
 		currUserLbl.setText(gameData.getTeam(gameData.getNextTeam()).getName());
 		timer.setupQuestionListPane(titleLbl, waitTimerImage);
-		if (gameData.timerExpired()) {
+		if (gameData.timerExpired() && !gameData.timerStopped()) {
 			System.out.println("timer expired changing team");
 			timer.restart(gameData.getNextTeam());
 		}
@@ -1358,8 +1359,9 @@ public class GameBoardUI extends JFrame {
 		if (gameData.timerExpired() && !timer.stopped()) {
 			System.out.println("in updateExpired");
 			teamPrompt.append("Timer expired for " + gameData.getTeam(gameData.getNextTeam()).getName() + "\n");
-			gameData.updateCurrentTeam();
-			gameData.setNextTeam(gameData.getCurrentTeam());
+//			gameData.updateCurrentTeam();
+//			gameData.setNextTeam(gameData.getCurrentTeam());
+			gameData.updateNextTeam();
 			setupQuestionListPanel();
 			gameData.timerExpired(false);
 		}		
@@ -1378,7 +1380,7 @@ public class GameBoardUI extends JFrame {
 //		if (allTeamsAnswered()) {
 //			
 //		}
-		teamPrompt.append(gameData.getTeam(gameData.getNextTeam()).getName() + " got the answer wrong!" + printPts(currQuestion.getPointValue()) + " will be deducted from their total.\n");
+//		teamPrompt.append(gameData.getTeam(gameData.getNextTeam()).getName() + " got the answer wrong!" + printPts(currQuestion.getPointValue()) + " will be deducted from their total.\n");
 		teamPrompt.append("Another team can buzz in within the next 20 seconds to answer.\n");
 		gameData.getTeam(gameData.getCurrentTeam()).subPoints(currQuestion.getPointValue());
 		for (Team t : gameData.getAllTeams()) {
@@ -1505,6 +1507,7 @@ public class GameBoardUI extends JFrame {
 				qErrorLbl.setText(gameData.buzzedInTeam() + " buzzed in to answer.");
 			}
 			timer.setupAnswerPane(qTeamLbl, qBuzzInLbl);
+			timer.setTeamCurrentlyAnswering(gameData.findTeamID(gameData.buzzedInTeam()));
 //			qTeamLbl.setText(gameData.buzzedInTeam());
 			teamPrompt.append(gameData.buzzedInTeam() + " buzzed in.\n");	
 			gameData.buzzInTeam(null); // reset the buzzed in team after label
@@ -1512,6 +1515,7 @@ public class GameBoardUI extends JFrame {
 		if (allTeamsAnswered() && gameData.getQsAnswered() != 25) {
 			System.out.println("all team ans - Setup qlist");
 			setupQuestionListPanel();
+			gameData.timerStopped(false);
 			gameData.resetTeamAnsweredFlag();
 		}
 //		// check if it's final jeopardy
