@@ -112,7 +112,6 @@ public class GameServer {
   }
   
   protected synchronized void broadcastGameData(GameData gd) {
-	  System.out.println("SENDING FROM SERVER " + playerThreads.size());
   if (gd != null) {
       for (ServerThread pt : playerThreads) {
         pt.sendGameData(gd);

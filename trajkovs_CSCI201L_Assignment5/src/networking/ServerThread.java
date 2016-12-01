@@ -35,7 +35,6 @@ public class ServerThread extends Thread {
   }
 
   public void sendGameData(GameData gd) {
-	  System.out.println("Thread updating client");
     try {
       oos.writeObject(gd);
       oos.flush();

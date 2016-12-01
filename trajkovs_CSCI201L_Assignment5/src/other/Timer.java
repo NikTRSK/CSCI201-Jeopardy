@@ -91,7 +91,6 @@ public class Timer extends Thread {
 	}
 	
 	public void setupQuestionListPane(JLabel editLbl, ArrayList<JLabel> waitLbl) {
-		System.out.println("Setting up questionlist timer");
 		this.editLbl = editLbl;
 		this.waitLbl = waitLbl;
 		timer = 15;
@@ -107,7 +106,6 @@ public class Timer extends Thread {
 	
 	// used for both the answering and the team that answered
 	public void setupAnswerPane(JLabel userLbl, JLabel buzzedInLabel) {
-		System.out.println("Setting up answerpane timer");
 		// track panel
 		this.inQuestionListPane = false;
 		this.inAnswerPane = true;
@@ -125,7 +123,6 @@ public class Timer extends Thread {
 	}
 	
 	public void setupBuzzInTimer(JLabel buzzInLabel) {
-		System.out.println("Setting up buzzin timer");
 		// track panel
 		this.inQuestionListPane = false;
 		this.inAnswerPane = false;
@@ -174,14 +171,9 @@ public class Timer extends Thread {
 	@Override
 	public void run() {
 		while (timer >= 0) {
-//			System.out.println("Timer in while: " + timer);
-//			if (inAnswerPane)
-//				editLbl.setText("" + timer--);
-//			else
 			
 			try {
 				if (stopTimer) break;
-//				synchronized (this) {
 					if (inAnswerPane || inBuzzInTime)
 						editLbl.setText("" + timer--);
 					else {
@@ -199,7 +191,6 @@ public class Timer extends Thread {
 							waitLbl.get(teamID).setIcon(images.get(imageIdx));
 						}
 					}
-//				}
 				imageIdx++;
 				Thread.yield();
 				Thread.sleep(sleepTime);
@@ -207,7 +198,6 @@ public class Timer extends Thread {
 				e.printStackTrace();
 			}
 		}
-//		if (waitLbl.get(teamID).getIcon() != null)
 		waitLbl.get(teamID).setIcon(null);
 		gameBoard.timeExpired();
 	}
