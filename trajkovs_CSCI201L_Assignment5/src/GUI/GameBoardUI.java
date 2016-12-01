@@ -533,7 +533,7 @@ public class GameBoardUI extends JFrame {
 					((JButton)e.getSource()).setBackground(new Color(113, 115, 98));
 					
 					sendGameData();
-					System.out.println("Action listener clicked");
+					System.out.println("*** Action listener clicked");
 				}
 			}
 		}
@@ -578,6 +578,8 @@ public class GameBoardUI extends JFrame {
 				if ( ansBeginning.length > 2 && GameConstants.checkValidBeginningOfQuestion(ansBeginning[0], ansBeginning[1]) ) {
 					if (gameData.checkAnswer(ansBeginning, currQuestion.getAnswer())) { // if the answer is correct add points to the user
 						if (!notNetworkedGame) {
+							timer.stopTimer();
+							gameData.timerStopped(true);
 							gameData.setCorrectAnswer(true);
 							sendGameData();
 						} else
@@ -593,6 +595,8 @@ public class GameBoardUI extends JFrame {
 				}
 				// check if number of tries exceeded
 				if (numTries == 2) {
+					timer.stopTimer();
+					gameData.timerStopped(true);
 					gameData.setWrongAnswer(true);
 					sendGameData();
 				}
@@ -1142,7 +1146,7 @@ public class GameBoardUI extends JFrame {
 			currUserLbl.setText(gameData.getTeam(gameData.getNextTeam()).getName());
 		}
 		numTries = 0;
-		timer.setupQuestionListPane(titleLbl, waitTimerImage);
+//		timer.setupQuestionListPane(titleLbl, waitTimerImage);
 	}
 	
 	private boolean allTeamsAnswered() {
@@ -1186,7 +1190,7 @@ public class GameBoardUI extends JFrame {
 	
 	public void setupQuestionListPanel() {
 		if (!gameData.timerExpired() || timer.inBuzzInTime() || timer.inAnswerPane()) {
-			System.out.print("Marking q as answered");
+			System.out.println("Marking q as answered");
 			gameData.qsAnsweredIncrement();
 			currQuestion.setAnswered();
 		}
@@ -1203,13 +1207,15 @@ public class GameBoardUI extends JFrame {
 			showPanel("questionListPanel");
 		qPassBtn.setVisible(false);
 		if (!gameData.timerExpired() || timer.inBuzzInTime() || timer.inAnswerPane()) {
+			// Mark the button as answered
 			qBtns[gameData.getSelectedQuestionCat()][gameData.getSelectedQuestionPtValue()].setEnabled(false);
-			System.out.print("Marking q as answered 2");
+			System.out.println("Marking q as answered 2");
 		}
 		
 		// start timer
 		currUserLbl.setText(gameData.getTeam(gameData.getNextTeam()).getName());
-		timer.restart(gameData.getCurrentTeam());
+		timer.setupQuestionListPane(titleLbl, waitTimerImage);
+//		timer.restart(gameData.getNextTeam());
 	}
 	
 	private void checkAllBetsNetworked() {
@@ -1310,13 +1316,14 @@ public class GameBoardUI extends JFrame {
 		
 		gameData.timerExpired(true);
 		gameData.getTeam(gameData.getNextTeam()).hasAnswered();
-		if (timer.inQuestionListPane()) {
+		if (timer.inQuestionListPane() && !gameData.timerStopped()) {
 			System.out.println("timeExpired: inQuestionListPane");
 //			timer.restart(teamID);
-			gameClient.sendUpdateToServer(gameData);
+//			gameClient.sendUpdateToServer(gameData);
+			updateExpired();
 			System.out.println("timeExpired: Timer Expired");
 		}
-		else if (timer.inAnswerPane()) {
+		else if (timer.inAnswerPane() && gameData.timerStopped()) {
 			gameData.getTeam(gameData.getNextTeam()).setAnsweredThisRound();
 			System.out.println("timeExpired: inAnswerPane");
 			if (!allTeamsAnswered())
@@ -1324,7 +1331,7 @@ public class GameBoardUI extends JFrame {
 			else {
 				timer.stopTimer();
 				gameData.timerStopped(true);
-				gameData.timerExpired(true);;
+				gameData.timerExpired(true);
 				gameClient.sendUpdateToServer(gameData);
 			}
 		}
@@ -1392,6 +1399,11 @@ public class GameBoardUI extends JFrame {
 	}
 	
 	public void updateClientGUI() {
+		System.out.print("-----Where am I-----: ");
+		if (timer.inQuestionListPane()) System.out.println("inQListPane");
+		if (timer.inAnswerPane()) System.out.println("inAnsPane");
+		if (timer.inBuzzInTime()) System.out.println("inBuzzIn");
+		
 		// if the server Restarts the Game
 		if (gameData.restartGame())
 			restartGame();
@@ -1411,13 +1423,14 @@ public class GameBoardUI extends JFrame {
 			return;
 		}
 		// handle cases of the timer expired
-		if (gameData.timerExpired()) {
+		if (gameData.timerExpired() && !gameData.timerStopped()) {
 			System.out.println("UPDATE EXPIRED");
 			if (gameData.timerStopped())
-				System.out.println("Timer Stopped");
+				System.out.println("___Timer Stopped");
 			else
-				System.out.println("!Timer Stopped");
+				System.out.println("___!Timer Stopped");
 			if (!gameData.timerStopped()) {
+				System.out.println("_____UPDATING EXPIRED");
 					updateExpired();
 //			if (timer.inQuestionListPane())
 //				noTeamBuzzedIn();
@@ -1431,7 +1444,9 @@ public class GameBoardUI extends JFrame {
 			}
 				
 		}
-		if (gameData.changePanel() && timer.stopped()) {
+		
+		// Display Answer Panel
+		if (gameData.changePanel()) {
 			// TODO: Fix this bug
 			System.out.println("CHANGING PANEL");
 //			timer.stopTimer();
@@ -1455,22 +1470,24 @@ public class GameBoardUI extends JFrame {
 //			timer.restart(gameData.getNextTeam());
 		}
 		// check if question answered
-		if (gameData.correctAnswer()) {
+		else if (gameData.correctAnswer()) {
 			System.out.println("CORRECT ANSWER");
-			correctAnswer();
+			gameData.buzzInTeam(null);
 			for (Team t : gameData.getAllTeams())
 				t.setAnsweredThisRound();
+			correctAnswer();
 			gameData.setCorrectAnswer(false);
 		}
 		// in case the answer is wrong
-		if (gameData.wrongAnswer()) {
+		else if (gameData.wrongAnswer()) {
 			System.out.println("WRONG ANSWER");
 			wrongAnswerNetworked();
 			qTeamLbl.setText("\n");
 			gameData.setWrongAnswer(false);
 		}
 		// if someone buzzed in
-		if (gameData.buzzedInTeam() != null) {
+		else if (gameData.buzzedInTeam() != null) {
+			System.out.println("BUZZED IN TEAM");
 			if (gameData.buzzedInTeam().equals(myTeamName)) {
 				qErrorLbl.setText("It's your turn to answer.");
 				qSubmitBtn.setEnabled(true);
@@ -1490,6 +1507,7 @@ public class GameBoardUI extends JFrame {
 			gameData.buzzInTeam(null); // reset the buzzed in team after label
 		}
 		if (allTeamsAnswered() && gameData.getQsAnswered() != 25) {
+			System.out.println("all team ans - Setup qlist");
 			setupQuestionListPanel();
 			gameData.resetTeamAnsweredFlag();
 		}

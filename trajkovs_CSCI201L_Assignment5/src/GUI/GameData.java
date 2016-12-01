@@ -131,8 +131,6 @@ public class GameData implements Serializable {
 		++currTeam;
 		if (currTeam >= Teams.size())
 			currTeam = 0;
-		
-//		nextTeam = currTeam;
 	}
 	
 	public void updateNextTeam() {
@@ -393,6 +391,10 @@ public class GameData implements Serializable {
 	
 	public void updateSwitchingLogic(String currPanel) {
 		this.currPanel = currPanel;
+	}
+	
+	public boolean updateSwitchingLogic() {
+		return this.changePanel;
 	}
 	
 	public String getCurrPanel() {

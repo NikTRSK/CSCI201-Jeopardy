@@ -108,18 +108,22 @@ public class GameClient {
 							fc.updateWaitingLabel(teamsWaiting);
 					}
 					if (input instanceof GameData) {
+						if (gameBoard == null)
+							System.out.println("GameBoard is null");
+						else
+							System.out.println("GameBoard is NOT null");
 						GameData gd = (GameData)input;
 						if (startGame) {
 							fc.startGame(gd);
 							startGame = false;
 						} else {
 							if (gameBoard != null) {
+//								System.out.println("Timer stopped");
 								if (gd.timerStopped())
 									gameBoard.timer.stopTimer();
 								gameBoard.updateClientData(gd);
 								gd = null; // reset for when we get the data again
 								System.out.println("Updating client...");
-//								if (gd.sto)
 								gameBoard.updateClientGUI();
 							}
 						}
