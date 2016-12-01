@@ -16,7 +16,7 @@ public class FactoryManager implements Runnable , ChangeListener{
 	private Lock animationLock;
 	
 	//The simulation that is currently running, and where it will be displayed
-	private FactorySimulation mFactorySimulation;
+	protected FactorySimulation mFactorySimulation;
 	private FactoryPanel mRenderPanel;
 	
 	//This thread will update and draw the factorySimulation member variable

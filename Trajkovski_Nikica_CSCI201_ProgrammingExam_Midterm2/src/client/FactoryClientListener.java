@@ -15,6 +15,8 @@ public class FactoryClientListener extends Thread {
 	private PrintWriter pw;
 	private FactoryManager mFManager;
 	private FactoryClientGUI mFClientGUI;
+	//
+	private FactorySimulation factorySim;
 	
 	public FactoryClientListener(FactoryManager inFManager, FactoryClientGUI inFClientGUI, Socket inSocket) {
 		mSocket = inSocket;
@@ -24,8 +26,14 @@ public class FactoryClientListener extends Thread {
 		if (socketReady) {
 			start();
 		}
+//		this.factorySim = inFManager.mFactorySimulation;
+		
 	}
 
+	public void setClientListener () {
+	  mFManager.mFactorySimulation.setListener(this);
+	}
+	
 	private boolean initializeVariables() {
 		try {
 			ois = new ObjectInputStream(mSocket.getInputStream());
@@ -53,6 +61,15 @@ public class FactoryClientListener extends Thread {
 				mFManager.loadFactory(factory, mFClientGUI.getTable());
 				mFClientGUI.addMessage(Constants.factoryReceived);
 				mFClientGUI.addMessage(factory.toString());
+//				if (this.factorySim != null) {
+				  if (mFManager.mFactorySimulation.getTaskBoard().isDone()) {
+//				    System.out.println("FACTORY DONE");
+				    FactoryNode cs = this.factorySim.getNode("Coffee Shop");
+				    for ( String order : ((CoffeeShop)cs.getObject()).getAllOrder() )
+				      sendMessage(mSocket.getLocalPort() + order);
+//				    
+//				  }
+				 }
 			}
 		} catch (IOException ioe) {
 			mFClientGUI.addMessage(Constants.serverCommunicationFailed);

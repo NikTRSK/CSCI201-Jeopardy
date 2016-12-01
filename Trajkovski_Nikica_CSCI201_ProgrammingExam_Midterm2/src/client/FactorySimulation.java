@@ -19,8 +19,10 @@ public class FactorySimulation {
 	private ArrayList<FactoryObject> mFObjects;
 	private ArrayList<FactoryWorker> mFWorkers;
 	private FactoryNode mFNodes[][];
-	private Map<String, FactoryNode> mFNodeMap;
+	protected Map<String, FactoryNode> mFNodeMap;
 	private FactoryTaskBoard mTaskBoard;
+	
+	FactoryClientListener factoryClientListener;
 	
 	//instance constructor
 	{
@@ -55,7 +57,7 @@ public class FactorySimulation {
 		
 		//Create the resources
 		for(Resource resource : mFactory.getResources()) {
-			FactoryResource fr = new FactoryResource(resource);
+		  FactoryResource fr = FactoryResourceFactory.get().makeFactoryResource(resource);
 			mFObjects.add(fr);
 			mFNodes[fr.getX()][fr.getY()].setObject(fr);
 			mFNodeMap.put(fr.getName(), mFNodes[fr.getX()][fr.getY()]);
@@ -98,6 +100,10 @@ public class FactorySimulation {
 			mFNodes[fw.getX()][fw.getY()].setObject(fw);	
 		}
 	}
+
+	public boolean isDone() {
+	  return isDone;
+	}
 	
 	public void update(double deltaTime) {
 		//Update all the objects in the factor that need updating each tick
@@ -116,6 +122,19 @@ public class FactorySimulation {
 					((FactoryReporter)object).report();
 				}
 			}
+			
+//      if (this.factorySim != null) {
+//        if (this.factorySim.isDone()) {
+          System.out.println("FACTORY DONE");
+          FactoryNode cs = getNode("Coffee Shop");
+//          for ( String order : ((CoffeeShop)cs.getObject()).getAllOrder() ) {
+//            sendMessage(mSocket.getLocalPort() + order);
+            
+//            factoryClientListener.sendMessage(order);
+//          }
+          
+//        }
+//       }
 		}
 	}
 	
@@ -149,6 +168,10 @@ public class FactorySimulation {
 
 	public FactoryTaskBoard getTaskBoard() {
 		return mTaskBoard;
+	}
+	
+	public void setListener(FactoryClientListener fcl) {
+	  factoryClientListener = fcl;
 	}
 	
 }

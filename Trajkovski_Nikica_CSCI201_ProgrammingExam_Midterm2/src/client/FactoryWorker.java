@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.sql.Timestamp;
+import java.time.ZonedDateTime;
 import java.util.Stack;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -92,6 +93,25 @@ public class FactoryWorker extends FactoryObject implements Runnable, FactoryRep
 					mDestinationNode.releaseNode();
 					if(mProductToMake == null) break; //No more tasks, end here
 				}
+				
+				// go to coffee shop
+        mDestinationNode = mFactorySimulation.getNode("Coffee Shop");
+        mShortestPath = mCurrentNode.findShortestPath(mDestinationNode);
+        mNextNode = mShortestPath.pop();
+        atLocation.await();
+        ((CoffeeShop)mDestinationNode.getObject()).addOrder(" - " + this.mLabel + " ordered coffee at " + ZonedDateTime.now());
+        Thread.sleep(500);
+				
+				
+				// go to dining room
+        mDestinationNode = mFactorySimulation.getNode("Dining Room");
+        mShortestPath = mCurrentNode.findShortestPath(mDestinationNode);
+        mNextNode = mShortestPath.pop();
+        atLocation.await();
+        ((DiningRoom)mDestinationNode.getObject()).takeOne();
+//        Thread.sleep(5000);
+        ((DiningRoom)mDestinationNode.getObject()).leaveOne();
+        
 				//build the product
 				for(Resource resource : mProductToMake.getResourcesNeeded()) {
 					mDestinationNode = mFactorySimulation.getNode(resource.getName());
