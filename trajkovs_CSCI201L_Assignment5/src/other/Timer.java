@@ -155,7 +155,8 @@ public class Timer extends Thread {
 			this.buzzInWait.setVisible(true);
 		}
 		else {
-			this.waitLbl.get(teamID).setVisible(false);
+			this.waitLbl.get(teamID).setVisible(true);;
+//			this.waitLbl.get(teamID).setVisible(false);
 			this.buzzedInWait.setVisible(true);
 			this.buzzInWait.setVisible(false);
 		}
@@ -179,18 +180,23 @@ public class Timer extends Thread {
 //				synchronized (this) {
 					if (inAnswerPane || inBuzzInTime)
 						editLbl.setText("" + timer--);
-					else
+					else {
 						editLbl.setText("Jeopardy: " + timer--);
+						waitLbl.get(teamID).setIcon(images.get(imageIdx));
+					}
 					if (inBuzzInTime)
-						buzzInWait.setIcon(images.get(imageIdx++));
+						buzzInWait.setIcon(images.get(imageIdx));
 					else {
 						buzzInWait.setIcon(null);
 						if (myTurn)
-							waitLbl.get(teamID).setIcon(images.get(imageIdx++));
-						else if (this.inAnswerPane && !myTurn)
-							buzzedInWait.setIcon(imagesWaiting.get(imageIdx++));
+							waitLbl.get(teamID).setIcon(images.get(imageIdx));
+						else if (this.inAnswerPane && !myTurn) {
+							buzzedInWait.setIcon(imagesWaiting.get(imageIdx));
+							waitLbl.get(teamID).setIcon(images.get(imageIdx));
+						}
 					}
 //				}
+				imageIdx++;
 				Thread.yield();
 				Thread.sleep(sleepTime);
 			} catch (InterruptedException e) {

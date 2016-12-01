@@ -1215,7 +1215,10 @@ public class GameBoardUI extends JFrame {
 		// start timer
 		currUserLbl.setText(gameData.getTeam(gameData.getNextTeam()).getName());
 		timer.setupQuestionListPane(titleLbl, waitTimerImage);
-//		timer.restart(gameData.getNextTeam());
+		if (gameData.timerExpired()) {
+			System.out.println("timer expired changing team");
+			timer.restart(gameData.getNextTeam());
+		}
 	}
 	
 	private void checkAllBetsNetworked() {
