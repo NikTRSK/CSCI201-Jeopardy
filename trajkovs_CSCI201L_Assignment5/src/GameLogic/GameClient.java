@@ -30,7 +30,6 @@ public class GameClient {
 	}
 	
 	public void sendUpdateToServer(GameData gameData) {
-		System.out.println("CLIENT LISTENER IS SENDING DATA");
 		try {
 			oos.writeObject(gameData);
 			oos.flush();
@@ -54,9 +53,6 @@ public class GameClient {
 			socket = new Socket(hostname, port);
 		} catch(Exception e) {
 			System.out.println("Error Connecting to server: " + e.getMessage());
-			System.out.println("here");
-//			if (fc != null)
-//			fc.serverLoggedOut();
 			fc.cantConnect();;
 			return false;
 		}
@@ -108,17 +104,12 @@ public class GameClient {
 							fc.updateWaitingLabel(teamsWaiting);
 					}
 					if (input instanceof GameData) {
-						if (gameBoard == null)
-							System.out.println("GameBoard is null");
-						else
-							System.out.println("GameBoard is NOT null");
 						GameData gd = (GameData)input;
 						if (startGame) {
 							fc.startGame(gd);
 							startGame = false;
 						} else {
 							if (gameBoard != null) {
-//								System.out.println("Timer stopped");
 								if (gd.timerStopped())
 									gameBoard.timer.stopTimer();
 								gameBoard.updateClientData(gd);
@@ -127,7 +118,6 @@ public class GameClient {
 								gameBoard.updateClientGUI();
 							}
 						}
-//						gd = null; // reset for when we get the data again
 					}
 					input = null;
 					// do stuff with data on client side
